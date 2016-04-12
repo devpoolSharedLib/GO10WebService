@@ -19,7 +19,7 @@ public class CloudantClientMgr {
     private static Database db = null;
 
     private static String databaseName = "go10_db";
-
+    
     private static String url = "https://2297d22e-ca8c-42a3-b3bd-024c9020ee8e-bluemix:4a9ebcbedbb237e902167f14ec1c88208810ab3dd4d4d31ce5258411ff1ade61@2297d22e-ca8c-42a3-b3bd-024c9020ee8e-bluemix.cloudant.com";
     private static String user = "2297d22e-ca8c-42a3-b3bd-024c9020ee8e-bluemix";
     private static String password = "4a9ebcbedbb237e902167f14ec1c88208810ab3dd4d4d31ce5258411ff1ade61";

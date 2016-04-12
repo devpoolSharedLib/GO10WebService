@@ -86,7 +86,7 @@ public class TopicServiceTest {
         }
     }
     
-    @Test
+//    @Test
     public void generateDateTest() {
 //        DateFormat df = DateFormat.getDateInstance(DateFormat., Locale.US);
 //        String formattedDate = df.format(new Date());

@@ -1,8 +1,8 @@
 applications:
-- path: target/JavaHelloWorldApp.war
+- path: target/GO10WebService.war
   memory: 512M
   instances: 1
-  domain: mybluemix.net
-  name: liberty-java-2
-  host: liberty-java-2
+  domain: au-syd.mybluemix.net
+  name: GO10WebService
+  host: GO10WebService
   disk_quota: 1024M

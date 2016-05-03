@@ -30,26 +30,27 @@ public class CloudantClientMgr {
                 if (cloudant != null) {
                     return;
                 }
-                cloudant = createClient();
+                try {
+                    cloudant = createClient();
+                } catch (MalformedURLException e) {
+                    throw new RuntimeException(e.getMessage(), e);
+                }
                 System.out.println("cloudant : " + cloudant.serverVersion());
 
-            } // end synchronized
+            }
         }
     }
 
-    private static CloudantClient createClient() {
-        // VCAP_SERVICES is a system environment variable
-        // Parse it to obtain the NoSQL DB connection info
+    private static CloudantClient createClient() throws MalformedURLException {
         String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
         String serviceName = null;
+        CloudantClient client;
 
         if (VCAP_SERVICES != null) {
-            // parse the VCAP JSON structure
+            System.out.println("VCAP_SERVICE");
             JsonObject obj = (JsonObject) new JsonParser().parse(VCAP_SERVICES);
             Entry<String, JsonElement> dbEntry = null;
             Set<Entry<String, JsonElement>> entries = obj.entrySet();
-            // Look for the VCAP key that holds the cloudant no sql db
-            // information
             for (Entry<String, JsonElement> eachEntry : entries) {
                 if (eachEntry.getKey().toLowerCase().contains("cloudant")) {
                     dbEntry = eachEntry;
@@ -68,15 +69,22 @@ public class CloudantClientMgr {
 
             user = obj.get("username").getAsString();
             password = obj.get("password").getAsString();
+            
+            client = ClientBuilder.account(user)
+                    .username(user)
+                    .password(password)
+                    .build();
 
+        } else {
+            System.out.println("LOCAL");
+            client = ClientBuilder.url(new URL(url))
+                    .username(user)
+                    .password(password)
+                    .build();
         }
-
-        try {
-            CloudantClient client = ClientBuilder.url(new URL(url)).username(user).password(password).build();
-            return client;
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Unable to connect to repository", e);
-        }
+        
+        return client;
+        
     }
 
     public static Database getDB() {

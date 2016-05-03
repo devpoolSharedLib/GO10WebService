@@ -1,6 +1,8 @@
 <server>
 
     <featureManager>
+    	<feature>appSecurity-2.0</feature>
+     	<feature>usr:OAuthTai-1.0</feature>
         <feature>servlet-3.1</feature>
     </featureManager>
 
@@ -10,6 +12,8 @@
         <tcpOptions soReuseAddr="true"/>
     </httpEndpoint>
 
-    <application name="GO10WebService" context-root="/GO10WebService" location="${appLocation}" type="war"/>
+<!-- 	<application name="JavaHelloWorldApp" context-root="/JavaHelloWorldApp" location="${appLocation}" type="war"/> -->
+    <application name="GO10WebService" context-root="/" location="${appLocation}"/>
 
 </server>
+ 	

@@ -12,6 +12,13 @@ public class TopicModel {
     private String type;
     private String roomId;
 
+    public TopicModel(){}
+    
+    public TopicModel(String _id, String date){
+        this._id = _id;
+        this.date = date;
+    }
+    
     public String getSubject() {
         return subject;
     }

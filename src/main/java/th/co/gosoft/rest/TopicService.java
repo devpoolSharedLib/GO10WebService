@@ -1,7 +1,9 @@
 package th.co.gosoft.rest;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -23,19 +25,18 @@ import th.co.gosoft.util.CloudantClientMgr;
 
 @Path("topic")
 public class TopicService {
-    DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.US);
-    
+    DateFormat postFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.US);
+    DateFormat getFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.US);
 
     @POST
     @Path("/post")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response createTopic(TopicModel topicModel) {
-        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT+7"));
-        
+        postFormat.setTimeZone(TimeZone.getTimeZone("GMT+7"));
         System.out.println("You are in post method");
         System.out.println("topic subject : "+topicModel.getSubject());
         System.out.println("topic content : "+topicModel.getContent());
-        topicModel.setDate(dateFormat.format(new Date()));
+        topicModel.setDate(postFormat.format(new Date()));
         Database db = CloudantClientMgr.getDB();
 
         com.cloudant.client.api.model.Response response = db.save(topicModel);
@@ -54,8 +55,9 @@ public class TopicService {
         System.out.println(">>>>>>>>>>>>>>>>>>> GET topcic id : "+topicId);
         Database db = CloudantClientMgr.getDB();
         List<TopicModel> topicModelList = db.findByIndex(getTopicByIdJsonString(topicId), TopicModel.class);
+        List<TopicModel> resultList = formatDate(topicModelList);
         System.out.println("GET Complete");
-        return topicModelList;
+        return resultList;
     }
     
     @GET
@@ -65,9 +67,10 @@ public class TopicService {
         System.out.println(">>>>>>>>>>>>>>>>>>> GET room id : "+roomId);
         Database db = CloudantClientMgr.getDB();
         List<TopicModel> topicModelList = db.findByIndex(getTopicListByRoomIdJsonString(roomId), TopicModel.class);
-        System.out.println("size : "+topicModelList.size());
+        List<TopicModel> resultList = formatDate(topicModelList);
+        System.out.println("size : "+resultList.size());
         System.out.println("GET Complete");
-        return topicModelList;
+        return resultList;
     }
     
     @GET
@@ -77,8 +80,9 @@ public class TopicService {
         System.out.println(">>>>>>>>>>>>>>>>>>> GET");
         Database db = CloudantClientMgr.getDB();
         List<TopicModel> topicModelList = db.findByIndex(getHotTopicListJsonString(), TopicModel.class);
+        List<TopicModel> resultList = formatDate(topicModelList);
         System.out.println("GET Complete");
-        return topicModelList;
+        return resultList;
     }
     
     private String getTopicByIdJsonString(String topicId){
@@ -118,6 +122,27 @@ public class TopicService {
         sb.append("\"sort\": [ {\"date\": \"desc\"}]");
         
         return sb.toString();
+    }
+    
+    public List<TopicModel> formatDate(List<TopicModel> topicModelList) {
+       
+        List<TopicModel> resultList = new ArrayList<>();
+        
+        for (TopicModel topicModel : topicModelList) {
+            TopicModel resultModel = topicModel;
+            resultModel.setDate(getFormat.format(parseStringToDate(topicModel.getDate())));
+            resultList.add(topicModel);
+        }
+        return resultList;
+    }
+    
+    private Date parseStringToDate(String dateString){
+        try {
+            return postFormat.parse(dateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
     
     

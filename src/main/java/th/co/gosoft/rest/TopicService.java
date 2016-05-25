@@ -87,39 +87,39 @@ public class TopicService {
     
     private String getTopicByIdJsonString(String topicId){
         StringBuilder sb = new StringBuilder();
-        sb.append("\"selector\": {");
+        sb.append("{ \"selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
         sb.append("\"date\": {\"$gt\": 0},");
         sb.append("\"$or\": [{\"_id\":\""+topicId+"\"}, {\"topicId\":\""+topicId+"\"}]");
         sb.append("},");
         sb.append("\"fields\": [\"_id\",\"_rev\",\"user\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"],");
-        sb.append("\"sort\": [ {\"date\": \"asc\"}]");
+        sb.append("\"sort\": [ {\"date\": \"asc\"}] }");
         
         return sb.toString();
     }
     
     private String getTopicListByRoomIdJsonString(String roomId){
         StringBuilder sb = new StringBuilder();
-        sb.append("\"selector\": {");
+        sb.append("{ \"selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
         sb.append("\"date\": {\"$gt\": 0},");
         sb.append("\"$and\": [{\"type\":\"host\"}, {\"roomId\":\""+roomId+"\"}]");
         sb.append("},");
         sb.append("\"fields\": [\"_id\",\"_rev\",\"user\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"],");
-        sb.append("\"sort\": [ {\"date\": \"desc\"}]");
+        sb.append("\"sort\": [ {\"date\": \"desc\"}] }");
         
         return sb.toString();
     }
     
     private String getHotTopicListJsonString(){
         StringBuilder sb = new StringBuilder();
-        sb.append("\"selector\": {");
+        sb.append("{ \"selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
         sb.append("\"date\": {\"$gt\": 0},");
         sb.append("\"$and\": [{\"type\":\"host\"}]");
         sb.append("},");
         sb.append("\"fields\": [\"_id\",\"_rev\",\"user\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"],");
-        sb.append("\"sort\": [ {\"date\": \"desc\"}]");
+        sb.append("\"sort\": [ {\"date\": \"desc\"}] }");
         
         return sb.toString();
     }

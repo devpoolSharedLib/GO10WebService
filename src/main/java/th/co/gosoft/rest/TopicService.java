@@ -37,7 +37,7 @@ public class TopicService {
         System.out.println("topic subject : "+topicModel.getSubject());
         System.out.println("topic content : "+topicModel.getContent());
         topicModel.setDate(postFormat.format(new Date()));
-        Database db = CloudantClientMgr.getDB();
+        Database db = CloudantClientMgr.getDBNewInstance();
 
         com.cloudant.client.api.model.Response response = db.save(topicModel);
         System.out.println("You have inserted the document");
@@ -53,7 +53,7 @@ public class TopicService {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<TopicModel> getTopicById(@QueryParam("topicId") String topicId){
         System.out.println(">>>>>>>>>>>>>>>>>>> GET topcic id : "+topicId);
-        Database db = CloudantClientMgr.getDB();
+        Database db = CloudantClientMgr.getDBNewInstance();
         List<TopicModel> topicModelList = db.findByIndex(getTopicByIdJsonString(topicId), TopicModel.class);
         List<TopicModel> resultList = formatDate(topicModelList);
         System.out.println("GET Complete");
@@ -65,7 +65,7 @@ public class TopicService {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<TopicModel> getTopicListByRoomId(@QueryParam("roomId") String roomId){
         System.out.println(">>>>>>>>>>>>>>>>>>> GET room id : "+roomId);
-        Database db = CloudantClientMgr.getDB();
+        Database db = CloudantClientMgr.getDBNewInstance();
         List<TopicModel> topicModelList = db.findByIndex(getTopicListByRoomIdJsonString(roomId), TopicModel.class);
         List<TopicModel> resultList = formatDate(topicModelList);
         System.out.println("size : "+resultList.size());
@@ -78,7 +78,7 @@ public class TopicService {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<TopicModel> getHotTopicList(){
         System.out.println(">>>>>>>>>>>>>>>>>>> GET");
-        Database db = CloudantClientMgr.getDB();
+        Database db = CloudantClientMgr.getDBNewInstance();
         List<TopicModel> topicModelList = db.findByIndex(getHotTopicListJsonString(), TopicModel.class);
         List<TopicModel> resultList = formatDate(topicModelList);
         System.out.println("GET Complete");
@@ -87,39 +87,39 @@ public class TopicService {
     
     private String getTopicByIdJsonString(String topicId){
         StringBuilder sb = new StringBuilder();
-        sb.append("{ \"selector\": {");
+        sb.append("\"selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
         sb.append("\"date\": {\"$gt\": 0},");
         sb.append("\"$or\": [{\"_id\":\""+topicId+"\"}, {\"topicId\":\""+topicId+"\"}]");
         sb.append("},");
         sb.append("\"fields\": [\"_id\",\"_rev\",\"user\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"],");
-        sb.append("\"sort\": [ {\"date\": \"asc\"}] }");
+        sb.append("\"sort\": [ {\"date\": \"asc\"}]");
         
         return sb.toString();
     }
     
     private String getTopicListByRoomIdJsonString(String roomId){
         StringBuilder sb = new StringBuilder();
-        sb.append("{ \"selector\": {");
+        sb.append("\"selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
         sb.append("\"date\": {\"$gt\": 0},");
         sb.append("\"$and\": [{\"type\":\"host\"}, {\"roomId\":\""+roomId+"\"}]");
         sb.append("},");
         sb.append("\"fields\": [\"_id\",\"_rev\",\"user\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"],");
-        sb.append("\"sort\": [ {\"date\": \"desc\"}] }");
+        sb.append("\"sort\": [ {\"date\": \"desc\"}]");
         
         return sb.toString();
     }
     
     private String getHotTopicListJsonString(){
         StringBuilder sb = new StringBuilder();
-        sb.append("{ \"selector\": {");
+        sb.append("\"selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
         sb.append("\"date\": {\"$gt\": 0},");
         sb.append("\"$and\": [{\"type\":\"host\"}]");
         sb.append("},");
         sb.append("\"fields\": [\"_id\",\"_rev\",\"user\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"],");
-        sb.append("\"sort\": [ {\"date\": \"desc\"}] }");
+        sb.append("\"sort\": [ {\"date\": \"desc\"}]");
         
         return sb.toString();
     }

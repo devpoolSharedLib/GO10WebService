@@ -101,6 +101,15 @@ public class CloudantClientMgr {
         }
         return db;
     }
+    
+    public static Database getDBNewInstance() {
+        CloudantClient cloudantClient = ClientBuilder.account(user)
+                .username(user)
+                .password(password)
+                .build();
+        
+        return cloudantClient.database(db_name, false);
+    }
 
     private CloudantClientMgr() {
     }

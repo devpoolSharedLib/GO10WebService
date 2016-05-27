@@ -13,7 +13,7 @@
     </httpEndpoint>
 
 <!-- 	<application name="JavaHelloWorldApp" context-root="/JavaHelloWorldApp" location="${appLocation}" type="war"/> -->
-    <application name="GO10WebService" context-root="/" location="${appLocation}"/>
+    <application name="GO10WebService" context-root="/" location="${appLocation}" type="war"/>
 
 </server>
  	

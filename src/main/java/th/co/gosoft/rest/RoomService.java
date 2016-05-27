@@ -1,7 +1,5 @@
 package th.co.gosoft.rest;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -9,8 +7,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.cloudant.client.api.ClientBuilder;
-import com.cloudant.client.api.CloudantClient;
 import com.cloudant.client.api.Database;
 
 import th.co.gosoft.model.RoomModel;
@@ -22,23 +18,23 @@ public class RoomService {
     @GET
     @Path("/get")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public List<RoomModel> getRooms() throws MalformedURLException {
+    public List<RoomModel> getRooms() {
         System.out.println(">>>>>>>>>>>>>>>>>>> in GET getRooms()");
-        Database db = CloudantClientMgr.getDB();
-        List<RoomModel> roomModel = db.findByIndex(getCommentJsonString(), RoomModel.class);
+        Database db = CloudantClientMgr.getDBNewInstance();
+        List<RoomModel> roomModel = db.findByIndex(getRoomJsonString(), RoomModel.class);
         System.out.println("GET Complete");
         return roomModel;
     }
     
-    private String getCommentJsonString(){
-        StringBuilder sb = new StringBuilder();
-        sb.append("{ \"selector\": {");
-        sb.append("\"_id\": {\"$gt\": 0},");
-        sb.append("\"$and\": [{\"type\":\"room\"}]");
-        sb.append("},");
-        sb.append("\"fields\": [\"_id\",\"_rev\",\"name\",\"desc\"],");
-        sb.append("\"sort\": [{\"_id\": \"asc\"}] }");
+    private String getRoomJsonString(){
+        StringBuilder stingBuilder = new StringBuilder();
+        stingBuilder.append("\"selector\": {");
+        stingBuilder.append("\"_id\": {\"$gt\": 0},");
+        stingBuilder.append("\"$and\": [{\"type\":\"room\"}]");
+        stingBuilder.append("},");
+        stingBuilder.append("\"fields\": [\"_id\",\"_rev\",\"name\",\"desc\"],");
+        stingBuilder.append("\"sort\": [{\"_id\": \"asc\"}]");
         
-        return sb.toString();
+        return stingBuilder.toString();
     }
 }

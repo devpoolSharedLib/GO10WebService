@@ -5,14 +5,17 @@ public class TopicModel {
     private String _id;
     private String _rev;
     private String topicId;
-    private String user;
+    private String avatarName;
+	private String avatarPic;
     private String subject;
     private String content;
     private String date;
     private String type;
     private String roomId;
+    
+    
 
-    public TopicModel(){}
+	public TopicModel(){}
     
     public TopicModel(String _id, String date){
         this._id = _id;
@@ -31,12 +34,7 @@ public class TopicModel {
     public void setContent(String content) {
         this.content = content;
     }
-    public String getUser() {
-        return user;
-    }
-    public void setUser(String user) {
-        this.user = user;
-    }
+
     public String getDate() {
         return date;
     }
@@ -73,5 +71,20 @@ public class TopicModel {
     public void setRoomId(String roomId) {
         this.roomId = roomId;
     }
+    public String getAvatarName() {
+		return avatarName;
+	}
+
+	public void setAvatarName(String avatarName) {
+		this.avatarName = avatarName;
+	}
+
+	public String getAvatarPic() {
+		return avatarPic;
+	}
+
+	public void setAvatarPic(String avatarPic) {
+		this.avatarPic = avatarPic;
+	}
     
 }

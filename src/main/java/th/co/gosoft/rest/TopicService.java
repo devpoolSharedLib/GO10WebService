@@ -36,6 +36,7 @@ public class TopicService {
         System.out.println("You are in post method");
         System.out.println("topic subject : "+topicModel.getSubject());
         System.out.println("topic content : "+topicModel.getContent());
+        
         topicModel.setDate(postFormat.format(new Date()));
         Database db = CloudantClientMgr.getDBNewInstance();
 
@@ -92,7 +93,7 @@ public class TopicService {
         sb.append("\"date\": {\"$gt\": 0},");
         sb.append("\"$or\": [{\"_id\":\""+topicId+"\"}, {\"topicId\":\""+topicId+"\"}]");
         sb.append("},");
-        sb.append("\"fields\": [\"_id\",\"_rev\",\"user\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"],");
+        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"],");
         sb.append("\"sort\": [ {\"date\": \"asc\"}]");
         
         return sb.toString();
@@ -105,7 +106,7 @@ public class TopicService {
         sb.append("\"date\": {\"$gt\": 0},");
         sb.append("\"$and\": [{\"type\":\"host\"}, {\"roomId\":\""+roomId+"\"}]");
         sb.append("},");
-        sb.append("\"fields\": [\"_id\",\"_rev\",\"user\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"],");
+        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"],");
         sb.append("\"sort\": [ {\"date\": \"desc\"}]");
         
         return sb.toString();
@@ -118,7 +119,7 @@ public class TopicService {
         sb.append("\"date\": {\"$gt\": 0},");
         sb.append("\"$and\": [{\"type\":\"host\"}]");
         sb.append("},");
-        sb.append("\"fields\": [\"_id\",\"_rev\",\"user\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"],");
+        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"],");
         sb.append("\"sort\": [ {\"date\": \"desc\"}]");
         
         return sb.toString();

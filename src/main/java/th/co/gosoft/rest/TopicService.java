@@ -32,8 +32,8 @@ public class TopicService {
     @Path("/post")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response createTopic(TopicModel topicModel) {
+        System.out.println(">>>>>>>>>>>>>>>>>>> topicModel()");
         postFormat.setTimeZone(TimeZone.getTimeZone("GMT+7"));
-        System.out.println("You are in post method");
         System.out.println("topic subject : "+topicModel.getSubject());
         System.out.println("topic content : "+topicModel.getContent());
         
@@ -53,7 +53,7 @@ public class TopicService {
     @Path("/gettopicbyid")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<TopicModel> getTopicById(@QueryParam("topicId") String topicId){
-        System.out.println(">>>>>>>>>>>>>>>>>>> GET topcic id : "+topicId);
+        System.out.println(">>>>>>>>>>>>>>>>>>> getTopicById() //topcic id : "+topicId);
         Database db = CloudantClientMgr.getDBNewInstance();
         List<TopicModel> topicModelList = db.findByIndex(getTopicByIdJsonString(topicId), TopicModel.class);
         List<TopicModel> resultList = formatDate(topicModelList);
@@ -65,7 +65,7 @@ public class TopicService {
     @Path("/gettopiclistbyroom")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<TopicModel> getTopicListByRoomId(@QueryParam("roomId") String roomId){
-        System.out.println(">>>>>>>>>>>>>>>>>>> GET room id : "+roomId);
+        System.out.println(">>>>>>>>>>>>>>>>>>> getTopicListByRoomId() //room id : "+roomId);
         Database db = CloudantClientMgr.getDBNewInstance();
         List<TopicModel> topicModelList = db.findByIndex(getTopicListByRoomIdJsonString(roomId), TopicModel.class);
         List<TopicModel> resultList = formatDate(topicModelList);
@@ -78,11 +78,11 @@ public class TopicService {
     @Path("/gethottopiclist")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<TopicModel> getHotTopicList(){
-        System.out.println(">>>>>>>>>>>>>>>>>>> GET");
+        System.out.println(">>>>>>>>>>>>>>>>>>> getHotTopicList()");
         Database db = CloudantClientMgr.getDBNewInstance();
         List<TopicModel> topicModelList = db.findByIndex(getHotTopicListJsonString(), TopicModel.class);
         List<TopicModel> resultList = formatDate(topicModelList);
-        System.out.println("GET Complete");
+        System.out.println("getHotTopicList list size : "+resultList.size());
         return resultList;
     }
     

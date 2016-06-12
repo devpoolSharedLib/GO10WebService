@@ -22,14 +22,10 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 @WebServlet("/UploadServlet")
 public class UploadServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private static final String DATA_DIRECTORY = "image";
 	
-	final String lexicon = "ABCDEFGHIJKLMNOPQRSTUVWXYZ12345674890";
-
-	final java.util.Random rand = new java.util.Random();
-
-	// consider using a Map<String,Boolean> to say whether the identifier is being used or not 
-	final Set<String> identifiers = new HashSet<String>();
+	private final String lexicon = "ABCDEFGHIJKLMNOPQRSTUVWXYZ12345674890";
+	private final java.util.Random rand = new java.util.Random();
+	private final Set<String> identifiers = new HashSet<String>();
 	
 	private boolean isMultipart;
 	private String filePath;
@@ -62,8 +58,8 @@ public class UploadServlet extends HttpServlet {
             System.out.println("fullPath : "+filePath);
             
         } catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            throw new RuntimeException(e.getMessage(), e);
         }
 
      }

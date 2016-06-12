@@ -19,7 +19,7 @@ public class RoomService {
     @Path("/get")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<RoomModel> getRooms() {
-        System.out.println(">>>>>>>>>>>>>>>>>>> in GET getRooms()");
+        System.out.println(">>>>>>>>>>>>>>>>>>> getRooms()");
         Database db = CloudantClientMgr.getDBNewInstance();
         List<RoomModel> roomModel = db.findByIndex(getRoomJsonString(), RoomModel.class);
         System.out.println("GET Complete");
@@ -32,7 +32,7 @@ public class RoomService {
         stingBuilder.append("\"_id\": {\"$gt\": 0},");
         stingBuilder.append("\"$and\": [{\"type\":\"room\"}]");
         stingBuilder.append("},");
-        stingBuilder.append("\"fields\": [\"_id\",\"_rev\",\"name\",\"desc\"],");
+        stingBuilder.append("\"fields\": [\"_id\",\"_rev\",\"name\",\"desc\", \"type\"],");
         stingBuilder.append("\"sort\": [{\"_id\": \"asc\"}]");
         
         return stingBuilder.toString();

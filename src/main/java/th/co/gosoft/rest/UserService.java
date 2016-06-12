@@ -44,16 +44,16 @@ public class UserService {
     @PUT
     @Path("/updateUser")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response createTopic(UserModel userModel) {
-        System.out.println(">>>>>>>>>>>>>>>>>>> createTopic()");
+    public Response updateUser(UserModel userModel) {
+        System.out.println(">>>>>>>>>>>>>>>>>>> updateUser()");
         userModel.setActivate(true);
         
         Database db = CloudantClientMgr.getDBNewInstance();
         com.cloudant.client.api.model.Response response = db.update(userModel);
         System.out.println("You have update the user");
 
-        String result = response.getId();
-        System.out.println(">>>>>>>>>>>>>>>>>>> post result id : "+result);
+        String result = response.getRev();
+        System.out.println(">>>>>>>>>>>>>>>>>>> post result Rev : "+result);
         System.out.println("PUT Complete");
         return Response.status(201).entity(result).build();
     }

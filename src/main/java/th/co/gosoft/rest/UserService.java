@@ -2,11 +2,14 @@ package th.co.gosoft.rest;
 
 import java.util.List;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import com.cloudant.client.api.Database;
 
@@ -36,6 +39,23 @@ public class UserService {
         List<UserModel> userModelList = db.findByIndex(getUserByTokenJsonString(token), UserModel.class);
         System.out.println("GET Complete");
         return userModelList;
+    }
+    
+    @PUT
+    @Path("/updateUser")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response createTopic(UserModel userModel) {
+        System.out.println(">>>>>>>>>>>>>>>>>>> createTopic()");
+        userModel.setActivate(true);
+        
+        Database db = CloudantClientMgr.getDBNewInstance();
+        com.cloudant.client.api.model.Response response = db.update(userModel);
+        System.out.println("You have update the user");
+
+        String result = response.getId();
+        System.out.println(">>>>>>>>>>>>>>>>>>> post result id : "+result);
+        System.out.println("PUT Complete");
+        return Response.status(201).entity(result).build();
     }
     
     private String getUserByAccountIdJsonString(String accountId){

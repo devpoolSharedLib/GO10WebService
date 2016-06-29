@@ -65,7 +65,7 @@ public class RegisterServlet extends HttpServlet {
 //                String body = EMAIL_CONTENT + token +"\"\n\n\nBest Regards,";
 //                sendFromGMail(FROM_EMAIL, PASSWORD, empEmail, SUBJECT, body);
                 
-                request.setAttribute("status", "<span style='color:green'>Registration Complete, waitng for approve.</span>");
+                request.setAttribute("status", "<span style='color:green'>Registration Complete, invitation code will send to your email.</span>");
                 request.getRequestDispatcher("/registration.jsp").forward(request, response);
 	        }
 	    } catch (Exception e){

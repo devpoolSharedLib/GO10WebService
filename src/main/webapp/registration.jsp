@@ -21,8 +21,8 @@ function validateForm() {
         $("#status").text("Please insert Name and Email.");
         $("#status").css("color", "red");
         return false;
-    } else if(!validateEmail(email) || !checkGosoftEmailPattern(email)){
-    	$("#status").text("Please insert @gosoft.co.th email.");
+    } else if(!validateEmail(email)){
+    	$("#status").text("Please insert correct email.");
         $("#status").css("color", "red");
         return false;
     }
@@ -60,7 +60,7 @@ function validateEmail(email) {
 				<div class="col-md-8" style="text-align: center;"><input type="text" name="name" style="width: 100%;" class="form-control"></div>
 			</div>
 			<div class="row">
-				<div class="col-md-4" style="text-align: left;"><h4>Email (@gosoft.co.th) : </h4></div>
+				<div class="col-md-4" style="text-align: left;"><h4>Email : </h4></div>
 				<div class="col-md-8" style="text-align: center;"><input type="text" name="email" style="width: 100%;" class="form-control"></div>
 			</div>
 			<div class="row">

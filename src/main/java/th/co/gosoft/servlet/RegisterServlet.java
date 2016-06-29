@@ -52,6 +52,7 @@ public class RegisterServlet extends HttpServlet {
                 request.getRequestDispatcher("/registration.jsp").forward(request, response);;
 	        } else {
 	            String token = EncryptUtils.encode(empEmail);
+	            System.out.println("TOKEN : "+token);
 	            Database db = CloudantClientMgr.getDBNewInstance();
                 UserModel userModel = new UserModel();
                 userModel.setEmpName(empName);
@@ -61,11 +62,11 @@ public class RegisterServlet extends HttpServlet {
                 userModel.setType("user");
                 db.save(userModel);
                 
-                String body = EMAIL_CONTENT + token +"\"\n\n\nBest Regards,";
-                sendFromGMail(FROM_EMAIL, PASSWORD, empEmail, SUBJECT, body);
+//                String body = EMAIL_CONTENT + token +"\"\n\n\nBest Regards,";
+//                sendFromGMail(FROM_EMAIL, PASSWORD, empEmail, SUBJECT, body);
                 
-                request.setAttribute("status", "<span style='color:green'>Registration Complete, System has send the invitation code to your email.</span>");
-                request.getRequestDispatcher("/registration.jsp").forward(request, response);;
+                request.setAttribute("status", "<span style='color:green'>Registration Complete, waitng for approve.</span>");
+                request.getRequestDispatcher("/registration.jsp").forward(request, response);
 	        }
 	    } catch (Exception e){
 	        request.setAttribute("status", "Registration Error");

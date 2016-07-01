@@ -1,6 +1,7 @@
 package th.co.gosoft.servlet;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -42,10 +43,12 @@ public class RegisterServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
 	    try{
-	        String empName = request.getParameter("name");
+	        String empSurName = request.getParameter("surname");
+	        String empLastName = request.getParameter("lastname");
 	        String empEmail = request.getParameter("email");
-	        
-	        if(empName == null || empName.isEmpty() || empEmail == null || empEmail.isEmpty()){
+	        String birthday = request.getParameter("birthday");
+	        System.out.println("EMPNAME : " + empSurName + " " + empLastName);
+	        if(empSurName == null || empSurName.isEmpty() || empEmail == null || empEmail.isEmpty()){
 	            throw new Exception("Invalid empName or empEmail");
 	        } else if(!getUserByEmail(empEmail).isEmpty()){
 	            request.setAttribute("status", "<span style='color:red'>this email is already registered.</span>");
@@ -55,11 +58,12 @@ public class RegisterServlet extends HttpServlet {
 	            System.out.println("TOKEN : "+token);
 	            Database db = CloudantClientMgr.getDBNewInstance();
                 UserModel userModel = new UserModel();
-                userModel.setEmpName(empName);
+                userModel.setEmpName(empSurName + " " + empLastName);
                 userModel.setEmpEmail(empEmail);
                 userModel.setToken(token);
                 userModel.setActivate(false);
                 userModel.setType("user");
+                userModel.setBirthday(birthday);
                 db.save(userModel);
                 
 //                String body = EMAIL_CONTENT + token +"\"\n\n\nBest Regards,";

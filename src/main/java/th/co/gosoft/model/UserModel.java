@@ -12,7 +12,15 @@ public class UserModel {
     private String token;
     private boolean activate;
     private String type;
+    private String birthday;
     
+    
+    public String getBirthday() {
+		return birthday;
+	}
+	public void setBirthday(String birthday) {
+		this.birthday = birthday;
+	}
     public String get_id() {
         return _id;
     }

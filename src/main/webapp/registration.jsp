@@ -7,22 +7,51 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
+     
+	
 <title>GO10 Registration</title>
 
 <script src="js/jquery-1.11.3.js"></script>
 <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
 <script src="bootstrap/js/bootstrap.min.js"></script>
 
+<!-- Datepicker -->
+<link rel="stylesheet" href="./datepicker/css/datepicker.css" type="text/css"/>
+<script type="text/javascript" src="./datepicker/js/bootstrap-datepicker.js"></script>
+ 
+<!-- กรณีที่ต้องการใช้งาน datepicker แบบ BC ให้ลงสองไฟล์ดังนี้ด้วย -->
+<script type="text/javascript" src="./datepicker/js/bootstrap-datepicker-thai.js"></script>
+<script type="text/javascript" src="./datepicker/js/bootstrap-datepicker.locale.th.js"></script>
+ 
+<!-- Maskedinput -->
+<script type="text/javascript" src="./datepicker/js/jquery.maskedinput.min.js"></script>
+	
 <script>
 function validateForm() {
-	var name = document.forms["regisForm"]["name"].value;
+	var surname = document.forms["regisForm"]["surname"].value;
+	var lastname = document.forms["regisForm"]["lastname"].value;
 	var email = document.forms["regisForm"]["email"].value;
-    if (name == null || name == "" || email == null || email == "") {
-        $("#status").text("Please insert Name and Email.");
+	var birthday = document.forms["regisForm"]["birthday"].value;
+	var age = getAge(birthday);
+    if (surname == null || surname == "" || lastname == null || lastname == "") {
+        $("#status").text("Please insert surname and lastname.");
         $("#status").css("color", "red");
         return false;
-    } else if(!validateEmail(email)){
+    }else if (email == null || email == "") {
+        $("#status").text("Please insert Email.");
+        $("#status").css("color", "red");
+        return false;
+    }else if (birthday == null || birthday == "" ) {
+        $("#status").text("Please insert Birthday.");
+        $("#status").css("color", "red");
+        return false;
+    }else if(!validateEmail(email)){
     	$("#status").text("Please insert correct email.");
+        $("#status").css("color", "red");
+        return false;
+    }else if(parseInt(age)<15){
+    	$("#status").text("This application should be older 15.");
         $("#status").css("color", "red");
         return false;
     }
@@ -37,8 +66,28 @@ function validateEmail(email) {
 	return reg.test(email);
 }
 
-</script>
 
+$(document).ready(function() {
+	 createSingleDatepicker("singleDatepickerDiv", "birthday");
+});	
+
+function getAge(dateString) 
+{
+    var today = new Date();
+    var birthDate = new Date(dateString);
+    var age = today.getFullYear() - birthDate.getFullYear();
+    var m = today.getMonth() - birthDate.getMonth();
+    var d = today.getDate() - birthDate.getDate();
+    if (m < 0 || (m == 0 && d<0)) 
+    {
+        age--;
+    }
+    return age;
+}
+
+
+
+</script>
 </head>
 <body>
 	<nav class="navbar navbar-default">
@@ -56,12 +105,20 @@ function validateEmail(email) {
 	<div class="col-md-6 col-md-offset-3 col-xs-12 col-sm-12">
 		<form name="regisForm" action="/GO10WebService/RegisterServlet" onsubmit="return validateForm()" method="get" style="width: 100%; text-align: center;">
 			<div class="row">
-				<div class="col-md-4" style="text-align: left;"><h4>Name : </h4></div>
-				<div class="col-md-8" style="text-align: center;"><input type="text" name="name" style="width: 100%;" class="form-control"></div>
+				<div class="col-md-4" style="text-align: left;"><h4>Surname : </h4></div>
+				<div class="col-md-8" style="text-align: center;"><input type="text" name="surname" style="width: 100%;" class="form-control"></div>
+			</div>
+			<div class="row">
+				<div class="col-md-4" style="text-align: left;"><h4>Lastname : </h4></div>
+				<div class="col-md-8" style="text-align: center;"><input type="text" name="lastname" style="width: 100%;" class="form-control"></div>
 			</div>
 			<div class="row">
 				<div class="col-md-4" style="text-align: left;"><h4>Email : </h4></div>
 				<div class="col-md-8" style="text-align: center;"><input type="text" name="email" style="width: 100%;" class="form-control"></div>
+			</div>
+			<div class="row">
+				<div class="col-md-4" style="text-align: left;"><h4>Birthday : </h4></div>
+				<div class="col-md-8" id="singleDatepickerDiv"></div>
 			</div>
 			<div class="row">
 				<div class="col-md-12"><input class="btn btn-primary" type="submit" value="Submit" style="width: 50%; margin-top: 20px" ></div>

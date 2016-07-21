@@ -127,7 +127,7 @@ public class TopicService {
     
     public List<TopicModel> formatDate(List<TopicModel> topicModelList) {
        
-        List<TopicModel> resultList = new ArrayList<>();
+        List<TopicModel> resultList = new ArrayList<TopicModel>();
         
         for (TopicModel topicModel : topicModelList) {
             TopicModel resultModel = topicModel;

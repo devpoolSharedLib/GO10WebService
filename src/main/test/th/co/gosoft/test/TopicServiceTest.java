@@ -29,7 +29,7 @@ public class TopicServiceTest {
     }
 
     private List<TopicModel> createTestDataList() {
-        List<TopicModel> resultList = new ArrayList<>();
+        List<TopicModel> resultList = new ArrayList<TopicModel>();
         resultList.add(new TopicModel("test1", postFormat.format(new Date())));
         resultList.add(new TopicModel("test2", postFormat.format(new Date())));
         return resultList;

@@ -35,7 +35,7 @@ public class DownloadServlet extends HttpServlet {
 	    String fileName = request.getParameter("imageName");
 	    
 	    OSClient os = ObjectStorageService.connectObjectStorageService();
-	    SwiftObject swiftObject = os.objectStorage().objects().get("go10", "file2");
+	    SwiftObject swiftObject = os.objectStorage().objects().get("go10", fileName);
 	    DLPayload dp = swiftObject.download();
 	    InputStream is = dp.getInputStream();
 	    

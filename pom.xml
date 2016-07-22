@@ -47,21 +47,6 @@
 		  <artifactId>cloudant-client</artifactId>
 		  <version>2.0.0</version>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>com.sun.jersey</groupId> -->
-<!-- 			<artifactId>jersey-server</artifactId> -->
-<!-- 			<version>2.2</version> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>com.sun.jersey</groupId>	 -->
-<!-- 			<artifactId>jersey-client</artifactId> -->
-<!-- 			<version>2.2</version> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>com.sun.jersey</groupId> -->
-<!-- 			<artifactId>jersey-json</artifactId> -->
-<!-- 			<version>2.2</version> -->
-<!-- 		</dependency> -->
 		<dependency>
 	      <groupId>junit</groupId>
 	      <artifactId>junit</artifactId>
@@ -84,15 +69,26 @@
 		    <version>1.5.5</version>
 		</dependency>
 		<dependency>
-		    <groupId>org.pacesys</groupId>
-		    <artifactId>openstack4j</artifactId>
-		    <version>3.0.0</version>
+		  <groupId>org.pacesys</groupId>
+		  <artifactId>openstack4j-core</artifactId>
+		  <version>3.0.0</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.pacesys.openstack4j.connectors</groupId>
+		  <artifactId>openstack4j-httpclient</artifactId>
+		  <version>3.0.0</version>
 		</dependency>
 		<dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.21</version>
-        </dependency>		
+        </dependency>
+        <dependency>
+		    <groupId>javax</groupId> 
+		    <artifactId>javaee-api</artifactId>
+		    <version>7.0</version>        
+		    <scope>provided</scope>
+		</dependency>		
     </dependencies>
 
     <build>

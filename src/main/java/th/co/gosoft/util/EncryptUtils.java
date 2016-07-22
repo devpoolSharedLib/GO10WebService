@@ -1,8 +1,7 @@
 package th.co.gosoft.util;
 
 import java.io.UnsupportedEncodingException;
-
-import org.glassfish.jersey.internal.util.Base64;
+import java.util.Base64;
 
 
 
@@ -22,14 +21,14 @@ public class EncryptUtils {
 
     private static String base64encode(String text) {
         try {
-            return new String(Base64.encode(text.getBytes(DEFAULT_ENCODING)));
+            return new String(Base64.getEncoder().encode(text.getBytes(DEFAULT_ENCODING)));
         } catch (UnsupportedEncodingException e) {
             return null;
         }
     }
 
     private static String base64decode(String text) {
-        return new String(Base64.decodeAsString(text));
+        return new String(Base64.getDecoder().decode(text));
     }
     
     private static String xorMessage(String message, String key) {

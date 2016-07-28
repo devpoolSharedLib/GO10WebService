@@ -1,10 +1,16 @@
 package th.co.gosoft.servlet;
 
 import java.io.IOException;
-import java.util.Date;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Properties;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 import javax.mail.Message;
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -19,9 +25,10 @@ import javax.ws.rs.QueryParam;
 
 import com.cloudant.client.api.Database;
 
+import th.co.gosoft.model.UserAuthenModel;
 import th.co.gosoft.model.UserModel;
-import th.co.gosoft.util.CloudantClientMgr;
-import th.co.gosoft.util.EncryptUtils;
+import th.co.gosoft.util.CloudantClientUtils;
+import th.co.gosoft.util.KeyStoreUtils;
 
 @WebServlet("/RegisterServlet")
 public class RegisterServlet extends HttpServlet {
@@ -46,25 +53,32 @@ public class RegisterServlet extends HttpServlet {
 	        String empSurName = request.getParameter("surname");
 	        String empLastName = request.getParameter("lastname");
 	        String empEmail = request.getParameter("email");
+	        String password = request.getParameter("password");
 	        String birthday = request.getParameter("birthday");
-	        System.out.println("EMPNAME : " + empSurName + " " + empLastName);
-	        if(empSurName == null || empSurName.isEmpty() || empEmail == null || empEmail.isEmpty()){
-	            throw new Exception("Invalid empName or empEmail");
+	        if(isInvalidInput(empSurName, empLastName, empEmail, password, birthday)){
+	            throw new Exception("Invalid input");
 	        } else if(!getUserByEmail(empEmail).isEmpty()){
 	            request.setAttribute("status", "<span style='color:red'>this email is already registered.</span>");
                 request.getRequestDispatcher("/registration.jsp").forward(request, response);;
 	        } else {
-	            String token = EncryptUtils.encode(empEmail);
-	            System.out.println("TOKEN : "+token);
-	            Database db = CloudantClientMgr.getDBNewInstance();
+	            byte[] passEncrypt = encryptPassword(password);
+	            
+	            Database db = CloudantClientUtils.getDBNewInstance();
                 UserModel userModel = new UserModel();
                 userModel.setEmpName(empSurName + " " + empLastName);
                 userModel.setEmpEmail(empEmail);
-                userModel.setToken(token);
+                userModel.setAvatarName("Avatar Name");
+                userModel.setAvatarPic("default_avatar");
                 userModel.setActivate(false);
                 userModel.setType("user");
                 userModel.setBirthday(birthday);
                 db.save(userModel);
+                
+                UserAuthenModel userAuthenModel = new UserAuthenModel();
+                userAuthenModel.setEmpEmail(empEmail);
+                userAuthenModel.setPassword(passEncrypt);
+                userAuthenModel.setType("authen");
+                db.save(userAuthenModel);
                 
 //                String body = EMAIL_CONTENT + token +"\"\n\n\nBest Regards,";
 //                sendFromGMail(FROM_EMAIL, PASSWORD, empEmail, SUBJECT, body);
@@ -78,6 +92,17 @@ public class RegisterServlet extends HttpServlet {
 	    }
 	    
 	}
+
+    private byte[] encryptPassword(String password) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        SecretKey secretKey = KeyStoreUtils.getKeyFromCloudant("password-key");
+        Cipher desCipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+        desCipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        return desCipher.doFinal(password.getBytes());
+    }
+
+    private boolean isInvalidInput(String empSurName, String empLastName, String empEmail, String password, String birthday) {
+        return empSurName == null || empSurName.isEmpty() || empLastName == null || empLastName.isEmpty() || empEmail == null || empEmail.isEmpty() ||  password == null || password.isEmpty() || birthday == null || birthday.isEmpty();
+    }
 	
 	private static void sendFromGMail(String from, String pass, String to, String subject, String body) {
         Properties props = System.getProperties();
@@ -109,7 +134,7 @@ public class RegisterServlet extends HttpServlet {
 	
 	private List<UserModel> getUserByEmail(@QueryParam("token") String email) {
         System.out.println(">>>>>>>>>>>>>>>>>>> getUserByEmail() // email : "+email);
-        Database db = CloudantClientMgr.getDBNewInstance();
+        Database db = CloudantClientUtils.getDBNewInstance();
         List<UserModel> userModelList = db.findByIndex(getUserByEmailJsonString(email), UserModel.class);
         System.out.println("GET Complete");
         return userModelList;
@@ -117,11 +142,11 @@ public class RegisterServlet extends HttpServlet {
 
 	 private String getUserByEmailJsonString(String email){
         StringBuilder stingBuilder = new StringBuilder();
-        stingBuilder.append("\"selector\": {");
+        stingBuilder.append("{\"selector\": {");
         stingBuilder.append("\"_id\": {\"$gt\": 0},");
         stingBuilder.append("\"$and\": [{\"type\": \"user\"}, {\"empEmail\":\""+email+"\"} ] ");
         stingBuilder.append("},");
-        stingBuilder.append("\"fields\": [\"_id\",\"_rev\",\"accountId\",\"empName\",\"empEmail\",\"avatarName\",\"avatarPic\",\"token\",\"activate\",\"type\"]");
+        stingBuilder.append("\"fields\": [\"_id\",\"_rev\",\"accountId\",\"empName\",\"empEmail\",\"avatarName\",\"avatarPic\",\"token\",\"activate\",\"type\"]}");
         
         return stingBuilder.toString();
     }

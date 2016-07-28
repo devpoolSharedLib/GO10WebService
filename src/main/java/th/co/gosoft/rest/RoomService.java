@@ -10,7 +10,7 @@ import javax.ws.rs.core.MediaType;
 import com.cloudant.client.api.Database;
 
 import th.co.gosoft.model.RoomModel;
-import th.co.gosoft.util.CloudantClientMgr;
+import th.co.gosoft.util.CloudantClientUtils;
 
 @Path("room")
 public class RoomService {
@@ -20,7 +20,7 @@ public class RoomService {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<RoomModel> getRooms() {
         System.out.println(">>>>>>>>>>>>>>>>>>> getRooms()");
-        Database db = CloudantClientMgr.getDBNewInstance();
+        Database db = CloudantClientUtils.getDBNewInstance();
         List<RoomModel> roomModel = db.findByIndex(getRoomJsonString(), RoomModel.class);
         System.out.println("GET Complete");
         return roomModel;
@@ -28,12 +28,12 @@ public class RoomService {
     
     private String getRoomJsonString(){
         StringBuilder stingBuilder = new StringBuilder();
-        stingBuilder.append("\"selector\": {");
+        stingBuilder.append("{\"selector\": {");
         stingBuilder.append("\"_id\": {\"$gt\": 0},");
         stingBuilder.append("\"$and\": [{\"type\":\"room\"}]");
         stingBuilder.append("},");
         stingBuilder.append("\"fields\": [\"_id\",\"_rev\",\"name\",\"desc\", \"type\"],");
-        stingBuilder.append("\"sort\": [{\"_id\": \"asc\"}]");
+        stingBuilder.append("\"sort\": [{\"_id\": \"asc\"}]}");
         
         return stingBuilder.toString();
     }

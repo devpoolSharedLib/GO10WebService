@@ -14,7 +14,6 @@ public class UserModel {
     private String type;
     private String birthday;
     
-    
     public String getBirthday() {
 		return birthday;
 	}
@@ -81,5 +80,6 @@ public class UserModel {
     public void setType(String type) {
         this.type = type;
     }
+    
     
 }

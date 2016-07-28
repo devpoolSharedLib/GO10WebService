@@ -19,7 +19,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.openstack4j.api.OSClient;
 import org.openstack4j.model.common.Payloads;
 
-import th.co.gosoft.rest.ObjectStorageService;
+import th.co.gosoft.util.ObjectStorageUtils;
 
 @WebServlet("/UploadServlet")
 public class UploadServlet extends HttpServlet {
@@ -44,7 +44,7 @@ public class UploadServlet extends HttpServlet {
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// Check that we have a file upload request
-	    os = ObjectStorageService.connectObjectStorageService();
+	    os = ObjectStorageUtils.connectObjectStorageService();
 		isMultipart = ServletFileUpload.isMultipartContent(request);
 		response.setContentType("text/html");
 		java.io.PrintWriter out = response.getWriter( );

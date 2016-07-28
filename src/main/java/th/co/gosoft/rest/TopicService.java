@@ -21,7 +21,7 @@ import javax.ws.rs.core.Response;
 import com.cloudant.client.api.Database;
 
 import th.co.gosoft.model.TopicModel;
-import th.co.gosoft.util.CloudantClientMgr;
+import th.co.gosoft.util.CloudantClientUtils;
 
 @Path("topic")
 public class TopicService {
@@ -38,7 +38,7 @@ public class TopicService {
         System.out.println("topic content : "+topicModel.getContent());
         
         topicModel.setDate(postFormat.format(new Date()));
-        Database db = CloudantClientMgr.getDBNewInstance();
+        Database db = CloudantClientUtils.getDBNewInstance();
 
         com.cloudant.client.api.model.Response response = db.save(topicModel);
         System.out.println("You have inserted the document");
@@ -54,7 +54,7 @@ public class TopicService {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<TopicModel> getTopicById(@QueryParam("topicId") String topicId){
         System.out.println(">>>>>>>>>>>>>>>>>>> getTopicById() //topcic id : "+topicId);
-        Database db = CloudantClientMgr.getDBNewInstance();
+        Database db = CloudantClientUtils.getDBNewInstance();
         List<TopicModel> topicModelList = db.findByIndex(getTopicByIdJsonString(topicId), TopicModel.class);
         List<TopicModel> resultList = formatDate(topicModelList);
         System.out.println("GET Complete");
@@ -66,7 +66,7 @@ public class TopicService {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<TopicModel> getTopicListByRoomId(@QueryParam("roomId") String roomId){
         System.out.println(">>>>>>>>>>>>>>>>>>> getTopicListByRoomId() //room id : "+roomId);
-        Database db = CloudantClientMgr.getDBNewInstance();
+        Database db = CloudantClientUtils.getDBNewInstance();
         List<TopicModel> topicModelList = db.findByIndex(getTopicListByRoomIdJsonString(roomId), TopicModel.class);
         List<TopicModel> resultList = formatDate(topicModelList);
         System.out.println("size : "+resultList.size());
@@ -79,7 +79,7 @@ public class TopicService {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<TopicModel> getHotTopicList(){
         System.out.println(">>>>>>>>>>>>>>>>>>> getHotTopicList()");
-        Database db = CloudantClientMgr.getDBNewInstance();
+        Database db = CloudantClientUtils.getDBNewInstance();
         List<TopicModel> topicModelList = db.findByIndex(getHotTopicListJsonString(), TopicModel.class);
         List<TopicModel> resultList = formatDate(topicModelList);
         System.out.println("getHotTopicList list size : "+resultList.size());
@@ -88,39 +88,39 @@ public class TopicService {
     
     private String getTopicByIdJsonString(String topicId){
         StringBuilder sb = new StringBuilder();
-        sb.append("\"selector\": {");
+        sb.append("\"{selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
         sb.append("\"date\": {\"$gt\": 0},");
         sb.append("\"$or\": [{\"_id\":\""+topicId+"\"}, {\"topicId\":\""+topicId+"\"}]");
         sb.append("},");
         sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"],");
-        sb.append("\"sort\": [ {\"date\": \"asc\"}]");
+        sb.append("\"sort\": [ {\"date\": \"asc\"}]}");
         
         return sb.toString();
     }
     
     private String getTopicListByRoomIdJsonString(String roomId){
         StringBuilder sb = new StringBuilder();
-        sb.append("\"selector\": {");
+        sb.append("{\"selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
         sb.append("\"date\": {\"$gt\": 0},");
         sb.append("\"$and\": [{\"type\":\"host\"}, {\"roomId\":\""+roomId+"\"}]");
         sb.append("},");
         sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"],");
-        sb.append("\"sort\": [ {\"date\": \"desc\"}]");
+        sb.append("\"sort\": [ {\"date\": \"desc\"}]}");
         
         return sb.toString();
     }
     
     private String getHotTopicListJsonString(){
         StringBuilder sb = new StringBuilder();
-        sb.append("\"selector\": {");
+        sb.append("{\"selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
         sb.append("\"date\": {\"$gt\": 0},");
         sb.append("\"$and\": [{\"type\":\"host\"}]");
         sb.append("},");
         sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"],");
-        sb.append("\"sort\": [ {\"date\": \"desc\"}]");
+        sb.append("\"sort\": [ {\"date\": \"desc\"}]}");
         
         return sb.toString();
     }

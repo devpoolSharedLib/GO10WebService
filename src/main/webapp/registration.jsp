@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="ISO-8859-1"%>
+    pageEncoding="UTF-8"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -20,7 +20,6 @@
 <link rel="stylesheet" href="./datepicker/css/datepicker.css" type="text/css"/>
 <script type="text/javascript" src="./datepicker/js/bootstrap-datepicker.js"></script>
  
-<!-- กรณีที่ต้องการใช้งาน datepicker แบบ BC ให้ลงสองไฟล์ดังนี้ด้วย -->
 <script type="text/javascript" src="./datepicker/js/bootstrap-datepicker-thai.js"></script>
 <script type="text/javascript" src="./datepicker/js/bootstrap-datepicker.locale.th.js"></script>
  
@@ -33,6 +32,8 @@ function validateForm() {
 	var lastname = document.forms["regisForm"]["lastname"].value;
 	var email = document.forms["regisForm"]["email"].value;
 	var birthday = document.forms["regisForm"]["birthday"].value;
+	var password = document.forms["regisForm"]["password"].value;
+	var confirmPassword = document.forms["regisForm"]["confirmPassword"].value;
 	var age = getAge(birthday);
     if (surname == null || surname == "" || lastname == null || lastname == "") {
         $("#status").text("Please insert surname and lastname.");
@@ -50,6 +51,9 @@ function validateForm() {
     	$("#status").text("Please insert correct email.");
         $("#status").css("color", "red");
         return false;
+    }else if(password == null || password == "" || confirmPassword == null || confirmPassword == "" || password != confirmPassword){
+    	$("#status").text("Please insert correct password.");
+        $("#status").css("color", "red");
     }else if(parseInt(age)<15){
     	$("#status").text("This application should be older 15.");
         $("#status").css("color", "red");
@@ -103,7 +107,7 @@ function getAge(dateString)
 	</nav>
 	
 	<div class="col-md-6 col-md-offset-3 col-xs-12 col-sm-12">
-		<form name="regisForm" action="/GO10WebService/RegisterServlet" onsubmit="return validateForm()" method="get" style="width: 100%; text-align: center;">
+		<form name="regisForm" action="/GO10WebService/RegisterServlet" onsubmit="return validateForm()" method="post" style="width: 100%; text-align: center;">
 			<div class="row">
 				<div class="col-md-4" style="text-align: left;"><h4>Surname : </h4></div>
 				<div class="col-md-8" style="text-align: center;"><input type="text" name="surname" style="width: 100%;" class="form-control"></div>
@@ -115,6 +119,14 @@ function getAge(dateString)
 			<div class="row">
 				<div class="col-md-4" style="text-align: left;"><h4>Email : </h4></div>
 				<div class="col-md-8" style="text-align: center;"><input type="text" name="email" style="width: 100%;" class="form-control"></div>
+			</div>
+			<div class="row">
+				<div class="col-md-4" style="text-align: left;"><h4>Password : </h4></div>
+				<div class="col-md-8" style="text-align: center;"><input type="password" name="password" style="width: 100%;" class="form-control"></div>
+			</div>
+			<div class="row">
+				<div class="col-md-4" style="text-align: left;"><h4>Confirm Password : </h4></div>
+				<div class="col-md-8" style="text-align: center;"><input type="password" name="confirmPassword" style="width: 100%;" class="form-control"></div>
 			</div>
 			<div class="row">
 				<div class="col-md-4" style="text-align: left;"><h4>Birthday : </h4></div>

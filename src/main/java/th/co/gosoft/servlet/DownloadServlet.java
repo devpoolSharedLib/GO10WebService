@@ -16,7 +16,7 @@ import org.openstack4j.api.OSClient;
 import org.openstack4j.model.common.DLPayload;
 import org.openstack4j.model.storage.object.SwiftObject;
 
-import th.co.gosoft.rest.ObjectStorageService;
+import th.co.gosoft.util.ObjectStorageUtils;
 
 @WebServlet("/DownloadServlet")
 public class DownloadServlet extends HttpServlet {
@@ -34,7 +34,7 @@ public class DownloadServlet extends HttpServlet {
 	    
 	    String fileName = request.getParameter("imageName");
 	    
-	    OSClient os = ObjectStorageService.connectObjectStorageService();
+	    OSClient os = ObjectStorageUtils.connectObjectStorageService();
 	    SwiftObject swiftObject = os.objectStorage().objects().get("go10", fileName);
 	    DLPayload dp = swiftObject.download();
 	    InputStream is = dp.getInputStream();

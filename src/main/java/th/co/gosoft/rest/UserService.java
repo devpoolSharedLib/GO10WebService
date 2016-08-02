@@ -64,6 +64,32 @@ public class UserService {
         }
     }
     
+    @GET
+    @Path("/activateUserByToken")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public String activateUser(@QueryParam("token") String token) {
+        System.out.println(">>>>>>>>>>>>>>>>>>> activateUserByToken() // token : " + token);
+        Database db = CloudantClientUtils.getDBNewInstance();
+        List<UserAuthenModel> userAuthenModelList = db.findByIndex(activateUserByTokenJsonString(token), UserAuthenModel.class);
+        if(userAuthenModelList != null && !userAuthenModelList.isEmpty()){
+        	List<UserModel> userModelList =  db.findByIndex(getUserByUserPasswordJsonString(userAuthenModelList.get(0).getEmpEmail()), UserModel.class);
+       	 		if(userModelList.get(0).isActivate()){
+       	 			return "Your account has been activated";
+       	 		}else{
+       	 			UserModel userModel = userModelList.get(0);
+		       		userModel.setActivate(true);
+		       		db.update(userModel);
+		       		System.out.println("You have update the user activate true");
+		       		return "Complete Registration"; 
+       	 		}
+        }else{
+        	System.out.println("Invalid Authentication");
+            return "Invalid Authentication";
+        }
+        
+    }
+    
+    
     @PUT
     @Path("/updateUser")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -138,5 +164,17 @@ public class UserService {
         
         return stingBuilder.toString();
     }
+    
+    private String activateUserByTokenJsonString(String token){
+        StringBuilder stingBuilder = new StringBuilder();
+        stingBuilder.append("{\"selector\": {");
+        stingBuilder.append("\"_id\": {\"$gt\": 0},");
+        stingBuilder.append("\"$and\": [{\"type\": \"authen\"}, {\"token\":\""+token+"\"}] ");
+        stingBuilder.append("},");
+        stingBuilder.append("\"fields\": [\"_id\",\"_rev\",\"empEmail\",\"password\",\"type\",\"token\"]}");
+        
+        return stingBuilder.toString();
+    }
+    
     
 }

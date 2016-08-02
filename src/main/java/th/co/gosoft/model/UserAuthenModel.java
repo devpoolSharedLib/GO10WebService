@@ -5,8 +5,15 @@ public class UserAuthenModel {
     private String empEmail;
     private byte[] password;
     private String type;
+    private String token;
     
-    public String getEmpEmail() {
+    public String getToken() {
+		return token;
+	}
+	public void setToken(String token) {
+		this.token = token;
+	}
+	public String getEmpEmail() {
         return empEmail;
     }
     public void setEmpEmail(String empEmail) {

@@ -28,16 +28,17 @@ import com.cloudant.client.api.Database;
 import th.co.gosoft.model.UserAuthenModel;
 import th.co.gosoft.model.UserModel;
 import th.co.gosoft.util.CloudantClientUtils;
+import th.co.gosoft.util.EncryptUtils;
 import th.co.gosoft.util.KeyStoreUtils;
 
 @WebServlet("/RegisterServlet")
 public class RegisterServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private static final String SUBJECT = "GO10, Sending Invitation Code";
+	private static final String SUBJECT = "GO10, activate your email";
 	private static final String FROM_EMAIL = "gosoft.sharedlib@gmail.com";
     private static final String PASSWORD = "sharedlib";
-	private static final String EMAIL_CONTENT = "Thank you for registeration.\n\nPlease use this invitation code for first time you login the application. \n\n"
-	        + "Your invitation code is : \"";
+	private static final String EMAIL_CONTENT = "Thank you for registration.\n\nPlease click this link to activate your email. \n\n";
+	private static final String DOMAIN_LINK = "https://go10webservice.au-syd.mybluemix.net/GO10WebService/api/user/activateUserByToken";
 	
     public RegisterServlet() {
         super();
@@ -59,9 +60,11 @@ public class RegisterServlet extends HttpServlet {
 	            throw new Exception("Invalid input");
 	        } else if(!getUserByEmail(empEmail).isEmpty()){
 	            request.setAttribute("status", "<span style='color:red'>this email is already registered.</span>");
-                request.getRequestDispatcher("/registration.jsp").forward(request, response);;
+                request.getRequestDispatcher("/registration.jsp").forward(request, response);
 	        } else {
 	            byte[] passEncrypt = encryptPassword(password);
+	            String token = EncryptUtils.encode(empEmail);
+	            String tokenVar = "?token=";
 	            
 	            Database db = CloudantClientUtils.getDBNewInstance();
                 UserModel userModel = new UserModel();
@@ -78,10 +81,12 @@ public class RegisterServlet extends HttpServlet {
                 userAuthenModel.setEmpEmail(empEmail);
                 userAuthenModel.setPassword(passEncrypt);
                 userAuthenModel.setType("authen");
+                userAuthenModel.setToken(token);
                 db.save(userAuthenModel);
                 
-//                String body = EMAIL_CONTENT + token +"\"\n\n\nBest Regards,";
-//                sendFromGMail(FROM_EMAIL, PASSWORD, empEmail, SUBJECT, body);
+                String body = EMAIL_CONTENT + DOMAIN_LINK+tokenVar+token;
+                body += "\n\n\nBest Regards,";
+                sendFromGMail(FROM_EMAIL, PASSWORD, empEmail, SUBJECT, body);
                 
                 request.setAttribute("status", "<span style='color:green'>Registration Complete, invitation code will send to your email.</span>");
                 request.getRequestDispatcher("/registration.jsp").forward(request, response);

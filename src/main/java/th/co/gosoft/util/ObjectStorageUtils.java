@@ -1,6 +1,7 @@
 package th.co.gosoft.util;
 
 import org.openstack4j.api.OSClient;
+import org.openstack4j.api.OSClient.OSClientV3;
 import org.openstack4j.model.common.Identifier;
 import org.openstack4j.openstack.OSFactory;
 
@@ -13,22 +14,16 @@ public class ObjectStorageUtils {
     private static final String PROJECT = "object_storage_477f36e6_f772_48e4_9899_fd5c8c207029";
     private static Identifier domainIdent;
     private static Identifier projectIdent;
-    private static OSClient osClient;
-    
-    static {
-        domainIdent = Identifier.byName(DOMAIN_NAME);
-        projectIdent = Identifier.byName(PROJECT);  
-    }
     
     public static OSClient connectObjectStorageService(){
-        if(osClient == null){
-            osClient = OSFactory.builderV3()
-                    .endpoint(AUTH_URL)
-                    .credentials(USER_ID, PASSWORD)
-                    .scopeToProject(projectIdent, domainIdent)
-                    .authenticate();
-        } 
-        return osClient;
+        domainIdent = Identifier.byName(DOMAIN_NAME);
+        projectIdent = Identifier.byName(PROJECT);  
+        
+        return OSFactory.builderV3()
+                .endpoint(AUTH_URL)
+                .credentials(USER_ID, PASSWORD)
+                .scopeToProject(projectIdent, domainIdent)
+                .authenticate();
         
     }
     

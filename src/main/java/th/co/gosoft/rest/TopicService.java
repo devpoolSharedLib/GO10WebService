@@ -88,7 +88,7 @@ public class TopicService {
     
     private String getTopicByIdJsonString(String topicId){
         StringBuilder sb = new StringBuilder();
-        sb.append("\"{selector\": {");
+        sb.append("{\"selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
         sb.append("\"date\": {\"$gt\": 0},");
         sb.append("\"$or\": [{\"_id\":\""+topicId+"\"}, {\"topicId\":\""+topicId+"\"}]");

@@ -47,7 +47,7 @@ function validateForm() {
         $("#status").text("Please insert Birthday.");
         $("#status").css("color", "red");
         return false;
-    }else if(!validateEmail(email)){
+    }else if(!isEmailFommat(email)||!isGosoftEmailFommat(email)){
     	$("#status").text("Please insert correct email.");
         $("#status").css("color", "red");
         return false;
@@ -61,11 +61,11 @@ function validateForm() {
     }
 }
 
-function checkGosoftEmailPattern(email){
+function isGosoftEmailFommat(email){
 	return email.indexOf("@gosoft.co.th") != -1;
 }
 
-function validateEmail(email) {
+function isEmailFommat(email) {
 	var reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 	return reg.test(email);
 }

@@ -37,7 +37,7 @@ public class RegisterServlet extends HttpServlet {
 	private static final String SUBJECT = "GO10, activate your email";
 	private static final String FROM_EMAIL = "gosoft.sharedlib@gmail.com";
     private static final String PASSWORD = "sharedlib";
-	private static final String EMAIL_CONTENT = "Thank you for registration.\n\nPlease click this link to activate your email. \n\n";
+	private static final String EMAIL_CONTENT = "Thank you for registration.\n\nPlease copy and paste the following link in Google Chrome Browser. \n\n";
 	private static final String DOMAIN_LINK = "https://go10webservice.au-syd.mybluemix.net/GO10WebService/api/user/activateUserByToken";
 	
     public RegisterServlet() {

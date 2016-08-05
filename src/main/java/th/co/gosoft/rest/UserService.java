@@ -103,15 +103,17 @@ public class UserService {
     public String resetPasswordByEmail(@QueryParam("email") String email) {
         System.out.println(">>>>>>>>>>>>>>>>>>> resetPasswordByEmail() // email : " + email);
         Database db = CloudantClientUtils.getDBNewInstance();
-        List<UserModel> UserModelModelList = db.findByIndex(getUserByEmailJsonString(email), UserModel.class);
-        if(UserModelModelList != null && !UserModelModelList.isEmpty()){
-        	List<UserModel> userModelList =  db.findByIndex(getUserByEmailJsonString(UserModelModelList.get(0).getEmpEmail()), UserModel.class);
-       	 		if(userModelList.get(0).isActivate()){
+        List<UserModel> UserModelList = db.findByIndex(getUserByEmailJsonString(email), UserModel.class);
+        if(UserModelList != null && !UserModelList.isEmpty()){
+        	List<UserAuthenModel> userAuthenModelList =  db.findByIndex(getUserAuthenByEmailJsonString(UserModelList.get(0).getEmpEmail()), UserAuthenModel.class);
+       	 		if(UserModelList.get(0).isActivate()){
        	 			System.out.println("Send Email");
-       	 		 String emailVar = "?email=";
-       	 		 String body = EMAIL_CONTENT + DOMAIN_LINK+emailVar+email;
+       	 		 String emailVar = "?token=";
+       	 		 String token = userAuthenModelList.get(0).getToken();
+       	 		 System.out.println(">>>>>>>>>"+UserModelList.get(0).getEmpEmail() + " " + token);
+       	 		 String body = EMAIL_CONTENT + DOMAIN_LINK+emailVar+token;
                  body += "\n\n\nBest Regards,";
-//                 EmailUtils.sendFromGMail(FROM_EMAIL, PASSWORD, email, SUBJECT, body);
+                 EmailUtils.sendFromGMail(FROM_EMAIL, PASSWORD, email, SUBJECT, body);
        	 		return "You can check e-mail for reset password.";
        	 		}else{
        	 		System.out.println("User has not been activated.");

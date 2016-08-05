@@ -1,65 +1,40 @@
 package th.co.gosoft.util;
 
-import java.util.Date;
 import java.util.Properties;
-
-import javax.activation.DataHandler;
-import javax.activation.FileDataSource;
 import javax.mail.Message;
-import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 
 public class EmailUtils {
 
-    private static final String ENCODING = "UTF-8";
-    private static final String DEFAULT_SMTP_SERVER_HOST = "tarmg.cpall.co.th";
-
-    private EmailUtils() {
-    }
-
-    private static String getSTMPHost() {
-        return DEFAULT_SMTP_SERVER_HOST;
-    }
-
-    public static void send(String from, String to, String cc, String bcc, String subject, String message, String attachFilePath) {
-        String smtpHost = getSTMPHost();
+    public static void sendFromGMail(String from, String pass, String to, String subject, String body) {
         Properties props = System.getProperties();
-        props.put("mail.smtp.host", smtpHost.trim());
-        Session session = Session.getInstance(props);
-        session.setDebug(false);
-        try {
-            MimeMessage msg = new MimeMessage(session);
-            msg.setFrom(new InternetAddress(from.trim()));
-            msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to.trim(), false));
-            msg.setSubject(subject, ENCODING);
-            MimeBodyPart mbp1 = new MimeBodyPart();
-            mbp1.setText(message, ENCODING);
-            Multipart mp = new MimeMultipart();
-            mp.addBodyPart(mbp1);
+        String host = "smtp.gmail.com";
+        props.put("mail.transport.protocol", "smtp");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.host", host);
+        props.put("mail.smtp.user", from);
+        props.put("mail.smtp.password", pass);
+        props.put("mail.smtp.port", "25");
+        props.put("mail.smtp.auth", "true");
 
-            if (attachFilePath != null && attachFilePath.length() > 0) {
-                MimeBodyPart mbp2 = new MimeBodyPart();
-                FileDataSource fds = new FileDataSource(attachFilePath);
-                mbp2.setDataHandler(new DataHandler(fds));
-                mbp2.setFileName(fds.getName());
-                mp.addBodyPart(mbp2);
-            }
-            msg.setContent(mp);
-            msg.setSentDate(new Date());
-            Transport.send(msg);
+        Session session = Session.getInstance(props, null);
+        MimeMessage message = new MimeMessage(session);
+
+        try {
+            message.setFrom(new InternetAddress(from, "GO10", "utf-8"));;
+            message.setRecipients(Message.RecipientType.TO,InternetAddress.parse(to, false));
+            message.setSubject(subject);
+            message.setText(body);
+            Transport transport = session.getTransport();
+            transport.connect(host, from, pass);
+            transport.sendMessage(message, message.getAllRecipients());
+            transport.close();
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
-        } finally {
-            session = null;
-        }
+        } 
     }
 
-    public static void send(String from, String to, String cc, String bcc, String subject, String message) {
-        send(from, to, cc, bcc, subject, message, null);
-    }
 }

@@ -28,6 +28,7 @@ import com.cloudant.client.api.Database;
 import th.co.gosoft.model.UserAuthenModel;
 import th.co.gosoft.model.UserModel;
 import th.co.gosoft.util.CloudantClientUtils;
+import th.co.gosoft.util.EmailUtils;
 import th.co.gosoft.util.EncryptUtils;
 import th.co.gosoft.util.KeyStoreUtils;
 
@@ -86,9 +87,9 @@ public class RegisterServlet extends HttpServlet {
                 
                 String body = EMAIL_CONTENT + DOMAIN_LINK+tokenVar+token;
                 body += "\n\n\nBest Regards,";
-                sendFromGMail(FROM_EMAIL, PASSWORD, empEmail, SUBJECT, body);
+                EmailUtils.sendFromGMail(FROM_EMAIL, PASSWORD, empEmail, SUBJECT, body);
                 
-                request.setAttribute("status", "<span style='color:green'>Registration Complete, invitation code will send to your email.</span>");
+                request.setAttribute("status", "<span style='color:green'>Registration Complete, invitation link will send to your email.</span>");
                 request.getRequestDispatcher("/registration.jsp").forward(request, response);
 	        }
 	    } catch (Exception e){
@@ -109,33 +110,7 @@ public class RegisterServlet extends HttpServlet {
         return empSurName == null || empSurName.isEmpty() || empLastName == null || empLastName.isEmpty() || empEmail == null || empEmail.isEmpty() ||  password == null || password.isEmpty() || birthday == null || birthday.isEmpty();
     }
 	
-	private static void sendFromGMail(String from, String pass, String to, String subject, String body) {
-        Properties props = System.getProperties();
-        String host = "smtp.gmail.com";
-        props.put("mail.transport.protocol", "smtp");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", host);
-        props.put("mail.smtp.user", from);
-        props.put("mail.smtp.password", pass);
-        props.put("mail.smtp.port", "25");
-        props.put("mail.smtp.auth", "true");
-
-        Session session = Session.getInstance(props, null);
-        MimeMessage message = new MimeMessage(session);
-
-        try {
-            message.setFrom(new InternetAddress(from, "GO10", "utf-8"));;
-            message.setRecipients(Message.RecipientType.TO,InternetAddress.parse(to, false));
-            message.setSubject(subject);
-            message.setText(body);
-            Transport transport = session.getTransport();
-            transport.connect(host, from, pass);
-            transport.sendMessage(message, message.getAllRecipients());
-            transport.close();
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        } 
-    }
+	
 	
 	private List<UserModel> getUserByEmail(@QueryParam("token") String email) {
         System.out.println(">>>>>>>>>>>>>>>>>>> getUserByEmail() // email : "+email);
@@ -149,7 +124,7 @@ public class RegisterServlet extends HttpServlet {
         StringBuilder stingBuilder = new StringBuilder();
         stingBuilder.append("{\"selector\": {");
         stingBuilder.append("\"_id\": {\"$gt\": 0},");
-        stingBuilder.append("\"$and\": [{\"type\": \"user\"}, {\"empEmail\":\""+email+"\"} ] ");
+        stingBuilder.append("\"$and\": [{\"type\": \"authen\"}, {\"empEmail\":\""+email+"\"} ] ");
         stingBuilder.append("},");
         stingBuilder.append("\"fields\": [\"_id\",\"_rev\",\"accountId\",\"empName\",\"empEmail\",\"avatarName\",\"avatarPic\",\"token\",\"activate\",\"type\"]}");
         

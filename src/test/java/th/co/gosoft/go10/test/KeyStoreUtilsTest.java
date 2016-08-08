@@ -1,4 +1,4 @@
-package th.co.gosoft.test;
+package th.co.gosoft.go10.test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -11,7 +11,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import th.co.gosoft.util.KeyStoreUtils;
+import th.co.gosoft.go10.util.KeyStoreUtils;
 
 public class KeyStoreUtilsTest {
 

@@ -1,4 +1,4 @@
-package th.co.gosoft.servlet;
+package th.co.gosoft.go10.servlet;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -16,7 +16,7 @@ import org.openstack4j.api.OSClient;
 import org.openstack4j.model.common.DLPayload;
 import org.openstack4j.model.storage.object.SwiftObject;
 
-import th.co.gosoft.util.ObjectStorageUtils;
+import th.co.gosoft.go10.util.ObjectStorageUtils;
 
 @WebServlet("/DownloadServlet")
 public class DownloadServlet extends HttpServlet {

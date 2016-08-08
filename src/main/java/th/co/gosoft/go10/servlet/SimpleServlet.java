@@ -1,4 +1,4 @@
-package th.co.gosoft.servlet;
+package th.co.gosoft.go10.servlet;
 
 import java.io.IOException;
 

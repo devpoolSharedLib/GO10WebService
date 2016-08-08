@@ -1,4 +1,4 @@
-package th.co.gosoft.servlet;
+package th.co.gosoft.go10.servlet;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
@@ -11,11 +11,6 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import javax.mail.Message;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -25,22 +20,23 @@ import javax.ws.rs.QueryParam;
 
 import com.cloudant.client.api.Database;
 
-import th.co.gosoft.model.UserAuthenModel;
-import th.co.gosoft.model.UserModel;
-import th.co.gosoft.util.CloudantClientUtils;
-import th.co.gosoft.util.EmailUtils;
-import th.co.gosoft.util.EncryptUtils;
-import th.co.gosoft.util.KeyStoreUtils;
+import th.co.gosoft.go10.model.UserAuthenModel;
+import th.co.gosoft.go10.model.UserModel;
+import th.co.gosoft.go10.util.CloudantClientUtils;
+import th.co.gosoft.go10.util.EmailUtils;
+import th.co.gosoft.go10.util.EncryptUtils;
+import th.co.gosoft.go10.util.KeyStoreUtils;
+import th.co.gosoft.go10.util.PropertiesUtils;
 
 @WebServlet("/RegisterServlet")
 public class RegisterServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final String SUBJECT = "GO10, activate your email";
-	private static final String FROM_EMAIL = "gosoft.sharedlib@gmail.com";
-    private static final String PASSWORD = "sharedlib";
 	private static final String EMAIL_CONTENT = "Thank you for registration.\n\nPlease copy and paste the following link in Google Chrome Browser. \n\n";
 	private static final String DOMAIN_LINK = "https://go10webservice.au-syd.mybluemix.net/GO10WebService/api/user/activateUserByToken";
-	
+	private static String FROM_EMAIL;
+    private static String PASSWORD;
+    
     public RegisterServlet() {
         super();
     }
@@ -52,6 +48,7 @@ public class RegisterServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
 	    try{
+	        initialVariable();
 	        String empSurName = request.getParameter("surname");
 	        String empLastName = request.getParameter("lastname");
 	        String empEmail = request.getParameter("email");
@@ -119,8 +116,8 @@ public class RegisterServlet extends HttpServlet {
         System.out.println("GET Complete");
         return userModelList;
     }
-
-	 private String getUserByEmailJsonString(String email){
+	
+	private String getUserByEmailJsonString(String email){
         StringBuilder stingBuilder = new StringBuilder();
         stingBuilder.append("{\"selector\": {");
         stingBuilder.append("\"_id\": {\"$gt\": 0},");
@@ -130,4 +127,17 @@ public class RegisterServlet extends HttpServlet {
         
         return stingBuilder.toString();
     }
+	 
+	private static void initialVariable(){
+        String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
+        if (VCAP_SERVICES != null) {
+            String USER_DEFINED = System.getenv("USER-DEFINED");
+            FROM_EMAIL = System.getenv("send_email");
+            PASSWORD = System.getenv("send_email_password");
+        } else {
+            Properties prop = PropertiesUtils.getProperties();
+            FROM_EMAIL = prop.getProperty("send_email");
+            PASSWORD = prop.getProperty("send_email_password");
+        }
+	 }
 }

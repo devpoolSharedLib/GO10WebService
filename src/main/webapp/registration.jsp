@@ -54,6 +54,7 @@ function validateForm() {
     }else if(password == null || password == "" || confirmPassword == null || confirmPassword == "" || password != confirmPassword){
     	$("#status").text("Please insert correct password.");
         $("#status").css("color", "red");
+        return false;
     }else if(parseInt(age)<15){
     	$("#status").text("This application should be older 15.");
         $("#status").css("color", "red");

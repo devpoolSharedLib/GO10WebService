@@ -1,10 +1,10 @@
-package th.co.gosoft.test;
+package th.co.gosoft.go10.test;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import th.co.gosoft.util.EncryptUtils;
+import th.co.gosoft.go10.util.EncryptUtils;
 
 public class EncryptUtilsTest {
 

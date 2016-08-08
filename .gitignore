@@ -4,3 +4,4 @@ target/
 .project
 LICENSE
 .factorypath
+src/main/resources/config.properties

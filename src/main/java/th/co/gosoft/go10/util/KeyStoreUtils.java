@@ -1,4 +1,4 @@
-package th.co.gosoft.util;
+package th.co.gosoft.go10.util;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

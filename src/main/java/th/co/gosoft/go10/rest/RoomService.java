@@ -1,4 +1,4 @@
-package th.co.gosoft.rest;
+package th.co.gosoft.go10.rest;
 
 import java.util.List;
 
@@ -9,8 +9,8 @@ import javax.ws.rs.core.MediaType;
 
 import com.cloudant.client.api.Database;
 
-import th.co.gosoft.model.RoomModel;
-import th.co.gosoft.util.CloudantClientUtils;
+import th.co.gosoft.go10.model.RoomModel;
+import th.co.gosoft.go10.util.CloudantClientUtils;
 
 @Path("room")
 public class RoomService {

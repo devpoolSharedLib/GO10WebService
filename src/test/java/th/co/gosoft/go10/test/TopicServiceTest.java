@@ -1,4 +1,4 @@
-package th.co.gosoft.test;
+package th.co.gosoft.go10.test;
 
 import static org.junit.Assert.*;
 
@@ -11,8 +11,8 @@ import java.util.Locale;
 
 import org.junit.Test;
 
-import th.co.gosoft.model.TopicModel;
-import th.co.gosoft.rest.TopicService;
+import th.co.gosoft.go10.model.TopicModel;
+import th.co.gosoft.go10.rest.TopicService;
 
 public class TopicServiceTest {
 

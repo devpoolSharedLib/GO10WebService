@@ -1,9 +1,9 @@
-package th.co.gosoft.test;
+package th.co.gosoft.go10.test;
 
 import org.junit.Test;
 import org.openstack4j.api.OSClient;
 
-import th.co.gosoft.util.ObjectStorageUtils;
+import th.co.gosoft.go10.util.ObjectStorageUtils;
 
 public class ObjectStorageServiceTest {
 

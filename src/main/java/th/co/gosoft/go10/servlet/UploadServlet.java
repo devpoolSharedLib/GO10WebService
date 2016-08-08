@@ -1,4 +1,4 @@
-package th.co.gosoft.servlet;
+package th.co.gosoft.go10.servlet;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +19,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.openstack4j.api.OSClient;
 import org.openstack4j.model.common.Payloads;
 
-import th.co.gosoft.util.ObjectStorageUtils;
+import th.co.gosoft.go10.util.ObjectStorageUtils;
 
 @WebServlet("/UploadServlet")
 public class UploadServlet extends HttpServlet {

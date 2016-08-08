@@ -1,4 +1,4 @@
-package th.co.gosoft.model;
+package th.co.gosoft.go10.model;
 
 public class RoomModel {
 

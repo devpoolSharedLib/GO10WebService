@@ -1,4 +1,4 @@
-package th.co.gosoft.rest;
+package th.co.gosoft.go10.rest;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -20,8 +20,8 @@ import javax.ws.rs.core.Response;
 
 import com.cloudant.client.api.Database;
 
-import th.co.gosoft.model.TopicModel;
-import th.co.gosoft.util.CloudantClientUtils;
+import th.co.gosoft.go10.model.TopicModel;
+import th.co.gosoft.go10.util.CloudantClientUtils;
 
 @Path("topic")
 public class TopicService {

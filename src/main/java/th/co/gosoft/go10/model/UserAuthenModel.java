@@ -1,7 +1,8 @@
 package th.co.gosoft.go10.model;
 
 public class UserAuthenModel {
-    
+	private String _id;
+	private String _rev;
     private String empEmail;
     private byte[] password;
     private String type;
@@ -31,5 +32,16 @@ public class UserAuthenModel {
     public void setType(String type) {
         this.type = type;
     }
-    
+    public String get_id() {
+		return _id;
+	}
+	public void set_id(String _id) {
+		this._id = _id;
+	}
+	public String get_rev() {
+		return _rev;
+	}
+	public void set_rev(String _rev) {
+		this._rev = _rev;
+	}
 }

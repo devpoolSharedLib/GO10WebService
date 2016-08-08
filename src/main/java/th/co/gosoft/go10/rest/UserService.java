@@ -28,7 +28,7 @@ import th.co.gosoft.go10.util.PropertiesUtils;
 public class UserService {
 	private static final String SUBJECT = "GO10, reset your password";
 	private static final String EMAIL_CONTENT = "\nPlease copy and paste the following link in Google Chrome Browser. \n\n";
-	private static final String DOMAIN_LINK = "https://go10webservice.au-syd.mybluemix.net/GO10WebService/api/user/activateUserByToken";
+	private static final String DOMAIN_LINK_RESET_PASSWORD = "https://go10webservice.au-syd.mybluemix.net/GO10WebService/resetpassword.jsp";
 	
 	private static String FROM_EMAIL;
     private static String PASSWORD;
@@ -110,10 +110,10 @@ public class UserService {
    	 		if(UserModelList.get(0).isActivate()){
    	 		    initialVariable();
    	 			System.out.println("Send Email");
-       	 		String emailVar = "?token=";
+       	 		String tokenVar = "?token=";
        	 		String token = userAuthenModelList.get(0).getToken();
-       	 		System.out.println(">>>>>>>>>"+UserModelList.get(0).getEmpEmail() + " " + token);
-       	 		String body = EMAIL_CONTENT + DOMAIN_LINK+emailVar+token;
+       	 		System.out.println(">>>>>>>>>"+userAuthenModelList.get(0).getToken() + " " + token);
+       	 		String body = EMAIL_CONTENT + DOMAIN_LINK_RESET_PASSWORD+tokenVar+token;
                 body += "\n\n\nBest Regards,";
                 EmailUtils.sendFromGMail(FROM_EMAIL, PASSWORD, email, SUBJECT, body);
        	 		return "You can check e-mail for reset password.";

@@ -19,6 +19,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.cloudant.client.api.Database;
+import com.cloudant.client.api.model.FindByIndexOptions;
+import com.cloudant.client.api.model.IndexField;
+import com.cloudant.client.api.model.IndexField.SortOrder;
 
 import th.co.gosoft.go10.model.TopicModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
@@ -55,7 +58,8 @@ public class TopicService {
     public List<TopicModel> getTopicById(@QueryParam("topicId") String topicId){
         System.out.println(">>>>>>>>>>>>>>>>>>> getTopicById() //topcic id : "+topicId);
         Database db = CloudantClientUtils.getDBNewInstance();
-        List<TopicModel> topicModelList = db.findByIndex(getTopicByIdJsonString(topicId), TopicModel.class);
+        List<TopicModel> topicModelList = db.findByIndex(getTopicByIdJsonString(topicId), TopicModel.class, new FindByIndexOptions()
+          		 .sort(new IndexField("date", SortOrder.asc)));
         List<TopicModel> resultList = formatDate(topicModelList);
         System.out.println("GET Complete");
         return resultList;
@@ -67,7 +71,8 @@ public class TopicService {
     public List<TopicModel> getTopicListByRoomId(@QueryParam("roomId") String roomId){
         System.out.println(">>>>>>>>>>>>>>>>>>> getTopicListByRoomId() //room id : "+roomId);
         Database db = CloudantClientUtils.getDBNewInstance();
-        List<TopicModel> topicModelList = db.findByIndex(getTopicListByRoomIdJsonString(roomId), TopicModel.class);
+        List<TopicModel> topicModelList = db.findByIndex(getTopicListByRoomIdJsonString(roomId), TopicModel.class, new FindByIndexOptions()
+       		 .sort(new IndexField("date", SortOrder.desc)));
         List<TopicModel> resultList = formatDate(topicModelList);
         System.out.println("size : "+resultList.size());
         System.out.println("GET Complete");
@@ -80,8 +85,19 @@ public class TopicService {
     public List<TopicModel> getHotTopicList(){
         System.out.println(">>>>>>>>>>>>>>>>>>> getHotTopicList()");
         Database db = CloudantClientUtils.getDBNewInstance();
-        List<TopicModel> topicModelList = db.findByIndex(getHotTopicListJsonString(), TopicModel.class);
+        
+        List<TopicModel> topicModelList = db.findByIndex(getHotTopicListJsonString(), TopicModel.class, new FindByIndexOptions()
+        		 .sort(new IndexField("date", SortOrder.desc)));
+
+        System.out.println("topicModelList");
+        for(int i=0;i<topicModelList.size();i++){
+        	System.out.println("datetime : " + topicModelList.get(i).getDate());
+        }
         List<TopicModel> resultList = formatDate(topicModelList);
+        System.out.println("resultList");
+        for(int i=0;i<resultList.size();i++){
+        	System.out.println("datetime : " + resultList.get(i).getDate());
+        }
         System.out.println("getHotTopicList list size : "+resultList.size());
         return resultList;
     }
@@ -93,8 +109,9 @@ public class TopicService {
         sb.append("\"date\": {\"$gt\": 0},");
         sb.append("\"$or\": [{\"_id\":\""+topicId+"\"}, {\"topicId\":\""+topicId+"\"}]");
         sb.append("},");
-        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"],");
-        sb.append("\"sort\": [ {\"date\": \"asc\"}]}");
+        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"]}");
+//        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"],"); 
+//        sb.append("\"sort\": [ {\"date\": \"asc\"}]}");
         
         return sb.toString();
     }
@@ -106,22 +123,26 @@ public class TopicService {
         sb.append("\"date\": {\"$gt\": 0},");
         sb.append("\"$and\": [{\"type\":\"host\"}, {\"roomId\":\""+roomId+"\"}]");
         sb.append("},");
-        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"],");
-        sb.append("\"sort\": [ {\"date\": \"desc\"}]}");
+        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"]}");
+        
+        //sb.append("\"sort\": [ {\"date\": \"desc\"}]}");
         
         return sb.toString();
     }
     
     private String getHotTopicListJsonString(){
+    	
         StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
         sb.append("\"date\": {\"$gt\": 0},");
         sb.append("\"$and\": [{\"type\":\"host\"}]");
         sb.append("},");
-        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"],");
-        sb.append("\"sort\": [ {\"date\": \"desc\"}]}");
+        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"]}");
+
+//        sb.append("\"sort\": [ {\"date\": \"desc\"}]}");
         
+        System.out.println("string query " + sb.toString());
         return sb.toString();
     }
     

@@ -8,6 +8,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import com.cloudant.client.api.Database;
+import com.cloudant.client.api.model.FindByIndexOptions;
+import com.cloudant.client.api.model.IndexField;
+import com.cloudant.client.api.model.IndexField.SortOrder;
 
 import th.co.gosoft.go10.model.RoomModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
@@ -21,7 +24,8 @@ public class RoomService {
     public List<RoomModel> getRooms() {
         System.out.println(">>>>>>>>>>>>>>>>>>> getRooms()");
         Database db = CloudantClientUtils.getDBNewInstance();
-        List<RoomModel> roomModel = db.findByIndex(getRoomJsonString(), RoomModel.class);
+        List<RoomModel> roomModel = db.findByIndex(getRoomJsonString(), RoomModel.class, new FindByIndexOptions()
+         		 .sort(new IndexField("_id", SortOrder.asc)));
         System.out.println("GET Complete");
         return roomModel;
     }
@@ -32,8 +36,9 @@ public class RoomService {
         stingBuilder.append("\"_id\": {\"$gt\": 0},");
         stingBuilder.append("\"$and\": [{\"type\":\"room\"}]");
         stingBuilder.append("},");
-        stingBuilder.append("\"fields\": [\"_id\",\"_rev\",\"name\",\"desc\", \"type\"],");
-        stingBuilder.append("\"sort\": [{\"_id\": \"asc\"}]}");
+        stingBuilder.append("\"fields\": [\"_id\",\"_rev\",\"name\",\"desc\", \"type\"]}");
+        
+//        stingBuilder.append("\"sort\": [{\"_id\": \"asc\"}]}");
         
         return stingBuilder.toString();
     }

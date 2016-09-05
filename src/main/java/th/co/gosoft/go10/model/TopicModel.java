@@ -15,9 +15,10 @@ public class TopicModel {
     
 	public TopicModel(){}
     
-    public TopicModel(String _id, String date){
+    public TopicModel(String _id, String date, String content){
         this._id = _id;
         this.date = date;
+        this.content = content;
     }
     
     public String getSubject() {

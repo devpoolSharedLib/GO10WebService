@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -25,12 +27,14 @@ import com.cloudant.client.api.model.IndexField.SortOrder;
 
 import th.co.gosoft.go10.model.TopicModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
+import th.co.gosoft.go10.util.PropertiesUtils;
 
 @Path("topic")
 public class TopicService {
-    DateFormat postFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.US);
-    DateFormat getFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.US);
-
+    private DateFormat postFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.US);
+    private DateFormat getFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.US);
+    private String domain;
+    
     @POST
     @Path("/post")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -40,11 +44,11 @@ public class TopicService {
         System.out.println("topic subject : "+topicModel.getSubject());
         System.out.println("topic content : "+topicModel.getContent());
         
+        topicModel.setContent(deleteDomainImagePath(topicModel.getContent()));
         topicModel.setDate(postFormat.format(new Date()));
+        
         Database db = CloudantClientUtils.getDBNewInstance();
-
         com.cloudant.client.api.model.Response response = db.save(topicModel);
-        System.out.println("You have inserted the document");
 
         String result = response.getId();
         System.out.println(">>>>>>>>>>>>>>>>>>> post result id : "+result);
@@ -60,6 +64,7 @@ public class TopicService {
         Database db = CloudantClientUtils.getDBNewInstance();
         List<TopicModel> topicModelList = db.findByIndex(getTopicByIdJsonString(topicId), TopicModel.class, new FindByIndexOptions()
           		 .sort(new IndexField("date", SortOrder.asc)));
+        concatDomainImagePath(topicModelList);
         List<TopicModel> resultList = formatDate(topicModelList);
         System.out.println("GET Complete");
         return resultList;
@@ -88,20 +93,69 @@ public class TopicService {
         
         List<TopicModel> topicModelList = db.findByIndex(getHotTopicListJsonString(), TopicModel.class, new FindByIndexOptions()
         		 .sort(new IndexField("date", SortOrder.desc)));
-
-        System.out.println("topicModelList");
-        for(int i=0;i<topicModelList.size();i++){
-        	System.out.println("datetime : " + topicModelList.get(i).getDate());
-        }
         List<TopicModel> resultList = formatDate(topicModelList);
-        System.out.println("resultList");
-        for(int i=0;i<resultList.size();i++){
-        	System.out.println("datetime : " + resultList.get(i).getDate());
-        }
+        
         System.out.println("getHotTopicList list size : "+resultList.size());
         return resultList;
     }
     
+    public String deleteDomainImagePath(String content) {
+        String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
+        if (VCAP_SERVICES != null) {
+            domain = System.getenv("domain_image_path");
+        } else {
+            Properties prop = PropertiesUtils.getProperties();
+            domain = prop.getProperty("domain_image_path");
+        }
+        
+        String result = "";
+        if(content.contains(domain)){
+            String[] parts = content.split(Pattern.quote(domain));
+            for (String subString : parts) {
+                result += subString;
+            }
+        } else {
+            result = content;
+        }
+        
+        return result;
+    }
+    
+    public void concatDomainImagePath(List<TopicModel> topicModelList) {
+        String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
+        if (VCAP_SERVICES != null) {
+            domain = System.getenv("domain_image_path");
+        } else {
+            Properties prop = PropertiesUtils.getProperties();
+            domain = prop.getProperty("domain_image_path");
+        }
+        
+        for (int i=0; i<topicModelList.size(); i++) {
+            topicModelList.get(i).setContent(concatDomainImagePath(topicModelList.get(i).getContent()));
+        }
+        
+    }
+
+    private String concatDomainImagePath(String content) {
+        String result = content;
+        String regex = "<img src=\"";
+        if(result.contains(regex)){
+            int fromIndex = 0;
+            while(fromIndex<result.length() && fromIndex>=0){
+                fromIndex = result.indexOf(regex, fromIndex);
+                if(fromIndex != -1){
+                    fromIndex = fromIndex + 10;
+                    StringBuilder stringBuilder = new StringBuilder(result);
+                    stringBuilder.insert(fromIndex, domain);
+                    result = stringBuilder.toString();
+                }
+                
+            }
+        }
+        
+        return result;
+    }
+
     private String getTopicByIdJsonString(String topicId){
         StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");
@@ -110,9 +164,6 @@ public class TopicService {
         sb.append("\"$or\": [{\"_id\":\""+topicId+"\"}, {\"topicId\":\""+topicId+"\"}]");
         sb.append("},");
         sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"]}");
-//        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"],"); 
-//        sb.append("\"sort\": [ {\"date\": \"asc\"}]}");
-        
         return sb.toString();
     }
     
@@ -124,14 +175,10 @@ public class TopicService {
         sb.append("\"$and\": [{\"type\":\"host\"}, {\"roomId\":\""+roomId+"\"}]");
         sb.append("},");
         sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"]}");
-        
-        //sb.append("\"sort\": [ {\"date\": \"desc\"}]}");
-        
         return sb.toString();
     }
     
     private String getHotTopicListJsonString(){
-    	
         StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
@@ -139,17 +186,11 @@ public class TopicService {
         sb.append("\"$and\": [{\"type\":\"host\"}]");
         sb.append("},");
         sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"]}");
-
-//        sb.append("\"sort\": [ {\"date\": \"desc\"}]}");
-        
-        System.out.println("string query " + sb.toString());
         return sb.toString();
     }
     
     public List<TopicModel> formatDate(List<TopicModel> topicModelList) {
-       
         List<TopicModel> resultList = new ArrayList<TopicModel>();
-        
         for (TopicModel topicModel : topicModelList) {
             TopicModel resultModel = topicModel;
             resultModel.setDate(getFormat.format(parseStringToDate(topicModel.getDate())));

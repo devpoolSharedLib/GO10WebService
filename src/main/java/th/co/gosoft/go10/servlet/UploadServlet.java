@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -20,15 +21,16 @@ import org.openstack4j.api.OSClient;
 import org.openstack4j.model.common.Payloads;
 
 import th.co.gosoft.go10.util.ObjectStorageUtils;
+import th.co.gosoft.go10.util.PropertiesUtils;
 
 @WebServlet("/UploadServlet")
 public class UploadServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private static final String DOMAIN_DOWNLOAD_SERVLET = "http://go10webservice.au-syd.mybluemix.net/GO10WebService/DownloadServlet?imageName=";
 	private final String lexicon = "ABCDEFGHIJKLMNOPQRSTUVWXYZ12345674890";
 	private final java.util.Random rand = new java.util.Random();
 	private final Set<String> identifiers = new HashSet<String>();
 	
+	private String domainImagePath;
 	private boolean isMultipart;
 	private int maxFileSize = 50000 * 1024;
 	private int maxMemSize = 400 * 1024;
@@ -44,6 +46,15 @@ public class UploadServlet extends HttpServlet {
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// Check that we have a file upload request
+	    
+	    String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
+        if (VCAP_SERVICES != null) {
+            domainImagePath = System.getenv("domain_image_path");
+        } else {
+            Properties prop = PropertiesUtils.getProperties();
+            domainImagePath = prop.getProperty("domain_image_path");
+        }
+	    
 	    os = ObjectStorageUtils.connectObjectStorageService();
 		isMultipart = ServletFileUpload.isMultipartContent(request);
 		response.setContentType("text/html");
@@ -77,8 +88,8 @@ public class UploadServlet extends HttpServlet {
 					    String etag = os.objectStorage().objects().put("go10", randomName, Payloads.create(is));
 						
 					    if(etag != null && !"".equals(etag)){
-					        System.out.println("{\"imgUrl\" : \""+DOMAIN_DOWNLOAD_SERVLET+ randomName +"\"}");
-	                        out.print("{\"imgUrl\" : \""+DOMAIN_DOWNLOAD_SERVLET+ randomName +"\"}");
+					        System.out.println("{\"imgUrl\" : \""+domainImagePath+ randomName +"\"}");
+	                        out.print("{\"imgUrl\" : \""+domainImagePath+ randomName +"\"}");
 					    }
 						
 					}

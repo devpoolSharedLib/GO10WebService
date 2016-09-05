@@ -110,7 +110,7 @@ function getAge(dateString)
 	<div class="col-md-6 col-md-offset-3 col-xs-12 col-sm-12">
 		<form name="regisForm" action="/GO10WebService/RegisterServlet" onsubmit="return validateForm()" method="post" style="width: 100%; text-align: center;">
 			<div class="row">
-				<div class="col-md-4" style="text-align: left;"><h4>Surname : </h4></div>
+				<div class="col-md-4" style="text-align: left;"><h4>Firstname : </h4></div>
 				<div class="col-md-8" style="text-align: center;"><input type="text" name="surname" style="width: 100%;" class="form-control"></div>
 			</div>
 			<div class="row">

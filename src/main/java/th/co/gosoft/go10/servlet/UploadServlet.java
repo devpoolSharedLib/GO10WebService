@@ -24,7 +24,7 @@ import th.co.gosoft.go10.util.ObjectStorageUtils;
 @WebServlet("/UploadServlet")
 public class UploadServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	
+	private static final String DOMAIN_DOWNLOAD_SERVLET = "http://go10webservice.au-syd.mybluemix.net/GO10WebService/DownloadServlet?imageName=";
 	private final String lexicon = "ABCDEFGHIJKLMNOPQRSTUVWXYZ12345674890";
 	private final java.util.Random rand = new java.util.Random();
 	private final Set<String> identifiers = new HashSet<String>();
@@ -77,8 +77,8 @@ public class UploadServlet extends HttpServlet {
 					    String etag = os.objectStorage().objects().put("go10", randomName, Payloads.create(is));
 						
 					    if(etag != null && !"".equals(etag)){
-					        System.out.println("{\"imgUrl\" : \"/GO10WebService/DownloadServlet?imageName="+ randomName +"\"}");
-	                        out.print("{\"imgUrl\" : \"/GO10WebService/DownloadServlet?imageName="+ randomName +"\"}");
+					        System.out.println("{\"imgUrl\" : \""+DOMAIN_DOWNLOAD_SERVLET+ randomName +"\"}");
+	                        out.print("{\"imgUrl\" : \""+DOMAIN_DOWNLOAD_SERVLET+ randomName +"\"}");
 					    }
 						
 					}

@@ -5,6 +5,7 @@ public class TopicModel {
     private String _id;
     private String _rev;
     private String topicId;
+    private String empEmail;
     private String avatarName;
 	private String avatarPic;
     private String subject;
@@ -100,5 +101,13 @@ public class TopicModel {
 	public void setAvatarPic(String avatarPic) {
 		this.avatarPic = avatarPic;
 	}
+
+    public String getEmpEmail() {
+        return empEmail;
+    }
+
+    public void setEmpEmail(String empEmail) {
+        this.empEmail = empEmail;
+    }
     
 }

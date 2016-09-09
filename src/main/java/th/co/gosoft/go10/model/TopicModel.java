@@ -13,6 +13,7 @@ public class TopicModel {
     private String date;
     private String type;
     private String roomId;
+    private int countLike;
     
 	public TopicModel(){}
     
@@ -109,5 +110,13 @@ public class TopicModel {
     public void setEmpEmail(String empEmail) {
         this.empEmail = empEmail;
     }
-    
+
+    public int getCountLike() {
+        return countLike;
+    }
+
+    public void setCountLike(int countLike) {
+        this.countLike = countLike;
+    }
+
 }

@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -25,6 +26,7 @@ import com.cloudant.client.api.model.FindByIndexOptions;
 import com.cloudant.client.api.model.IndexField;
 import com.cloudant.client.api.model.IndexField.SortOrder;
 
+import th.co.gosoft.go10.model.LikeModel;
 import th.co.gosoft.go10.model.TopicModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
 import th.co.gosoft.go10.util.PropertiesUtils;
@@ -55,6 +57,44 @@ public class TopicService {
         System.out.println("POST Complete");
         return Response.status(201).entity(result).build();
     }
+    
+    @POST
+    @Path("/newLike")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response newLike(LikeModel likeModel){
+        Database db = CloudantClientUtils.getDBNewInstance();
+        TopicModel hostTopic = db.find(TopicModel.class, likeModel.getTopicId());
+        hostTopic.setCountLike(hostTopic.getCountLike()+1);
+        db.update(hostTopic);
+        db.save(likeModel);
+        
+        System.out.println("POST Complete");
+        return Response.status(201).build();
+    }
+    
+    @PUT
+    @Path("/updateLike")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response updateLike(LikeModel likeModel){
+        Database db = CloudantClientUtils.getDBNewInstance();
+        TopicModel hostTopic = db.find(TopicModel.class, likeModel.getTopicId());
+        hostTopic.setCountLike(hostTopic.getCountLike()+1);
+        db.update(hostTopic);
+        db.update(likeModel);
+        
+        System.out.println("POST Complete");
+        return Response.status(201).build();
+    }
+    
+    @GET
+    @Path("/checkLikeTopic")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public LikeModel checkLikeTopic(@QueryParam("topicId") String topicId, @QueryParam("empEmail") String empEmail){
+        Database db = CloudantClientUtils.getDBNewInstance();
+        LikeModel likeModel = (LikeModel) db.findByIndex(getLikeModelByTopicIdAndEmpEmailJsonString(topicId, empEmail), LikeModel.class);
+        System.out.println("GET Complete");
+        return likeModel;
+    }
 
     @GET
     @Path("/gettopicbyid")
@@ -69,6 +109,8 @@ public class TopicService {
         System.out.println("GET Complete");
         return resultList;
     }
+    
+    
     
     @GET
     @Path("/gettopiclistbyroom")
@@ -163,7 +205,7 @@ public class TopicService {
         sb.append("\"date\": {\"$gt\": 0},");
         sb.append("\"$or\": [{\"_id\":\""+topicId+"\"}, {\"topicId\":\""+topicId+"\"}]");
         sb.append("},");
-        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"]}");
+        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"countLike\"]}");
         return sb.toString();
     }
     
@@ -189,6 +231,16 @@ public class TopicService {
         return sb.toString();
     }
     
+    private String getLikeModelByTopicIdAndEmpEmailJsonString(String topicId, String empEmail){
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\"selector\": {");
+        sb.append("\"_id\": {\"$gt\": 0},");
+        sb.append("\"$and\": [{\"type\":\"like\"}, {\"topicId\":\""+topicId+"\"}, {\"topicId\":\""+empEmail+"\"}]");
+        sb.append("},");
+        sb.append("\"fields\": [\"_id\",\"_rev\",\"topicId\",\"empEmail\",\"isLike\",\"type\"]}");
+        return sb.toString();
+    }
+    
     public List<TopicModel> formatDate(List<TopicModel> topicModelList) {
         List<TopicModel> resultList = new ArrayList<TopicModel>();
         for (TopicModel topicModel : topicModelList) {
@@ -207,6 +259,5 @@ public class TopicService {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
-    
     
 }

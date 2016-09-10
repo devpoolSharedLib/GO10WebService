@@ -86,14 +86,28 @@ public class TopicService {
         return Response.status(201).build();
     }
     
+    @PUT
+    @Path("/updateDisLike")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response updateDisLike(LikeModel likeModel){
+        Database db = CloudantClientUtils.getDBNewInstance();
+        TopicModel hostTopic = db.find(TopicModel.class, likeModel.getTopicId());
+        hostTopic.setCountLike(hostTopic.getCountLike()-1);
+        db.update(hostTopic);
+        db.update(likeModel);
+        
+        System.out.println("POST Complete");
+        return Response.status(201).build();
+    }
+    
     @GET
     @Path("/checkLikeTopic")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public LikeModel checkLikeTopic(@QueryParam("topicId") String topicId, @QueryParam("empEmail") String empEmail){
+    public List<LikeModel> checkLikeTopic(@QueryParam("topicId") String topicId, @QueryParam("empEmail") String empEmail){
         Database db = CloudantClientUtils.getDBNewInstance();
-        LikeModel likeModel = (LikeModel) db.findByIndex(getLikeModelByTopicIdAndEmpEmailJsonString(topicId, empEmail), LikeModel.class);
+        List<LikeModel> likeModelList = db.findByIndex(getLikeModelByTopicIdAndEmpEmailJsonString(topicId, empEmail), LikeModel.class);
         System.out.println("GET Complete");
-        return likeModel;
+        return likeModelList;
     }
 
     @GET
@@ -235,7 +249,7 @@ public class TopicService {
         StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
-        sb.append("\"$and\": [{\"type\":\"like\"}, {\"topicId\":\""+topicId+"\"}, {\"topicId\":\""+empEmail+"\"}]");
+        sb.append("\"$and\": [{\"type\":\"like\"}, {\"topicId\":\""+topicId+"\"}, {\"empEmail\":\""+empEmail+"\"}]");
         sb.append("},");
         sb.append("\"fields\": [\"_id\",\"_rev\",\"topicId\",\"empEmail\",\"isLike\",\"type\"]}");
         return sb.toString();

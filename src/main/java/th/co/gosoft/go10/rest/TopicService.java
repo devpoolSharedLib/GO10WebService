@@ -124,8 +124,6 @@ public class TopicService {
         return resultList;
     }
     
-    
-    
     @GET
     @Path("/gettopiclistbyroom")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")

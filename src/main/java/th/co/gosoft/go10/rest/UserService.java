@@ -83,17 +83,17 @@ public class UserService {
         if(userAuthenModelList != null && !userAuthenModelList.isEmpty()){
         	List<UserModel> userModelList =  db.findByIndex(getUserByEmailJsonString(userAuthenModelList.get(0).getEmpEmail()), UserModel.class);
        	 		if(userModelList.get(0).isActivate()){
-       	 			return "Your account has been activated";
+       	 			return "This account has been activated.";
        	 		}else{
        	 			UserModel userModel = userModelList.get(0);
 		       		userModel.setActivate(true);
 		       		db.update(userModel);
 		       		System.out.println("You have update the user activate true");
-		       		return "Complete Registration"; 
+		       		return "Your account is activated. You can search \"GO10\" to download the application on App Store and Play Store."; 
        	 		}
         }else{
         	System.out.println("Invalid Authentication");
-            return "Invalid Authentication";
+            return "Invalid Authentication, Please contact development team : thanomcho@gosoft.co.th, manitkan@gosoft.co.th, jirapaschi@gosoft.co.th";
         }
         
     }
@@ -125,8 +125,6 @@ public class UserService {
         	System.out.println("User does not exist on the system.");
        		return "User does not exist on the system."; 
         }
-        
-        
     }
     
     @PUT

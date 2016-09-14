@@ -31,8 +31,10 @@ import th.co.gosoft.go10.util.PropertiesUtils;
 @WebServlet("/RegisterServlet")
 public class RegisterServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private static final String SUBJECT = "GO10, activate your email";
-	private static final String EMAIL_CONTENT = "Thank you for registration.\n\nPlease copy and paste the following link in Google Chrome Browser. \n\n";
+	private static final String SUBJECT = "GO10 - Please activate your account";
+	private static final String EMAIL_CONTENT = "ขอบคุณที่ลงทะเบียน \n\nกรุณา copy และ  paste ใน  Google Chrome Browser \n\n";
+	private static final String EMAIL_CONTACT = "\n\nขอบคุณครับ\nGO10";
+	private static final String EMAIL_FOOTER = " \n\n\n หากท่านพบปัญหา หรือต้องการสอบถามข้อมูลเพิ่มเติมสามารถติดต่อได้ที่  thanomcho@gosoft.co.th, manitkan@gosoft.co.th, jirapaschi@gosoft.co.th";
 	private static final String DOMAIN_LINK = "https://go10webservice.au-syd.mybluemix.net/GO10WebService/api/user/activateUserByToken";
 	private static String FROM_EMAIL;
     private static String PASSWORD;
@@ -83,10 +85,11 @@ public class RegisterServlet extends HttpServlet {
                 db.save(userAuthenModel);
                 
                 String body = EMAIL_CONTENT + DOMAIN_LINK+tokenVar+token;
-                body += "\n\n\nBest Regards,";
+                body += EMAIL_FOOTER;
+                body += EMAIL_CONTACT;
                 EmailUtils.sendFromGMail(FROM_EMAIL, PASSWORD, empEmail, SUBJECT, body);
                 
-                request.setAttribute("status", "<span style='color:green'>Registration Complete, invitation link will send to your email.</span>");
+                request.setAttribute("status", "<span style='color:green'>Registration Complete<br>Please check your inbox and activate your account</span>");
                 request.getRequestDispatcher("/registration.jsp").forward(request, response);
 	        }
 	    } catch (Exception e){

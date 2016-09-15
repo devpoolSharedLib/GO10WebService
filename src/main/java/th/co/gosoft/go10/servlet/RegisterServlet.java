@@ -35,9 +35,9 @@ public class RegisterServlet extends HttpServlet {
 	private static final String EMAIL_CONTENT = "ขอบคุณที่ลงทะเบียน \n\nกรุณา copy และ  paste ใน  Google Chrome Browser \n\n";
 	private static final String EMAIL_CONTACT = "\n\nขอบคุณครับ\nGO10";
 	private static final String EMAIL_FOOTER = " \n\n\n หากท่านพบปัญหา หรือต้องการสอบถามข้อมูลเพิ่มเติมสามารถติดต่อได้ที่  thanomcho@gosoft.co.th, manitkan@gosoft.co.th, jirapaschi@gosoft.co.th";
-	private static final String DOMAIN_LINK = "https://go10webservice.au-syd.mybluemix.net/GO10WebService/api/user/activateUserByToken";
 	private static String FROM_EMAIL;
     private static String PASSWORD;
+    private static String DOMAIN_LINK;
     
     public RegisterServlet() {
         super();
@@ -84,7 +84,7 @@ public class RegisterServlet extends HttpServlet {
                 userAuthenModel.setToken(token);
                 db.save(userAuthenModel);
                 
-                String body = EMAIL_CONTENT + DOMAIN_LINK+tokenVar+token;
+                String body = EMAIL_CONTENT + DOMAIN_LINK + tokenVar+token;
                 body += EMAIL_FOOTER;
                 body += EMAIL_CONTACT;
                 EmailUtils.sendFromGMail(FROM_EMAIL, PASSWORD, empEmail, SUBJECT, body);
@@ -134,13 +134,14 @@ public class RegisterServlet extends HttpServlet {
 	private static void initialVariable(){
         String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
         if (VCAP_SERVICES != null) {
-            String USER_DEFINED = System.getenv("USER-DEFINED");
             FROM_EMAIL = System.getenv("send_email");
             PASSWORD = System.getenv("send_email_password");
+            DOMAIN_LINK = System.getenv("domain_acctivate");
         } else {
             Properties prop = PropertiesUtils.getProperties();
             FROM_EMAIL = prop.getProperty("send_email");
             PASSWORD = prop.getProperty("send_email_password");
+            DOMAIN_LINK = prop.getProperty("domain_acctivate");
         }
 	 }
 }

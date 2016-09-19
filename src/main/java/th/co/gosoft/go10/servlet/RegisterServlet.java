@@ -72,7 +72,7 @@ public class RegisterServlet extends HttpServlet {
                 userModel.setEmpEmail(empEmail);
                 userModel.setAvatarName("Avatar Name");
                 userModel.setAvatarPic("default_avatar");
-                userModel.setActivate(false);
+                userModel.setActivate(true);
                 userModel.setType("user");
                 userModel.setBirthday(birthday);
                 db.save(userModel);
@@ -84,12 +84,13 @@ public class RegisterServlet extends HttpServlet {
                 userAuthenModel.setToken(token);
                 db.save(userAuthenModel);
                 
-                String body = EMAIL_CONTENT + DOMAIN_LINK + tokenVar+token;
-                body += EMAIL_FOOTER;
-                body += EMAIL_CONTACT;
-                EmailUtils.sendFromGMail(FROM_EMAIL, PASSWORD, empEmail, SUBJECT, body);
+//                String body = EMAIL_CONTENT + DOMAIN_LINK + tokenVar+token;
+//                body += EMAIL_FOOTER;
+//                body += EMAIL_CONTACT;
+//                EmailUtils.sendFromGMail(FROM_EMAIL, PASSWORD, empEmail, SUBJECT, body);
                 
-                request.setAttribute("status", "<span style='color:green'>Registration Complete<br>Please check your inbox and activate your account</span>");
+//                request.setAttribute("status", "<span style='color:green'>Registration Complete<br>Please check your inbox and activate your account</span>");
+                request.setAttribute("status", "<span style='color:green'>Register Complete.</span>");
                 request.getRequestDispatcher("/registration.jsp").forward(request, response);
 	        }
 	    } catch (Exception e){

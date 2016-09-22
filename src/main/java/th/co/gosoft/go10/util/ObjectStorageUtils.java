@@ -3,6 +3,7 @@ package th.co.gosoft.go10.util;
 import java.util.Properties;
 
 import org.openstack4j.api.OSClient;
+import org.openstack4j.api.OSClient.OSClientV3;
 import org.openstack4j.model.common.Identifier;
 import org.openstack4j.openstack.OSFactory;
 
@@ -16,7 +17,7 @@ public class ObjectStorageUtils {
     private static Identifier domainIdent;
     private static Identifier projectIdent;
     
-    public static OSClient connectObjectStorageService(){
+    public static OSClient<OSClientV3> connectObjectStorageService(){
         initialVariable();
         domainIdent = Identifier.byName(DOMAIN_NAME);
         projectIdent = Identifier.byName(PROJECT);  

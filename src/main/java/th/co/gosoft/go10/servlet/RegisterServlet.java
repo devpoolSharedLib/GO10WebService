@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
-import java.util.Properties;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -23,21 +22,19 @@ import com.cloudant.client.api.Database;
 import th.co.gosoft.go10.model.UserAuthenModel;
 import th.co.gosoft.go10.model.UserModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
-import th.co.gosoft.go10.util.EmailUtils;
 import th.co.gosoft.go10.util.EncryptUtils;
 import th.co.gosoft.go10.util.KeyStoreUtils;
-import th.co.gosoft.go10.util.PropertiesUtils;
 
 @WebServlet("/RegisterServlet")
 public class RegisterServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private static final String SUBJECT = "GO10 - Please activate your account";
-	private static final String EMAIL_CONTENT = "ขอบคุณที่ลงทะเบียน \n\nกรุณา copy และ  paste ใน  Google Chrome Browser \n\n";
-	private static final String EMAIL_CONTACT = "\n\nขอบคุณครับ\nGO10";
-	private static final String EMAIL_FOOTER = " \n\n\n หากท่านพบปัญหา หรือต้องการสอบถามข้อมูลเพิ่มเติมสามารถติดต่อได้ที่  thanomcho@gosoft.co.th, manitkan@gosoft.co.th, jirapaschi@gosoft.co.th";
-	private static String FROM_EMAIL;
-    private static String PASSWORD;
-    private static String DOMAIN_LINK;
+//	private static final String SUBJECT = "GO10 - Please activate your account";
+//	private static final String EMAIL_CONTENT = "ขอบคุณที่ลงทะเบียน \n\nกรุณา copy และ  paste ใน  Google Chrome Browser \n\n";
+//	private static final String EMAIL_CONTACT = "\n\nขอบคุณครับ\nGO10";
+//	private static final String EMAIL_FOOTER = " \n\n\n หากท่านพบปัญหา หรือต้องการสอบถามข้อมูลเพิ่มเติมสามารถติดต่อได้ที่  thanomcho@gosoft.co.th, manitkan@gosoft.co.th, jirapaschi@gosoft.co.th";
+//	private static String FROM_EMAIL;
+//    private static String PASSWORD;
+//    private static String DOMAIN_LINK;
     
     public RegisterServlet() {
         super();
@@ -50,7 +47,7 @@ public class RegisterServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
 	    try{
-	        initialVariable();
+//	        initialVariable();
 	        String empSurName = request.getParameter("surname");
 	        String empLastName = request.getParameter("lastname");
 	        String empEmail = request.getParameter("email");
@@ -64,7 +61,7 @@ public class RegisterServlet extends HttpServlet {
 	        } else {
 	            byte[] passEncrypt = encryptPassword(password);
 	            String token = EncryptUtils.encode(empEmail);
-	            String tokenVar = "?token=";
+//	            String tokenVar = "?token=";
 	            
 	            Database db = CloudantClientUtils.getDBNewInstance();
                 UserModel userModel = new UserModel();
@@ -111,8 +108,6 @@ public class RegisterServlet extends HttpServlet {
         return empSurName == null || empSurName.isEmpty() || empLastName == null || empLastName.isEmpty() || empEmail == null || empEmail.isEmpty() ||  password == null || password.isEmpty() || birthday == null || birthday.isEmpty();
     }
 	
-	
-	
 	private List<UserModel> getUserByEmail(@QueryParam("token") String email) {
         System.out.println(">>>>>>>>>>>>>>>>>>> getUserByEmail() // email : "+email);
         Database db = CloudantClientUtils.getDBNewInstance();
@@ -132,17 +127,17 @@ public class RegisterServlet extends HttpServlet {
         return stingBuilder.toString();
     }
 	 
-	private static void initialVariable(){
-        String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
-        if (VCAP_SERVICES != null) {
-            FROM_EMAIL = System.getenv("send_email");
-            PASSWORD = System.getenv("send_email_password");
-            DOMAIN_LINK = System.getenv("domain_acctivate");
-        } else {
-            Properties prop = PropertiesUtils.getProperties();
-            FROM_EMAIL = prop.getProperty("send_email");
-            PASSWORD = prop.getProperty("send_email_password");
-            DOMAIN_LINK = prop.getProperty("domain_acctivate");
-        }
-	 }
+//	private static void initialVariable(){
+//        String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
+//        if (VCAP_SERVICES != null) {
+//            FROM_EMAIL = System.getenv("send_email");
+//            PASSWORD = System.getenv("send_email_password");
+//            DOMAIN_LINK = System.getenv("domain_acctivate");
+//        } else {
+//            Properties prop = PropertiesUtils.getProperties();
+//            FROM_EMAIL = prop.getProperty("send_email");
+//            PASSWORD = prop.getProperty("send_email_password");
+//            DOMAIN_LINK = prop.getProperty("domain_acctivate");
+//        }
+//	 }
 }

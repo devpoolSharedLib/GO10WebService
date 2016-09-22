@@ -38,7 +38,7 @@ public class TopicServiceTest {
     public void deleteDomainImagePathOneImageTest(){
         TopicService topicService = new TopicService();
         TopicModel topicModel = new TopicModel();
-        topicModel.setContent("<img src=\"http://go10webservice.au-syd.mybluemix.net/GO10WebService/DownloadServlet?imageName=ZLY65XZ7\" width=\"230\" height=\"408\" alt=\"insertImageUrl\">");
+        topicModel.setContent("<img src=\"https://s3-ap-southeast-1.amazonaws.com/738zsatx25kh/GO10/ZLY65XZ7\" width=\"230\" height=\"408\" alt=\"insertImageUrl\">");
         assertEquals("<img src=\"ZLY65XZ7\" width=\"230\" height=\"408\" alt=\"insertImageUrl\">", topicService.deleteDomainImagePath(topicModel.getContent()));
     }
     
@@ -46,7 +46,7 @@ public class TopicServiceTest {
     public void deleteDomainImagePathTwoImageTest(){
         TopicService topicService = new TopicService();
         TopicModel topicModel = new TopicModel();
-        topicModel.setContent("<img src=\"http://go10webservice.au-syd.mybluemix.net/GO10WebService/DownloadServlet?imageName=DI2EFC\" width=\"230\" height=\"408\" alt=\"insertImageUrl\"><br><br>And Next Image<br><br><img src=\"http://go10webservice.au-syd.mybluemix.net/GO10WebService/DownloadServlet?imageName=2QEJ337YA\" width=\"230\" height=\"408\" alt=\"insertImageUrl\"><br>");
+        topicModel.setContent("<img src=\"https://s3-ap-southeast-1.amazonaws.com/738zsatx25kh/GO10/DI2EFC\" width=\"230\" height=\"408\" alt=\"insertImageUrl\"><br><br>And Next Image<br><br><img src=\"https://s3-ap-southeast-1.amazonaws.com/738zsatx25kh/GO10/2QEJ337YA\" width=\"230\" height=\"408\" alt=\"insertImageUrl\"><br>");
         assertEquals("<img src=\"DI2EFC\" width=\"230\" height=\"408\" alt=\"insertImageUrl\"><br><br>And Next Image<br><br><img src=\"2QEJ337YA\" width=\"230\" height=\"408\" alt=\"insertImageUrl\"><br>", topicService.deleteDomainImagePath(topicModel.getContent()));
     }
     
@@ -56,9 +56,9 @@ public class TopicServiceTest {
         List<TopicModel> topicModelList = createConcatDomainImageDataList();
         topicService.concatDomainImagePath(topicModelList);
         assertEquals("No Image Here", topicModelList.get(0).getContent());
-        assertEquals("<img src=\"http://go10webservice.au-syd.mybluemix.net/GO10WebService/DownloadServlet?imageName=DI2EFC\" width=\"230\" height=\"408\" alt=\"insertImageUrl\"><br><br>One Image Here", topicModelList.get(1).getContent());
-        assertEquals("<img src=\"http://go10webservice.au-syd.mybluemix.net/GO10WebService/DownloadServlet?imageName=DI2EFC\" width=\"230\" height=\"408\" alt=\"insertImageUrl\"><br><br>Two Image Here<br><br><img src=\"http://go10webservice.au-syd.mybluemix.net/GO10WebService/DownloadServlet?imageName=2QEJ337YA\" width=\"230\" height=\"408\" alt=\"insertImageUrl\"><br>", topicModelList.get(2).getContent());
-        assertEquals("Three Image Here<br><br><img src=\"http://go10webservice.au-syd.mybluemix.net/GO10WebService/DownloadServlet?imageName=DI2EFC\" width=\"230\" height=\"408\" alt=\"insertImageUrl\"><br><br><img src=\"http://go10webservice.au-syd.mybluemix.net/GO10WebService/DownloadServlet?imageName=2QEJ337YA\" width=\"230\" height=\"408\" alt=\"insertImageUrl\"><br><br><img src=\"http://go10webservice.au-syd.mybluemix.net/GO10WebService/DownloadServlet?imageName=2QEJ337YA\" width=\"230\" height=\"408\" alt=\"insertImageUrl\">", topicModelList.get(3).getContent());
+        assertEquals("<img src=\"https://s3-ap-southeast-1.amazonaws.com/738zsatx25kh/GO10/DI2EFC\" width=\"230\" height=\"408\" alt=\"insertImageUrl\"><br><br>One Image Here", topicModelList.get(1).getContent());
+        assertEquals("<img src=\"https://s3-ap-southeast-1.amazonaws.com/738zsatx25kh/GO10/DI2EFC\" width=\"230\" height=\"408\" alt=\"insertImageUrl\"><br><br>Two Image Here<br><br><img src=\"https://s3-ap-southeast-1.amazonaws.com/738zsatx25kh/GO10/2QEJ337YA\" width=\"230\" height=\"408\" alt=\"insertImageUrl\"><br>", topicModelList.get(2).getContent());
+        assertEquals("Three Image Here<br><br><img src=\"https://s3-ap-southeast-1.amazonaws.com/738zsatx25kh/GO10/DI2EFC\" width=\"230\" height=\"408\" alt=\"insertImageUrl\"><br><br><img src=\"https://s3-ap-southeast-1.amazonaws.com/738zsatx25kh/GO10/2QEJ337YA\" width=\"230\" height=\"408\" alt=\"insertImageUrl\"><br><br><img src=\"https://s3-ap-southeast-1.amazonaws.com/738zsatx25kh/GO10/2QEJ337YA\" width=\"230\" height=\"408\" alt=\"insertImageUrl\">", topicModelList.get(3).getContent());
     }
 
     private List<TopicModel> createTestDataList() {

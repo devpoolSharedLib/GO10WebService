@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.openstack4j.api.OSClient;
+import org.openstack4j.api.OSClient.OSClientV3;
 import org.openstack4j.model.common.DLPayload;
 import org.openstack4j.model.storage.object.SwiftObject;
 
@@ -34,7 +35,7 @@ public class DownloadServlet extends HttpServlet {
 	    
 	    String fileName = request.getParameter("imageName");
 	    
-	    OSClient os = ObjectStorageUtils.connectObjectStorageService();
+	    OSClient<OSClientV3> os = ObjectStorageUtils.connectObjectStorageService();
 	    SwiftObject swiftObject = os.objectStorage().objects().get("go10", fileName);
 	    DLPayload dp = swiftObject.download();
 	    InputStream is = dp.getInputStream();

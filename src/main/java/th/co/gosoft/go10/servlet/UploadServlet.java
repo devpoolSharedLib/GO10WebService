@@ -17,10 +17,16 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.openstack4j.api.OSClient;
-import org.openstack4j.model.common.Payloads;
 
-import th.co.gosoft.go10.util.ObjectStorageUtils;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectResult;
+import com.amazonaws.util.IOUtils;
+
 import th.co.gosoft.go10.util.PropertiesUtils;
 
 @WebServlet("/UploadServlet")
@@ -29,12 +35,17 @@ public class UploadServlet extends HttpServlet {
 	private final String lexicon = "ABCDEFGHIJKLMNOPQRSTUVWXYZ12345674890";
 	private final java.util.Random rand = new java.util.Random();
 	private final Set<String> identifiers = new HashSet<String>();
+	private final String folderName = "GO10";
 	
+	private static String bucketName;
 	private String domainImagePath;
+	private String accessKeyId;
+	private String secretAccessKey;
+	
 	private boolean isMultipart;
 	private int maxFileSize = 50000 * 1024;
 	private int maxMemSize = 400 * 1024;
-	private OSClient os;
+//	private OSClient<OSClientV3> os;
        
     public UploadServlet() {
         super();
@@ -45,17 +56,26 @@ public class UploadServlet extends HttpServlet {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// Check that we have a file upload request
 	    
 	    String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
         if (VCAP_SERVICES != null) {
             domainImagePath = System.getenv("domain_image_path");
+            accessKeyId = System.getenv("s3_access_key");
+            secretAccessKey = System.getenv("s3_secret_access_key");
+            bucketName = System.getenv("s3_bucket_name");
         } else {
             Properties prop = PropertiesUtils.getProperties();
             domainImagePath = prop.getProperty("domain_image_path");
+            accessKeyId = prop.getProperty("s3_access_key");
+            secretAccessKey = prop.getProperty("s3_secret_access_key");
+            bucketName = prop.getProperty("s3_bucket_name");
         }
 	    
-	    os = ObjectStorageUtils.connectObjectStorageService();
+        AWSCredentials credentials = new BasicAWSCredentials(accessKeyId, secretAccessKey);
+        AmazonS3 s3client = new AmazonS3Client(credentials);
+       
+        
+//	    os = ObjectStorageUtils.connectObjectStorageService();
 		isMultipart = ServletFileUpload.isMultipartContent(request);
 		response.setContentType("text/html");
 		java.io.PrintWriter out = response.getWriter( );
@@ -71,7 +91,7 @@ public class UploadServlet extends HttpServlet {
 			
 			// Create a new file upload handler
 			ServletFileUpload upload = new ServletFileUpload(factory);
-			upload.setSizeMax( maxFileSize );
+			upload.setSizeMax(maxFileSize);
 	
 			try{ 
 				// Parse the request to get file items.
@@ -83,24 +103,34 @@ public class UploadServlet extends HttpServlet {
 					if (!fi.isFormField()){
 						
 					    InputStream is = fi.getInputStream();
-						String randomName =  randomIdentifier();
+					    String randomFileName = randomFileName()+".jpg";
+						String objectKey = folderName+"/"+randomFileName;
 						
-					    String etag = os.objectStorage().objects().put("go10", randomName, Payloads.create(is));
+						byte[] contentBytes = IOUtils.toByteArray(fi.getInputStream());
+                        Long contentLength = Long.valueOf(contentBytes.length);
+                        System.out.println("contentLength : "+contentLength);
+                        
+                        ObjectMetadata metadata = new ObjectMetadata();
+                        metadata.setContentLength(contentLength);
+						
+                        PutObjectResult etag = s3client.putObject(new PutObjectRequest(bucketName, objectKey, is, metadata));
+						
+//					    String etag = os.objectStorage().objects().put("go10", randomFileName, Payloads.create(is));
 						
 					    if(etag != null && !"".equals(etag)){
-					        System.out.println("{\"imgUrl\" : \""+domainImagePath+ randomName +"\"}");
-	                        out.print("{\"imgUrl\" : \""+domainImagePath+ randomName +"\"}");
+					        System.out.println("{\"imgUrl\" : \""+domainImagePath+ randomFileName +"\"}");
+	                        out.print("{\"imgUrl\" : \""+domainImagePath+ randomFileName +"\"}");
 					    }
 						
 					}
 				}
-			} catch(Exception ex) {
-				System.err.println(ex);
+			} catch(Exception e) {
+				System.err.println(e);
 			}
 		}
 	}
 	
-	public String randomIdentifier() {
+	public String randomFileName() {
 	    StringBuilder builder = new StringBuilder();
 	    while(builder.toString().length() == 0) {
 	        int length = rand.nextInt(12)+5;

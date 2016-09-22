@@ -20,7 +20,6 @@ import javax.ws.rs.QueryParam;
 import com.cloudant.client.api.Database;
 
 import th.co.gosoft.go10.model.UserAuthenModel;
-import th.co.gosoft.go10.model.UserModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
 import th.co.gosoft.go10.util.KeyStoreUtils;
 

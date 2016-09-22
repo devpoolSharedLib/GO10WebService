@@ -133,11 +133,8 @@ public class UserService {
     public Response updateUser(UserModel userModel) {
         System.out.println(">>>>>>>>>>>>>>>>>>> updateUser()");
         userModel.setActivate(true);
-        
         Database db = CloudantClientUtils.getDBNewInstance();
         com.cloudant.client.api.model.Response response = db.update(userModel);
-        System.out.println("You have update the user");
-
         String result = response.getRev();
         System.out.println(">>>>>>>>>>>>>>>>>>> post result Rev : "+result);
         System.out.println("PUT Complete");
@@ -156,6 +153,17 @@ public class UserService {
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
+    }
+    
+    private String getUserByAvatarNameJsonString(String avatarName){
+        StringBuilder stingBuilder = new StringBuilder();
+        stingBuilder.append("{\"selector\": {");
+        stingBuilder.append("\"_id\": {\"$gt\": 0},");
+        stingBuilder.append("\"$and\": [{\"type\": \"user\"}, {\"avatarName\":\""+avatarName+"\"} ] ");
+        stingBuilder.append("},");
+        stingBuilder.append("\"fields\": [\"_id\",\"_rev\",\"accountId\",\"empName\",\"empEmail\",\"avatarName\",\"avatarPic\",\"token\",\"activate\",\"type\"]}");
+        
+        return stingBuilder.toString();
     }
     
     private String getUserByAccountIdJsonString(String accountId){

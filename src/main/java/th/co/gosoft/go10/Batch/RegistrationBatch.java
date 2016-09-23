@@ -37,10 +37,6 @@ public class RegistrationBatch {
 		System.out.println("TEST");
 		String excelFilePath = "Registration.xlsx";
 		readExcelFile(excelFilePath);
-	    
-	   
-	    
-
     }
 	
 	public static void readExcelFile(String excelFilePath) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {

@@ -132,8 +132,8 @@ public class UserService {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response updateUser(UserModel userModel) {
         System.out.println(">>>>>>>>>>>>>>>>>>> updateUser()");
-        userModel.setActivate(true);
         Database db = CloudantClientUtils.getDBNewInstance();
+        userModel.setActivate(true);
         com.cloudant.client.api.model.Response response = db.update(userModel);
         String result = response.getRev();
         System.out.println(">>>>>>>>>>>>>>>>>>> post result Rev : "+result);

@@ -75,7 +75,6 @@ public class UserService {
     
     @GET
     @Path("/activateUserByToken")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public String activateUserByToken(@QueryParam("token") String token) {
         System.out.println(">>>>>>>>>>>>>>>>>>> activateUserByToken() // token : " + token);
         Database db = CloudantClientUtils.getDBNewInstance();
@@ -100,14 +99,13 @@ public class UserService {
     
     @GET
     @Path("/resetPasswordByEmail")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public String resetPasswordByEmail(@QueryParam("email") String email) {
         System.out.println(">>>>>>>>>>>>>>>>>>> resetPasswordByEmail() // email : " + email);
         Database db = CloudantClientUtils.getDBNewInstance();
-        List<UserModel> UserModelList = db.findByIndex(getUserByEmailJsonString(email), UserModel.class);
-        if(UserModelList != null && !UserModelList.isEmpty()){
-        	List<UserAuthenModel> userAuthenModelList =  db.findByIndex(getUserAuthenByEmailJsonString(UserModelList.get(0).getEmpEmail()), UserAuthenModel.class);
-   	 		if(UserModelList.get(0).isActivate()){
+        List<UserModel> userModelList = db.findByIndex(getUserByEmailJsonString(email), UserModel.class);
+        if(userModelList != null && !userModelList.isEmpty()){
+        	List<UserAuthenModel> userAuthenModelList =  db.findByIndex(getUserAuthenByEmailJsonString(userModelList.get(0).getEmpEmail()), UserAuthenModel.class);
+   	 		if(userModelList.get(0).isActivate()){
    	 		    initialVariable();
    	 			System.out.println("Send Email");
        	 		String tokenVar = "?token=";
@@ -141,6 +139,21 @@ public class UserService {
         return Response.status(201).entity(result).build();
     }
     
+    @GET
+    @Path("/checkAvatarName")
+    public Response checkAvatarName(@QueryParam("avatarName") String avatarName) {
+        System.out.println(">>>>>>>>>>>>>>>>>>> checkAvatarName() avatarName : "+avatarName);
+        Database db = CloudantClientUtils.getDBNewInstance();
+        List<UserModel> userModelList = db.findByIndex(getUserByAvatarNameJsonString(avatarName), UserModel.class);
+        if(userModelList == null || userModelList.isEmpty()){
+            System.out.println("Not found this avatarName in db");
+            return Response.status(201).entity("This avatar name has not been used.").build();
+        } else {
+            System.out.println("found this avatarName in db");
+            return Response.status(404).entity("This avatar name has been already used.").build();
+        }
+    }
+    
     private boolean authenPassword(byte[] queryPassword, String inputPassword) {
         SecretKey secretKey = KeyStoreUtils.getKeyFromCloudant("password-key");
         Cipher desCipher;
@@ -158,10 +171,10 @@ public class UserService {
     private String getUserByAvatarNameJsonString(String avatarName){
         StringBuilder stingBuilder = new StringBuilder();
         stingBuilder.append("{\"selector\": {");
-        stingBuilder.append("\"_id\": {\"$gt\": 0},");
-        stingBuilder.append("\"$and\": [{\"type\": \"user\"}, {\"avatarName\":\""+avatarName+"\"} ] ");
-        stingBuilder.append("},");
-        stingBuilder.append("\"fields\": [\"_id\",\"_rev\",\"accountId\",\"empName\",\"empEmail\",\"avatarName\",\"avatarPic\",\"token\",\"activate\",\"type\"]}");
+        stingBuilder.append("\"$text\": \""+avatarName+"\"");
+        stingBuilder.append(",\"type\": \"user\"");
+        stingBuilder.append("}");
+        stingBuilder.append("}");
         
         return stingBuilder.toString();
     }

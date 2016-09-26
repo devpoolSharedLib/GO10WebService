@@ -144,11 +144,9 @@ public class TopicService {
     public List<TopicModel> getHotTopicList(){
         System.out.println(">>>>>>>>>>>>>>>>>>> getHotTopicList()");
         Database db = CloudantClientUtils.getDBNewInstance();
-        
         List<TopicModel> topicModelList = db.findByIndex(getHotTopicListJsonString(), TopicModel.class, new FindByIndexOptions()
-        		 .sort(new IndexField("date", SortOrder.desc)));
+                 .sort(new IndexField("countLike", SortOrder.desc)).sort(new IndexField("date", SortOrder.desc)).limit(20));
         List<TopicModel> resultList = formatDate(topicModelList);
-        
         System.out.println("getHotTopicList list size : "+resultList.size());
         return resultList;
     }
@@ -236,10 +234,11 @@ public class TopicService {
         StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
+        sb.append("\"countLike\": {\"$gt\": 0},");
         sb.append("\"date\": {\"$gt\": 0},");
         sb.append("\"$and\": [{\"type\":\"host\"}]");
         sb.append("},");
-        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"]}");
+        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"countLike\"]}");
         return sb.toString();
     }
     

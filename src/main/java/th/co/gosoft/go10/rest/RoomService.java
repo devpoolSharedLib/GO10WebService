@@ -37,9 +37,6 @@ public class RoomService {
         stingBuilder.append("\"$and\": [{\"type\":\"room\"}]");
         stingBuilder.append("},");
         stingBuilder.append("\"fields\": [\"_id\",\"_rev\",\"name\",\"desc\", \"type\"]}");
-        
-//        stingBuilder.append("\"sort\": [{\"_id\": \"asc\"}]}");
-        
         return stingBuilder.toString();
     }
 }

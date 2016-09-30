@@ -35,10 +35,11 @@ public class UploadServlet extends HttpServlet {
 	private final String lexicon = "ABCDEFGHIJKLMNOPQRSTUVWXYZ12345674890";
 	private final java.util.Random rand = new java.util.Random();
 	private final Set<String> identifiers = new HashSet<String>();
-	private final String folderName = "GO10";
+//	private final String folderName = "GO10";
 	
 	private static String bucketName;
 	private String domainImagePath;
+	private String folderName;
 	private String accessKeyId;
 	private String secretAccessKey;
 	
@@ -63,12 +64,14 @@ public class UploadServlet extends HttpServlet {
             accessKeyId = System.getenv("s3_access_key");
             secretAccessKey = System.getenv("s3_secret_access_key");
             bucketName = System.getenv("s3_bucket_name");
+            folderName = System.getenv("folder_name");
         } else {
             Properties prop = PropertiesUtils.getProperties();
             domainImagePath = prop.getProperty("domain_image_path");
             accessKeyId = prop.getProperty("s3_access_key");
             secretAccessKey = prop.getProperty("s3_secret_access_key");
             bucketName = prop.getProperty("s3_bucket_name");
+            folderName = prop.getProperty("folder_name");
         }
 	    
         AWSCredentials credentials = new BasicAWSCredentials(accessKeyId, secretAccessKey);
@@ -115,11 +118,9 @@ public class UploadServlet extends HttpServlet {
 						
                         PutObjectResult etag = s3client.putObject(new PutObjectRequest(bucketName, objectKey, is, metadata));
 						
-//					    String etag = os.objectStorage().objects().put("go10", randomFileName, Payloads.create(is));
-						
 					    if(etag != null && !"".equals(etag)){
-					        System.out.println("{\"imgUrl\" : \""+domainImagePath+ randomFileName +"\"}");
-	                        out.print("{\"imgUrl\" : \""+domainImagePath+ randomFileName +"\"}");
+					        System.out.println("{\"imgUrl\" : \""+domainImagePath+"/"+folderName+"/"+ randomFileName +"\"}");
+	                        out.print("{\"imgUrl\" : \""+domainImagePath+"/"+folderName+"/"+ randomFileName +"\"}");
 					    }
 						
 					}

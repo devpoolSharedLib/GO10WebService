@@ -35,8 +35,9 @@ import th.co.gosoft.go10.util.PropertiesUtils;
 @Path("topic")
 public class TopicService {
     
-    private static DateFormat postFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.US);
-    private static DateFormat getFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.US);
+//    private static DateFormat postFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.US);
+    private static DateFormat postFormat = createSimpleDateFormat("yyyy/MM/dd HH:mm:ss", "GMT+7");
+    private static DateFormat getFormat = createSimpleDateFormat("dd/MM/yyyy HH:mm:ss", "GMT+7");
     private static Database db = CloudantClientUtils.getDBNewInstance();
     private String domain;
     
@@ -46,11 +47,14 @@ public class TopicService {
     public Response createTopic(TopicModel topicModel) {
         System.out.println(">>>>>>>>>>>>>>>>>>> topicModel()");
         postFormat.setTimeZone(TimeZone.getTimeZone("GMT+7"));
+        
         System.out.println("topic subject : "+topicModel.getSubject());
         System.out.println("topic content : "+topicModel.getContent());
-        
         topicModel.setContent(deleteDomainImagePath(topicModel.getContent()));
-        topicModel.setDate(postFormat.format(new Date()));
+        
+        String stampDate = postFormat.format(new Date());
+        System.out.println("StampDate : "+stampDate);
+        topicModel.setDate(stampDate);
         
         com.cloudant.client.api.model.Response response = db.save(topicModel);
 
@@ -60,6 +64,12 @@ public class TopicService {
         return Response.status(201).entity(result).build();
     }
     
+    private static DateFormat createSimpleDateFormat(String formatString, String timeZone) {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.US);
+        dateFormat.setTimeZone(TimeZone.getTimeZone(timeZone));
+        return dateFormat;
+    }
+
     @POST
     @Path("/newLike")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -200,10 +210,11 @@ public class TopicService {
     public String deleteDomainImagePath(String content) {
         String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
         if (VCAP_SERVICES != null) {
-            domain = System.getenv("domain_image_path");
+            domain = System.getenv("domain_image_path")+"/"+System.getenv("folder_name")+"/";
         } else {
             Properties prop = PropertiesUtils.getProperties();
-            domain = prop.getProperty("domain_image_path");
+            domain = prop.getProperty("domain_image_path")+"/"+ prop.getProperty("folder_name")+"/";
+            System.out.println(domain);
         }
         
         String result = "";
@@ -222,10 +233,10 @@ public class TopicService {
     public void concatDomainImagePath(List<TopicModel> topicModelList) {
         String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
         if (VCAP_SERVICES != null) {
-            domain = System.getenv("domain_image_path");
+            domain = System.getenv("domain_image_path")+"/"+System.getenv("folder_name")+"/";
         } else {
             Properties prop = PropertiesUtils.getProperties();
-            domain = prop.getProperty("domain_image_path");
+            domain = prop.getProperty("domain_image_path")+"/"+prop.getProperty("folder_name")+"/";
         }
         
         for (int i=0; i<topicModelList.size(); i++) {

@@ -35,7 +35,6 @@ import th.co.gosoft.go10.util.PropertiesUtils;
 @Path("topic")
 public class TopicService {
     
-//    private static DateFormat postFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.US);
     private static DateFormat postFormat = createSimpleDateFormat("yyyy/MM/dd HH:mm:ss", "GMT+7");
     private static DateFormat getFormat = createSimpleDateFormat("dd/MM/yyyy HH:mm:ss", "GMT+7");
     private static Database db = CloudantClientUtils.getDBNewInstance();
@@ -64,12 +63,6 @@ public class TopicService {
         return Response.status(201).entity(result).build();
     }
     
-    private static DateFormat createSimpleDateFormat(String formatString, String timeZone) {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.US);
-        dateFormat.setTimeZone(TimeZone.getTimeZone(timeZone));
-        return dateFormat;
-    }
-
     @POST
     @Path("/newLike")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -205,6 +198,12 @@ public class TopicService {
         List<TopicModel> resultList = formatDate(topicModelList);
         System.out.println("getHotTopicList list size : "+resultList.size());
         return resultList;
+    }
+    
+    private static DateFormat createSimpleDateFormat(String formatString, String timeZone) {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.US);
+        dateFormat.setTimeZone(TimeZone.getTimeZone(timeZone));
+        return dateFormat;
     }
     
     public String deleteDomainImagePath(String content) {

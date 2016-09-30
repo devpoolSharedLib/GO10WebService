@@ -41,7 +41,7 @@ function validateForm() {
 		<form name="resetForm" action="/GO10WebService/ResetPasswordServlet" onsubmit="return validateForm()" method="post" style="width: 100%; text-align: center;">
 			
 			<div class="row">
-				<div class="col-md-4" style="text-align: left;"><h4>Password : </h4></div>
+				<div class="col-md-4" style="text-align: left;"><h4>New Password : </h4></div>
 				<div class="col-md-8" style="text-align: center;"><input type="password" name="password" style="width: 100%;" class="form-control"></div>
 			</div>
 			<div class="row">

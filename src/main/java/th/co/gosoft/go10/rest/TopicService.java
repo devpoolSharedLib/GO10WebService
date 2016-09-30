@@ -27,14 +27,17 @@ import com.cloudant.client.api.model.IndexField;
 import com.cloudant.client.api.model.IndexField.SortOrder;
 
 import th.co.gosoft.go10.model.LikeModel;
+import th.co.gosoft.go10.model.RoomRuleTopicModel;
 import th.co.gosoft.go10.model.TopicModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
 import th.co.gosoft.go10.util.PropertiesUtils;
 
 @Path("topic")
 public class TopicService {
-    private DateFormat postFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.US);
-    private DateFormat getFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.US);
+    
+    private static DateFormat postFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.US);
+    private static DateFormat getFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.US);
+    private static Database db = CloudantClientUtils.getDBNewInstance();
     private String domain;
     
     @POST
@@ -49,7 +52,6 @@ public class TopicService {
         topicModel.setContent(deleteDomainImagePath(topicModel.getContent()));
         topicModel.setDate(postFormat.format(new Date()));
         
-        Database db = CloudantClientUtils.getDBNewInstance();
         com.cloudant.client.api.model.Response response = db.save(topicModel);
 
         String result = response.getId();
@@ -62,10 +64,16 @@ public class TopicService {
     @Path("/newLike")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response newLike(LikeModel likeModel){
-        Database db = CloudantClientUtils.getDBNewInstance();
+        System.out.println("newLike() topic id : "+likeModel.getTopicId());
         TopicModel hostTopic = db.find(TopicModel.class, likeModel.getTopicId());
         hostTopic.setCountLike(hostTopic.getCountLike()+1);
-        db.update(hostTopic);
+        if("Admin".equals(hostTopic.getAvatarName())){
+            RoomRuleTopicModel roomRuleTopicModel = parseToRoomRuleTopicModel(hostTopic);
+            roomRuleTopicModel.setPin(0);
+            db.update(roomRuleTopicModel);
+        } else {
+            db.update(hostTopic);
+        }
         db.save(likeModel);
         
         System.out.println("POST Complete");
@@ -76,10 +84,16 @@ public class TopicService {
     @Path("/updateLike")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response updateLike(LikeModel likeModel){
-        Database db = CloudantClientUtils.getDBNewInstance();
+        System.out.println("updateLike()");
         TopicModel hostTopic = db.find(TopicModel.class, likeModel.getTopicId());
         hostTopic.setCountLike(hostTopic.getCountLike()+1);
-        db.update(hostTopic);
+        if("Admin".equals(hostTopic.getAvatarName())){
+            RoomRuleTopicModel roomRuleTopicModel = parseToRoomRuleTopicModel(hostTopic);
+            roomRuleTopicModel.setPin(0);
+            db.update(roomRuleTopicModel);
+        } else {
+            db.update(hostTopic);
+        }
         db.update(likeModel);
         
         System.out.println("POST Complete");
@@ -90,10 +104,16 @@ public class TopicService {
     @Path("/updateDisLike")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response updateDisLike(LikeModel likeModel){
-        Database db = CloudantClientUtils.getDBNewInstance();
+        System.out.println("updateDisLike()");
         TopicModel hostTopic = db.find(TopicModel.class, likeModel.getTopicId());
         hostTopic.setCountLike(hostTopic.getCountLike()-1);
-        db.update(hostTopic);
+        if("Admin".equals(hostTopic.getAvatarName())){
+            RoomRuleTopicModel roomRuleTopicModel = parseToRoomRuleTopicModel(hostTopic);
+            roomRuleTopicModel.setPin(0);
+            db.update(roomRuleTopicModel);
+        } else {
+            db.update(hostTopic);
+        }
         db.update(likeModel);
         
         System.out.println("POST Complete");
@@ -104,7 +124,6 @@ public class TopicService {
     @Path("/checkLikeTopic")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<LikeModel> checkLikeTopic(@QueryParam("topicId") String topicId, @QueryParam("empEmail") String empEmail){
-        Database db = CloudantClientUtils.getDBNewInstance();
         List<LikeModel> likeModelList = db.findByIndex(getLikeModelByTopicIdAndEmpEmailJsonString(topicId, empEmail), LikeModel.class);
         System.out.println("GET Complete");
         return likeModelList;
@@ -115,7 +134,6 @@ public class TopicService {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<TopicModel> getTopicById(@QueryParam("topicId") String topicId){
         System.out.println(">>>>>>>>>>>>>>>>>>> getTopicById() //topcic id : "+topicId);
-        Database db = CloudantClientUtils.getDBNewInstance();
         List<TopicModel> topicModelList = db.findByIndex(getTopicByIdJsonString(topicId), TopicModel.class, new FindByIndexOptions()
           		 .sort(new IndexField("date", SortOrder.asc)));
         concatDomainImagePath(topicModelList);
@@ -129,9 +147,38 @@ public class TopicService {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<TopicModel> getTopicListByRoomId(@QueryParam("roomId") String roomId){
         System.out.println(">>>>>>>>>>>>>>>>>>> getTopicListByRoomId() //room id : "+roomId);
-        Database db = CloudantClientUtils.getDBNewInstance();
+        
         List<TopicModel> topicModelList = db.findByIndex(getTopicListByRoomIdJsonString(roomId), TopicModel.class, new FindByIndexOptions()
        		 .sort(new IndexField("date", SortOrder.desc)));
+        List<TopicModel> formatDateList = formatDate(topicModelList);
+        List<TopicModel> roomRuleList = getRoomRuleToppic(roomId);
+        List<TopicModel> resultList = insertRoomRuleTopicAtZero(formatDateList, roomRuleList.get(0));
+        System.out.println("size : "+resultList.size());
+        System.out.println("GET Complete");
+        return resultList;
+    }
+    
+    private List<TopicModel> insertRoomRuleTopicAtZero(List<TopicModel> formatDateList, TopicModel roomRuleTopic) {
+        List<TopicModel> resultList = new ArrayList<>();
+        for (int i=0; i<=formatDateList.size(); i++) {
+            if(i == 0) {
+                resultList.add(roomRuleTopic);
+            } else {
+                resultList.add(formatDateList.get(i-1));
+            }
+        }
+        return resultList;
+    }
+
+    @GET
+    @Path("/getroomruletoppic")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public List<TopicModel> getRoomRuleToppic(@QueryParam("roomId") String roomId){
+        System.out.println(">>>>>>>>>>>>>>>>>>> getRoomRuleToppic()");
+        List<TopicModel> topicModelList = db.findByIndex(getRoomRuleToppicJsonString(roomId), TopicModel.class, new FindByIndexOptions()
+             .fields("_id").fields("_rev").fields("avatarName").fields("avatarPic").fields("subject")
+             .fields("content").fields("date").fields("type").fields("roomId").fields("countLike"));
+        
         List<TopicModel> resultList = formatDate(topicModelList);
         System.out.println("size : "+resultList.size());
         System.out.println("GET Complete");
@@ -143,7 +190,6 @@ public class TopicService {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<TopicModel> getHotTopicList(){
         System.out.println(">>>>>>>>>>>>>>>>>>> getHotTopicList()");
-        Database db = CloudantClientUtils.getDBNewInstance();
         List<TopicModel> topicModelList = db.findByIndex(getHotTopicListJsonString(), TopicModel.class, new FindByIndexOptions()
                  .sort(new IndexField("countLike", SortOrder.desc)).sort(new IndexField("date", SortOrder.desc)).limit(20));
         List<TopicModel> resultList = formatDate(topicModelList);
@@ -224,9 +270,21 @@ public class TopicService {
         sb.append("{\"selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
         sb.append("\"date\": {\"$gt\": 0},");
+        sb.append("\"pin\": {\"$exists\": false},");
         sb.append("\"$and\": [{\"type\":\"host\"}, {\"roomId\":\""+roomId+"\"}]");
         sb.append("},");
         sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"]}");
+        return sb.toString();
+    }
+    
+    private String getRoomRuleToppicJsonString(String roomId){
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\"selector\": {");
+        sb.append("\"_id\": {\"$gt\": 0},");
+        sb.append("\"pin\": {\"$eq\": 0},");
+        sb.append("\"$and\": [{\"type\":\"host\"}, {\"roomId\":\""+roomId+"\"}]");
+        sb.append("}}");
+//        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"]}");
         return sb.toString();
     }
     
@@ -236,6 +294,7 @@ public class TopicService {
         sb.append("\"_id\": {\"$gt\": 0},");
         sb.append("\"countLike\": {\"$gt\": 0},");
         sb.append("\"date\": {\"$gt\": 0},");
+        sb.append("\"pin\": {\"$exists\": false},");
         sb.append("\"$and\": [{\"type\":\"host\"}]");
         sb.append("},");
         sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"countLike\"]}");
@@ -269,6 +328,23 @@ public class TopicService {
             e.printStackTrace();
             throw new RuntimeException(e.getMessage(), e);
         }
+    }
+    
+    private RoomRuleTopicModel parseToRoomRuleTopicModel(TopicModel hostTopic) {
+        RoomRuleTopicModel roomRuleTopicModel = new RoomRuleTopicModel();
+        roomRuleTopicModel.set_id(hostTopic.get_id());
+        roomRuleTopicModel.set_rev(hostTopic.get_rev());
+        roomRuleTopicModel.setAvatarName(hostTopic.getAvatarName());
+        roomRuleTopicModel.setAvatarPic(hostTopic.getAvatarPic());
+        roomRuleTopicModel.setContent(hostTopic.getContent());
+        roomRuleTopicModel.setCountLike(hostTopic.getCountLike());
+        roomRuleTopicModel.setDate(hostTopic.getDate());
+        roomRuleTopicModel.setEmpEmail(hostTopic.getEmpEmail());
+        roomRuleTopicModel.setRoomId(hostTopic.getRoomId());
+        roomRuleTopicModel.setSubject(hostTopic.getSubject());
+        roomRuleTopicModel.setTopicId(hostTopic.getTopicId());
+        roomRuleTopicModel.setType(hostTopic.getType());
+        return roomRuleTopicModel;
     }
     
 }

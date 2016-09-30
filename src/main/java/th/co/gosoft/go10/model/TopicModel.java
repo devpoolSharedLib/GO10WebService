@@ -14,6 +14,7 @@ public class TopicModel {
     private String type;
     private String roomId;
     private int countLike;
+//    private int pin;
     
 	public TopicModel(){}
     
@@ -118,5 +119,13 @@ public class TopicModel {
     public void setCountLike(int countLike) {
         this.countLike = countLike;
     }
+
+//    public int getPin() {
+//        return pin;
+//    }
+//
+//    public void setPin(int pin) {
+//        this.pin = pin;
+//    }
 
 }

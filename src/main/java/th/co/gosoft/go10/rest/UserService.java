@@ -28,10 +28,10 @@ import th.co.gosoft.go10.util.PropertiesUtils;
 public class UserService {
 	private static final String SUBJECT = "GO10, reset your password";
 	private static final String EMAIL_CONTENT = "\nPlease copy and paste the following link in Google Chrome Browser. \n\n";
-	private static final String DOMAIN_LINK_RESET_PASSWORD = "https://go10webservice.au-syd.mybluemix.net/GO10WebService/resetpassword.jsp";
 	
 	private static String FROM_EMAIL;
     private static String PASSWORD;
+    private static String DOMAIN_LINK_RESET_PASSWORD;
     
     @GET
     @Path("/getUserByAccountId")
@@ -154,6 +154,21 @@ public class UserService {
         }
     }
     
+    @GET
+    @Path("/checkUserActivation")
+    public Response checkUserActivation(@QueryParam("empEmail") String empEmail) {
+        System.out.println(">>>>>>>>>>>>>>>>>>> checkAvatarName() empEmail : "+empEmail);
+        Database db = CloudantClientUtils.getDBNewInstance();
+        List<UserModel> userModelList = db.findByIndex(getUserByEmailJsonString(empEmail), UserModel.class);
+        if(userModelList.get(0).isActivate()){
+            System.out.println("This user account is activate.");
+            return Response.status(201).entity("This user account is activate.").build();
+        } else {
+            System.out.println("This user account is not activate.");
+            return Response.status(404).entity("This user account is not activate.").build();
+        }
+    }
+    
     private boolean authenPassword(byte[] queryPassword, String inputPassword) {
         SecretKey secretKey = KeyStoreUtils.getKeyFromCloudant("password-key");
         Cipher desCipher;
@@ -239,10 +254,12 @@ public class UserService {
         if (VCAP_SERVICES != null) {
             FROM_EMAIL = System.getenv("send_email");
             PASSWORD = System.getenv("send_email_password");
+            DOMAIN_LINK_RESET_PASSWORD = System.getenv("domain_reset_password");
         } else {
             Properties prop = PropertiesUtils.getProperties();
             FROM_EMAIL = prop.getProperty("send_email");
             PASSWORD = prop.getProperty("send_email_password");
+            DOMAIN_LINK_RESET_PASSWORD = prop.getProperty("domain_reset_password");
         }
      }
     

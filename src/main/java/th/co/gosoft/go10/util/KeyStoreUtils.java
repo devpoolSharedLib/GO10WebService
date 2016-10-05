@@ -3,10 +3,11 @@ package th.co.gosoft.go10.util;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Base64;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.commons.codec.binary.Base64;
 
 import com.cloudant.client.api.Database;
 import com.google.gson.JsonObject;
@@ -46,11 +47,11 @@ public class KeyStoreUtils {
     }
     
     public static String parseSecretKeyToString(SecretKey secretKey){
-        return Base64.getEncoder().encodeToString(secretKey.getEncoded());
+        return new String(Base64.encodeBase64(secretKey.getEncoded()));
     }
     
     public static SecretKey parseStringToSecretKey(String keyString){
-        byte[] decodedKey = Base64.getDecoder().decode(keyString);
+        byte[] decodedKey = Base64.decodeBase64(keyString.getBytes());
         return new SecretKeySpec(decodedKey, 0, decodedKey.length, "DES");
     }
     

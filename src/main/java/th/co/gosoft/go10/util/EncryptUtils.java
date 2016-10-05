@@ -1,13 +1,11 @@
 package th.co.gosoft.go10.util;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Base64;
+import org.apache.commons.codec.binary.Base64;
 
 
 
 public class EncryptUtils {
-
-    private static final String DEFAULT_ENCODING = "UTF-8"; 
+    
     private static String key = "devpool.gosoft";
     
     public static String encode(String gosoftEmail){
@@ -20,15 +18,11 @@ public class EncryptUtils {
     }
 
     private static String base64encode(String text) {
-        try {
-            return new String(Base64.getEncoder().encode(text.getBytes(DEFAULT_ENCODING)));
-        } catch (UnsupportedEncodingException e) {
-            return null;
-        }
+        return new String(Base64.encodeBase64(text.getBytes()));
     }
 
     private static String base64decode(String text) {
-        return new String(Base64.getDecoder().decode(text));
+        return new String(Base64.decodeBase64(text));
     }
     
     private static String xorMessage(String message, String key) {

@@ -8,8 +8,16 @@ public class LikeModel {
     private String empEmail;
     private boolean statusLike;
 	private String type;
+	private String date;
     
-    public String get_id() {
+   
+	public String getDate() {
+		return date;
+	}
+	public void setDate(String date) {
+		this.date = date;
+	}
+	public String get_id() {
         return _id;
     }
     public void set_id(String _id) {

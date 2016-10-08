@@ -14,8 +14,9 @@ public class TopicModel {
     private String type;
     private String roomId;
     private int countLike;
+    private String updateDate;
 //    private int pin;
-    
+
 	public TopicModel(){}
     
     public TopicModel(String _id, String date, String content){
@@ -120,6 +121,13 @@ public class TopicModel {
         this.countLike = countLike;
     }
 
+	public String getUpdateDate() {
+		return updateDate;
+	}
+
+	public void setUpdateDate(String updateDate) {
+		this.updateDate = updateDate;
+	}
 //    public int getPin() {
 //        return pin;
 //    }

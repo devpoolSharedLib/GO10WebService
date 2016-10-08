@@ -39,6 +39,7 @@ public class TopicService {
     private static DateFormat getFormat = createSimpleDateFormat("dd/MM/yyyy HH:mm:ss", "GMT+7");
     private static Database db = CloudantClientUtils.getDBNewInstance();
     private String domain;
+    private String stampDate;
     
     @POST
     @Path("/post")
@@ -51,12 +52,22 @@ public class TopicService {
         System.out.println("topic content : "+topicModel.getContent());
         topicModel.setContent(deleteDomainImagePath(topicModel.getContent()));
         
-        String stampDate = postFormat.format(new Date());
+        stampDate = postFormat.format(new Date());
         System.out.println("StampDate : "+stampDate);
-        topicModel.setDate(stampDate);
+        com.cloudant.client.api.model.Response response = null;
+        if(topicModel.getType().equals("host")){
+        	topicModel.setDate(stampDate);
+            topicModel.setUpdateDate(stampDate);
+            response = db.save(topicModel);
+        }else if(topicModel.getType().equals("comment")){
+        	topicModel.setDate(stampDate);
+        	response = db.save(topicModel);
+        	TopicModel hostTopic = db.find(TopicModel.class, topicModel.getTopicId());
+            hostTopic.setUpdateDate(stampDate);
+            response = db.update(hostTopic);
+            
+        }
         
-        com.cloudant.client.api.model.Response response = db.save(topicModel);
-
         String result = response.getId();
         System.out.println(">>>>>>>>>>>>>>>>>>> post result id : "+result);
         System.out.println("POST Complete");
@@ -68,15 +79,21 @@ public class TopicService {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response newLike(LikeModel likeModel){
         System.out.println("newLike() topic id : "+likeModel.getTopicId());
+        stampDate = postFormat.format(new Date());
+        System.out.println("StampDate : "+stampDate);
         TopicModel hostTopic = db.find(TopicModel.class, likeModel.getTopicId());
         hostTopic.setCountLike(hostTopic.getCountLike()+1);
         if("Admin".equals(hostTopic.getAvatarName())){
+        	
             RoomRuleTopicModel roomRuleTopicModel = parseToRoomRuleTopicModel(hostTopic);
             roomRuleTopicModel.setPin(0);
             db.update(roomRuleTopicModel);
         } else {
+//        	hostTopic.setUpdateDate(stampDate);
             db.update(hostTopic);
         }
+
+        likeModel.setDate(stampDate);
         db.save(likeModel);
         
         System.out.println("POST Complete");
@@ -87,7 +104,9 @@ public class TopicService {
     @Path("/updateLike")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response updateLike(LikeModel likeModel){
-        System.out.println("updateLike()");
+        System.out.println("updateLike() topic id : " +likeModel.getTopicId());
+        stampDate = postFormat.format(new Date());
+        System.out.println("StampDate : "+stampDate);
         TopicModel hostTopic = db.find(TopicModel.class, likeModel.getTopicId());
         hostTopic.setCountLike(hostTopic.getCountLike()+1);
         if("Admin".equals(hostTopic.getAvatarName())){
@@ -95,8 +114,11 @@ public class TopicService {
             roomRuleTopicModel.setPin(0);
             db.update(roomRuleTopicModel);
         } else {
+//        	hostTopic.setUpdateDate(stampDate);
             db.update(hostTopic);
         }
+        
+        likeModel.setDate(stampDate);
         db.update(likeModel);
         
         System.out.println("POST Complete");
@@ -107,7 +129,9 @@ public class TopicService {
     @Path("/updateDisLike")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response updateDisLike(LikeModel likeModel){
-        System.out.println("updateDisLike()");
+        System.out.println("updateDisLike() topic id : "+likeModel.getTopicId());
+        stampDate = postFormat.format(new Date());
+        System.out.println("StampDate : "+stampDate);
         TopicModel hostTopic = db.find(TopicModel.class, likeModel.getTopicId());
         hostTopic.setCountLike(hostTopic.getCountLike()-1);
         if("Admin".equals(hostTopic.getAvatarName())){
@@ -115,8 +139,11 @@ public class TopicService {
             roomRuleTopicModel.setPin(0);
             db.update(roomRuleTopicModel);
         } else {
+//        	hostTopic.setUpdateDate(stampDate);
             db.update(hostTopic);
         }
+        
+        likeModel.setDate(stampDate);
         db.update(likeModel);
         
         System.out.println("POST Complete");
@@ -141,6 +168,7 @@ public class TopicService {
           		 .sort(new IndexField("date", SortOrder.asc)));
         concatDomainImagePath(topicModelList);
         List<TopicModel> resultList = formatDate(topicModelList);
+//        System.out.println("Get Topic By Id update Date : " + resultList.get(0).getUpdateDate());
         System.out.println("GET Complete");
         return resultList;
     }
@@ -197,6 +225,19 @@ public class TopicService {
                  .sort(new IndexField("countLike", SortOrder.desc)).sort(new IndexField("date", SortOrder.desc)).limit(20));
         List<TopicModel> resultList = formatDate(topicModelList);
         System.out.println("getHotTopicList list size : "+resultList.size());
+        return resultList;
+    }
+    
+    @GET
+    @Path("/getnewupdatetopiclist")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public List<TopicModel> getNewUpdateTopicList(){
+        System.out.println(">>>>>>>>>>>>>>>>>>> getHotTopicList()");
+        List<TopicModel> topicModelList = db.findByIndex(getNewUpdateTopicListJsonString(), TopicModel.class, new FindByIndexOptions()
+                 .sort(new IndexField("updateDate", SortOrder.desc)).limit(20));
+        List<TopicModel> resultList = formatDate(topicModelList);
+        
+        System.out.println("getNewUpdateTopicList list size : "+resultList.size());
         return resultList;
     }
     
@@ -264,14 +305,18 @@ public class TopicService {
         return result;
     }
 
+    
+   
+    
     private String getTopicByIdJsonString(String topicId){
         StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
         sb.append("\"date\": {\"$gt\": 0},");
+        sb.append("\"$nor\": [{ \"type\": \"like\" }],");
         sb.append("\"$or\": [{\"_id\":\""+topicId+"\"}, {\"topicId\":\""+topicId+"\"}]");
         sb.append("},");
-        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"countLike\"]}");
+        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"countLike\",\"updateDate\"]}");
         return sb.toString();
     }
     
@@ -283,7 +328,7 @@ public class TopicService {
         sb.append("\"pin\": {\"$exists\": false},");
         sb.append("\"$and\": [{\"type\":\"host\"}, {\"roomId\":\""+roomId+"\"}]");
         sb.append("},");
-        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"]}");
+        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"updateDate\"]}");
         return sb.toString();
     }
     
@@ -295,6 +340,18 @@ public class TopicService {
         sb.append("\"$and\": [{\"type\":\"host\"}, {\"roomId\":\""+roomId+"\"}]");
         sb.append("}}");
 //        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"]}");
+        return sb.toString();
+    }
+    
+    private String getNewUpdateTopicListJsonString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\"selector\": {");
+        sb.append("\"_id\": {\"$gt\": 0},");
+        sb.append("\"updateDate\": {\"$gt\": 0},");
+        sb.append("\"pin\": {\"$exists\": false},");
+        sb.append("\"$and\": [{\"type\":\"host\"}]");
+        sb.append("},");
+        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"countLike\",\"updateDate\"]}");
         return sb.toString();
     }
     

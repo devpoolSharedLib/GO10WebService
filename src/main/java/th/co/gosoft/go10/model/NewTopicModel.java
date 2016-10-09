@@ -1,6 +1,6 @@
 package th.co.gosoft.go10.model;
 
-public class TopicModel {
+public class NewTopicModel {
 
     private String _id;
     private String _rev;
@@ -14,12 +14,12 @@ public class TopicModel {
     private String type;
     private String roomId;
     private int countLike;
-//    private String updateDate;
+    private String updateDate;
 //    private int pin;
 
-	public TopicModel(){}
+	public NewTopicModel(){}
     
-    public TopicModel(String _id, String date, String content){
+    public NewTopicModel(String _id, String date, String content){
         this._id = _id;
         this.date = date;
         this.content = content;
@@ -121,13 +121,14 @@ public class TopicModel {
         this.countLike = countLike;
     }
 
-//	public String getUpdateDate() {
-//		return updateDate;
-//	}
-//
-//	public void setUpdateDate(String updateDate) {
-//		this.updateDate = updateDate;
-//	}
+	public String getUpdateDate() {
+		return updateDate;
+	}
+
+	public void setUpdateDate(String updateDate) {
+		this.updateDate = updateDate;
+	}
+	
 //    public int getPin() {
 //        return pin;
 //    }

@@ -50,11 +50,15 @@ public class NewTopicService {
         
         System.out.println("topic subject : "+newTopicModel.getSubject());
         System.out.println("topic content : "+newTopicModel.getContent());
+        System.out.println("topic type : "+newTopicModel.getType());
+        
         newTopicModel.setContent(deleteDomainImagePath(newTopicModel.getContent()));
         
         stampDate = postFormat.format(new Date());
         System.out.println("StampDate : "+stampDate);
+        
         com.cloudant.client.api.model.Response response = null;
+        
         if(newTopicModel.getType().equals("host")){
         	newTopicModel.setDate(stampDate);
         	newTopicModel.setUpdateDate(stampDate);
@@ -63,6 +67,7 @@ public class NewTopicService {
         	
         	newTopicModel.setDate(stampDate);
         	response = db.save(newTopicModel);
+        	
         	NewTopicModel hostTopic = db.find(NewTopicModel.class, newTopicModel.getTopicId());
         	hostTopic.setUpdateDate(stampDate);
         	
@@ -72,7 +77,6 @@ public class NewTopicService {
                 response = db.update(newRoomRuleTopicModel);
             } else {
             	newTopicModel.setDate(stampDate);
-            	response = db.save(newTopicModel);
                 response = db.update(hostTopic);
             }
             
@@ -108,7 +112,7 @@ public class NewTopicService {
         System.out.println("POST Complete");
         return Response.status(201).build();
     }
-    
+
     @PUT
     @Path("/updateLike")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -165,7 +169,6 @@ public class NewTopicService {
         System.out.println("GET Complete");
         return likeModelList;
     }
-    
     
     @GET
     @Path("/gettopicbyid")
@@ -264,7 +267,7 @@ public class NewTopicService {
         
         return result;
     }
-    
+
     public void concatDomainImagePath(List<NewTopicModel> newTopicModelList) {
         String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
         if (VCAP_SERVICES != null) {

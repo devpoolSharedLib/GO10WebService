@@ -147,7 +147,6 @@ public class TopicService {
           		 .sort(new IndexField("date", SortOrder.asc)));
         concatDomainImagePath(topicModelList);
         List<TopicModel> resultList = formatDate(topicModelList);
-//        System.out.println("Get Topic By Id update Date : " + resultList.get(0).getUpdateDate());
         System.out.println("GET Complete");
         return resultList;
     }
@@ -200,8 +199,10 @@ public class TopicService {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<TopicModel> getHotTopicList(){
         System.out.println(">>>>>>>>>>>>>>>>>>> getHotTopicList()");
+//        List<TopicModel> topicModelList = db.findByIndex(getHotTopicListJsonString(), TopicModel.class, new FindByIndexOptions()
+//                 .sort(new IndexField("countLike", SortOrder.desc)).sort(new IndexField("date", SortOrder.desc)).limit(20));
         List<TopicModel> topicModelList = db.findByIndex(getHotTopicListJsonString(), TopicModel.class, new FindByIndexOptions()
-                 .sort(new IndexField("countLike", SortOrder.desc)).sort(new IndexField("date", SortOrder.desc)).limit(20));
+              .sort(new IndexField("date", SortOrder.desc)).limit(20));
         List<TopicModel> resultList = formatDate(topicModelList);
         System.out.println("getHotTopicList list size : "+resultList.size());
         return resultList;
@@ -309,16 +310,25 @@ public class TopicService {
     }
     
     private String getHotTopicListJsonString(){
-        StringBuilder sb = new StringBuilder();
+    	StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
-        sb.append("\"countLike\": {\"$gt\": 0},");
         sb.append("\"date\": {\"$gt\": 0},");
         sb.append("\"pin\": {\"$exists\": false},");
         sb.append("\"$and\": [{\"type\":\"host\"}]");
         sb.append("},");
         sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"countLike\"]}");
         return sb.toString();
+//        StringBuilder sb = new StringBuilder();
+//        sb.append("{\"selector\": {");
+//        sb.append("\"_id\": {\"$gt\": 0},");
+//        sb.append("\"countLike\": {\"$gt\": 0},");
+//        sb.append("\"date\": {\"$gt\": 0},");
+//        sb.append("\"pin\": {\"$exists\": false},");
+//        sb.append("\"$and\": [{\"type\":\"host\"}]");
+//        sb.append("},");
+//        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"countLike\"]}");
+//        return sb.toString();
     }
     
     private String getLikeModelByTopicIdAndEmpEmailJsonString(String topicId, String empEmail){
@@ -336,7 +346,6 @@ public class TopicService {
         List<TopicModel> resultList = new ArrayList<TopicModel>();
         for (TopicModel topicModel : topicModelList) {
             TopicModel resultModel = topicModel;
-            System.out.println("qwertyuio : " +  topicModel.getDate() + " " + topicModel.get_id());
             resultModel.setDate(getFormat.format(parseStringToDate(topicModel.getDate())));
             resultList.add(topicModel);
         }

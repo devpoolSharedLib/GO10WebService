@@ -27,10 +27,8 @@ import com.cloudant.client.api.model.IndexField;
 import com.cloudant.client.api.model.IndexField.SortOrder;
 
 import th.co.gosoft.go10.model.LikeModel;
-import th.co.gosoft.go10.model.NewLikeModel;
 import th.co.gosoft.go10.model.RoomRuleTopicModel;
 import th.co.gosoft.go10.model.TopicModel;
-import th.co.gosoft.go10.model.NewTopicModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
 import th.co.gosoft.go10.util.PropertiesUtils;
 
@@ -276,7 +274,6 @@ public class TopicService {
         return result;
     }
 
-    
     private String getTopicByIdJsonString(String topicId){
         StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");
@@ -308,19 +305,6 @@ public class TopicService {
         sb.append("\"pin\": {\"$eq\": 0},");
         sb.append("\"$and\": [{\"type\":\"host\"}, {\"roomId\":\""+roomId+"\"}]");
         sb.append("}}");
-//        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"]}");
-        return sb.toString();
-    }
-    
-    private String getNewUpdateTopicListJsonString(){
-        StringBuilder sb = new StringBuilder();
-        sb.append("{\"selector\": {");
-        sb.append("\"_id\": {\"$gt\": 0},");
-        sb.append("\"updateDate\": {\"$gt\": 0},");
-        sb.append("\"pin\": {\"$exists\": false},");
-        sb.append("\"$and\": [{\"type\":\"host\"}]");
-        sb.append("},");
-        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"countLike\",\"updateDate\"]}");
         return sb.toString();
     }
     

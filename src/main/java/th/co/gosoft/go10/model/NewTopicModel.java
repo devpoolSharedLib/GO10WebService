@@ -15,7 +15,6 @@ public class NewTopicModel {
     private String roomId;
     private int countLike;
     private String updateDate;
-//    private int pin;
 
 	public NewTopicModel(){}
     
@@ -129,12 +128,4 @@ public class NewTopicModel {
 		this.updateDate = updateDate;
 	}
 	
-//    public int getPin() {
-//        return pin;
-//    }
-//
-//    public void setPin(int pin) {
-//        this.pin = pin;
-//    }
-
 }

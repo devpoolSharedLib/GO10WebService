@@ -9,7 +9,6 @@ public class NewLikeModel {
     private boolean statusLike;
 	private String type;
 	private String date;
-    
    
 	public String getDate() {
 		return date;

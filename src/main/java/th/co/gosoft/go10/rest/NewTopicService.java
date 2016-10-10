@@ -26,11 +26,8 @@ import com.cloudant.client.api.model.FindByIndexOptions;
 import com.cloudant.client.api.model.IndexField;
 import com.cloudant.client.api.model.IndexField.SortOrder;
 
-import th.co.gosoft.go10.model.LikeModel;
 import th.co.gosoft.go10.model.NewLikeModel;
 import th.co.gosoft.go10.model.NewRoomRuleTopicModel;
-import th.co.gosoft.go10.model.RoomRuleTopicModel;
-import th.co.gosoft.go10.model.TopicModel;
 import th.co.gosoft.go10.model.NewTopicModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
 import th.co.gosoft.go10.util.PropertiesUtils;
@@ -44,7 +41,6 @@ public class NewTopicService {
     private String domain;
     private String stampDate;
     
-    // NEW //
     @POST
     @Path("/post")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -79,7 +75,6 @@ public class NewTopicService {
             	response = db.save(newTopicModel);
                 response = db.update(hostTopic);
             }
-        	
             
         }
         
@@ -89,7 +84,6 @@ public class NewTopicService {
         return Response.status(201).entity(result).build();
     }
     
-    // NEW //
     @POST
     @Path("/newLike")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -114,9 +108,7 @@ public class NewTopicService {
         System.out.println("POST Complete");
         return Response.status(201).build();
     }
-   
     
-    // NEW //
     @PUT
     @Path("/updateLike")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -141,7 +133,6 @@ public class NewTopicService {
         return Response.status(201).build();
     }
     
-    // NEW //
     @PUT
     @Path("/updateDisLike")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -166,7 +157,6 @@ public class NewTopicService {
         return Response.status(201).build();
     }
     
-    // NEW //
     @GET
     @Path("/checkLikeTopic")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -177,7 +167,6 @@ public class NewTopicService {
     }
     
     
-    // NEW //
     @GET
     @Path("/gettopicbyid")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -187,7 +176,6 @@ public class NewTopicService {
           		 .sort(new IndexField("date", SortOrder.asc)));
         concatDomainImagePath(newTopicModelList);
         List<NewTopicModel> resultList = formatDate(newTopicModelList);
-//        System.out.println("Get Topic By Id update Date : " + resultList.get(0).getUpdateDate());
         System.out.println("GET Complete");
         return resultList;
     }
@@ -235,7 +223,6 @@ public class NewTopicService {
         return resultList;
     }
     
- // NEW //  --> New feed Topic
     @GET
     @Path("/gethottopiclist")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -278,7 +265,6 @@ public class NewTopicService {
         return result;
     }
     
-    // NEW //
     public void concatDomainImagePath(List<NewTopicModel> newTopicModelList) {
         String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
         if (VCAP_SERVICES != null) {
@@ -293,7 +279,6 @@ public class NewTopicService {
         }
         
     }
-
 
     private String concatDomainImagePath(String content) {
         String result = content;
@@ -315,7 +300,6 @@ public class NewTopicService {
         return result;
     }
 
-    // NEW //
     private String getTopicByIdJsonString(String topicId){
         StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");
@@ -327,7 +311,6 @@ public class NewTopicService {
         sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"countLike\",\"updateDate\"]}");
         return sb.toString();
     }
-    
     
     private String getTopicListByRoomIdJsonString(String roomId){
         StringBuilder sb = new StringBuilder();
@@ -348,11 +331,9 @@ public class NewTopicService {
         sb.append("\"pin\": {\"$eq\": 0},");
         sb.append("\"$and\": [{\"type\":\"host\"}, {\"roomId\":\""+roomId+"\"}]");
         sb.append("}}");
-//        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"]}");
         return sb.toString();
     }
     
-    // NEW //
     private String getHotTopicListJsonString(){
         StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");
@@ -365,7 +346,6 @@ public class NewTopicService {
         return sb.toString();
     }
     
-    
     private String getLikeModelByTopicIdAndEmpEmailJsonString(String topicId, String empEmail){
         StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");
@@ -376,7 +356,6 @@ public class NewTopicService {
         return sb.toString();
     }
     
-    // NEW //
     public List<NewTopicModel> formatDate(List<NewTopicModel> newTopicModelList) {
         List<NewTopicModel> resultList = new ArrayList<NewTopicModel>();
         for (NewTopicModel newTopicModel : newTopicModelList) {
@@ -387,8 +366,6 @@ public class NewTopicService {
         return resultList;
     }
     
-
-    
     private Date parseStringToDate(String dateString){
         try {
             return postFormat.parse(dateString);
@@ -398,7 +375,6 @@ public class NewTopicService {
         }
     }
     
-    // NEW //
     private NewRoomRuleTopicModel parseToRoomRuleTopicModel(NewTopicModel newHostTopic) {
     	NewRoomRuleTopicModel newRoomRuleTopicModel = new NewRoomRuleTopicModel();
     	newRoomRuleTopicModel.set_id(newHostTopic.get_id());

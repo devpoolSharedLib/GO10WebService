@@ -2,9 +2,6 @@ package th.co.gosoft.go10.util;
 
 import java.util.Properties;
 
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-
 import org.openstack4j.api.OSClient;
 import org.openstack4j.api.OSClient.OSClientV3;
 import org.openstack4j.model.common.Identifier;
@@ -34,9 +31,6 @@ public class ObjectStorageUtils {
                 .scopeToProject(projectIdent, domainIdent)
                 .authenticate();
     }
-    
-    
-   
     
     private static void initialVariable(){
         String VCAP_SERVICES = System.getenv("VCAP_SERVICES");

@@ -38,7 +38,7 @@ public class TopicService {
     private static DateFormat postFormat = createSimpleDateFormat("yyyy/MM/dd HH:mm:ss", "GMT+7");
     private static DateFormat getFormat = createSimpleDateFormat("dd/MM/yyyy HH:mm:ss", "GMT+7");
     private static Database db = CloudantClientUtils.getDBNewInstance();
-    private String domain;
+    private static String domain = initialDomainImagePath();
     private String stampDate;
        
     @POST
@@ -50,7 +50,7 @@ public class TopicService {
         
         System.out.println("topic subject : "+topicModel.getSubject());
         System.out.println("topic content : "+topicModel.getContent());
-        topicModel.setContent(deleteDomainImagePath(topicModel.getContent()));
+        topicModel.setContent(deleteDomainImagePath(topicModel.getContent(), domain));
         
         stampDate = postFormat.format(new Date());
         System.out.println("StampDate : "+stampDate);
@@ -145,7 +145,7 @@ public class TopicService {
         System.out.println(">>>>>>>>>>>>>>>>>>> getTopicById() //topcic id : "+topicId);
         List<TopicModel> topicModelList = db.findByIndex(getTopicByIdJsonString(topicId), TopicModel.class, new FindByIndexOptions()
           		 .sort(new IndexField("date", SortOrder.asc)));
-        concatDomainImagePath(topicModelList);
+        concatDomainImagePath(topicModelList, domain);
         List<TopicModel> resultList = formatDate(topicModelList);
         System.out.println("GET Complete");
         return resultList;
@@ -208,24 +208,13 @@ public class TopicService {
         return resultList;
     }
     
-    
-    
     private static DateFormat createSimpleDateFormat(String formatString, String timeZone) {
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.US);
         dateFormat.setTimeZone(TimeZone.getTimeZone(timeZone));
         return dateFormat;
     }
     
-    public String deleteDomainImagePath(String content) {
-        String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
-        if (VCAP_SERVICES != null) {
-            domain = System.getenv("domain_image_path")+"/"+System.getenv("folder_name")+"/";
-        } else {
-            Properties prop = PropertiesUtils.getProperties();
-            domain = prop.getProperty("domain_image_path")+"/"+ prop.getProperty("folder_name")+"/";
-            System.out.println(domain);
-        }
-        
+    public String deleteDomainImagePath(String content, String domain) {
         String result = "";
         if(content.contains(domain)){
             String[] parts = content.split(Pattern.quote(domain));
@@ -240,22 +229,13 @@ public class TopicService {
     }
 
     
-    public void concatDomainImagePath(List<TopicModel> topicModelList) {
-        String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
-        if (VCAP_SERVICES != null) {
-            domain = System.getenv("domain_image_path")+"/"+System.getenv("folder_name")+"/";
-        } else {
-            Properties prop = PropertiesUtils.getProperties();
-            domain = prop.getProperty("domain_image_path")+"/"+prop.getProperty("folder_name")+"/";
-        }
-        
+    public void concatDomainImagePath(List<TopicModel> topicModelList, String domain) {
         for (int i=0; i<topicModelList.size(); i++) {
-            topicModelList.get(i).setContent(concatDomainImagePath(topicModelList.get(i).getContent()));
+            topicModelList.get(i).setContent(concatDomainImagePath(topicModelList.get(i).getContent(), domain));
         }
-        
     }
 
-    private String concatDomainImagePath(String content) {
+    private String concatDomainImagePath(String content, String domain) {
         String result = content;
         String regex = "<img src=\"";
         if(result.contains(regex)){
@@ -376,6 +356,19 @@ public class TopicService {
         roomRuleTopicModel.setTopicId(hostTopic.getTopicId());
         roomRuleTopicModel.setType(hostTopic.getType());
         return roomRuleTopicModel;
+    }
+    
+    private static String initialDomainImagePath(){
+        String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
+        String domain;
+        if (VCAP_SERVICES != null) {
+            domain = System.getenv("domain_image_path")+"/"+System.getenv("folder_name")+"/";
+        } else {
+            Properties prop = PropertiesUtils.getProperties();
+            domain = prop.getProperty("domain_image_path")+"/"+ prop.getProperty("folder_name")+"/";
+            System.out.println(domain);
+        }
+        return domain;
     }
     
 }

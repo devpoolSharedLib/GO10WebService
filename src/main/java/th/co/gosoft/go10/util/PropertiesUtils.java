@@ -13,7 +13,9 @@ public class PropertiesUtils {
         try{
             Properties prop = new Properties();
             InputStream input = PropertiesUtils.class.getClassLoader().getResourceAsStream("config.properties");
-            prop.load(input);
+            if(input != null){
+                prop.load(input);
+            }
             return prop;
         } catch (Exception e){
             throw new RuntimeException(e.getMessage(), e);

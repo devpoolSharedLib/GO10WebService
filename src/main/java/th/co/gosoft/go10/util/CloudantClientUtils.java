@@ -1,7 +1,6 @@
 package th.co.gosoft.go10.util;
 
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.Set;
 
 import com.cloudant.client.api.ClientBuilder;
@@ -47,9 +46,9 @@ public class CloudantClientUtils {
 
         } else {
             try {
-                Properties prop = PropertiesUtils.getProperties();
-                user = prop.getProperty("cloudant_user");
-                password = prop.getProperty("cloudant_password");
+//                Properties prop = PropertiesUtils.getProperties();
+                user = PropertiesUtils.getProperties("cloudant_user");
+                password = PropertiesUtils.getProperties("cloudant_password");
             } catch (Exception e){
                 throw new RuntimeException(e.getMessage(), e);
             }

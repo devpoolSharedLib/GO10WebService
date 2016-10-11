@@ -2,7 +2,6 @@ package th.co.gosoft.go10.rest;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -29,9 +28,9 @@ public class UserService {
 	private static final String SUBJECT = "GO10, reset your password";
 	private static final String EMAIL_CONTENT = "\nPlease copy and paste the following link in Google Chrome Browser. \n\n";
 	
-	private static String FROM_EMAIL;
-    private static String PASSWORD;
-    private static String DOMAIN_LINK_RESET_PASSWORD;
+	private static final String FROM_EMAIL = PropertiesUtils.getProperties("send_email");
+    private static final String PASSWORD = PropertiesUtils.getProperties("send_email_password");
+    private static final String DOMAIN_LINK_RESET_PASSWORD = PropertiesUtils.getProperties("domain_reset_password");
     
     @GET
     @Path("/getUserByAccountId")
@@ -106,7 +105,6 @@ public class UserService {
         if(userModelList != null && !userModelList.isEmpty()){
         	List<UserAuthenModel> userAuthenModelList =  db.findByIndex(getUserAuthenByEmailJsonString(userModelList.get(0).getEmpEmail()), UserAuthenModel.class);
    	 		if(userModelList.get(0).isActivate()){
-   	 		    initialVariable();
    	 			System.out.println("Send Email");
        	 		String tokenVar = "?token=";
        	 		String token = userAuthenModelList.get(0).getToken();
@@ -249,19 +247,18 @@ public class UserService {
         return stingBuilder.toString();
     }
     
-    private static void initialVariable(){
-        String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
-        if (VCAP_SERVICES != null) {
-            FROM_EMAIL = System.getenv("send_email");
-            PASSWORD = System.getenv("send_email_password");
-            DOMAIN_LINK_RESET_PASSWORD = System.getenv("domain_reset_password");
-        } else {
-            Properties prop = PropertiesUtils.getProperties();
-            FROM_EMAIL = prop.getProperty("send_email");
-            PASSWORD = prop.getProperty("send_email_password");
-            DOMAIN_LINK_RESET_PASSWORD = prop.getProperty("domain_reset_password");
-        }
-     }
-    
+//    private static void initialVariable(){
+//        String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
+//        if (VCAP_SERVICES != null) {
+//            FROM_EMAIL = System.getenv("send_email");
+//            PASSWORD = System.getenv("send_email_password");
+//            DOMAIN_LINK_RESET_PASSWORD = System.getenv("domain_reset_password");
+//        } else {
+//            Properties prop = PropertiesUtils.getProperties();
+//            FROM_EMAIL = prop.getProperty("send_email");
+//            PASSWORD = prop.getProperty("send_email_password");
+//            DOMAIN_LINK_RESET_PASSWORD = prop.getProperty("domain_reset_password");
+//        }
+//     }
     
 }

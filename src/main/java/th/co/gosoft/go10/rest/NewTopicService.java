@@ -7,9 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Properties;
 import java.util.TimeZone;
-import java.util.regex.Pattern;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -30,7 +28,7 @@ import th.co.gosoft.go10.model.NewLikeModel;
 import th.co.gosoft.go10.model.NewRoomRuleTopicModel;
 import th.co.gosoft.go10.model.NewTopicModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
-import th.co.gosoft.go10.util.PropertiesUtils;
+import th.co.gosoft.go10.util.ConcatDomainUtils;
 
 @Path("newtopic")
 public class NewTopicService {
@@ -38,7 +36,7 @@ public class NewTopicService {
     private static DateFormat postFormat = createSimpleDateFormat("yyyy/MM/dd HH:mm:ss", "GMT+7");
     private static DateFormat getFormat = createSimpleDateFormat("dd/MM/yyyy HH:mm:ss", "GMT+7");
     private static Database db = CloudantClientUtils.getDBNewInstance();
-    private String domain;
+//    private String domain;
     private String stampDate;
     
     @POST
@@ -52,7 +50,7 @@ public class NewTopicService {
         System.out.println("topic content : "+newTopicModel.getContent());
         System.out.println("topic type : "+newTopicModel.getType());
         
-        newTopicModel.setContent(deleteDomainImagePath(newTopicModel.getContent()));
+        newTopicModel.setContent(ConcatDomainUtils.deleteDomainImagePath(newTopicModel.getContent()));
         
         stampDate = postFormat.format(new Date());
         System.out.println("StampDate : "+stampDate);
@@ -234,7 +232,8 @@ public class NewTopicService {
         List<NewTopicModel> newTopicModelList = db.findByIndex(getHotTopicListJsonString(), NewTopicModel.class, new FindByIndexOptions()
                  .sort(new IndexField("updateDate", SortOrder.desc)).limit(20));
         List<NewTopicModel> resultList = formatDate(newTopicModelList);
-        
+        System.out.println("count Like : "+resultList.get(0).getCountLike());
+        System.out.println("count Like : "+resultList.get(1).getCountLike());
         System.out.println("getNewUpdateTopicList list size : "+resultList.size());
         return resultList;
     }
@@ -245,63 +244,54 @@ public class NewTopicService {
         return dateFormat;
     }
     
-    public String deleteDomainImagePath(String content) {
-        String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
-        if (VCAP_SERVICES != null) {
-            domain = System.getenv("domain_image_path")+"/"+System.getenv("folder_name")+"/";
-        } else {
-            Properties prop = PropertiesUtils.getProperties();
-            domain = prop.getProperty("domain_image_path")+"/"+ prop.getProperty("folder_name")+"/";
-            System.out.println(domain);
-        }
-        
-        String result = "";
-        if(content.contains(domain)){
-            String[] parts = content.split(Pattern.quote(domain));
-            for (String subString : parts) {
-                result += subString;
-            }
-        } else {
-            result = content;
-        }
-        
-        return result;
-    }
+//    public String deleteDomainImagePath(String content) {
+//        String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
+//        if (VCAP_SERVICES != null) {
+//            domain = System.getenv("domain_image_path")+"/"+System.getenv("folder_name")+"/";
+//        } else {
+//            Properties prop = PropertiesUtils.getProperties();
+//            domain = prop.getProperty("domain_image_path")+"/"+ prop.getProperty("folder_name")+"/";
+//            System.out.println(domain);
+//        }
+//        
+//        String result = "";
+//        if(content.contains(domain)){
+//            String[] parts = content.split(Pattern.quote(domain));
+//            for (String subString : parts) {
+//                result += subString;
+//            }
+//        } else {
+//            result = content;
+//        }
+//        
+//        return result;
+//    }
 
     public void concatDomainImagePath(List<NewTopicModel> newTopicModelList) {
-        String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
-        if (VCAP_SERVICES != null) {
-            domain = System.getenv("domain_image_path")+"/"+System.getenv("folder_name")+"/";
-        } else {
-            Properties prop = PropertiesUtils.getProperties();
-            domain = prop.getProperty("domain_image_path")+"/"+prop.getProperty("folder_name")+"/";
-        }
-        
         for (int i=0; i<newTopicModelList.size(); i++) {
-        	newTopicModelList.get(i).setContent(concatDomainImagePath(newTopicModelList.get(i).getContent()));
+        	newTopicModelList.get(i).setContent(ConcatDomainUtils.concatDomainImagePath(newTopicModelList.get(i).getContent()));
         }
-        
     }
 
-    private String concatDomainImagePath(String content) {
-        String result = content;
-        String regex = "<img src=\"";
-        if(result.contains(regex)){
-            int fromIndex = 0;
-            while(fromIndex<result.length() && fromIndex>=0){
-                fromIndex = result.indexOf(regex, fromIndex);
-                if(fromIndex != -1){
-                    fromIndex = fromIndex + 10;
-                    StringBuilder stringBuilder = new StringBuilder(result);
-                    stringBuilder.insert(fromIndex, domain);
-                    result = stringBuilder.toString();
-                }
-                
-            }
-        }
-        
-        return result;
-    }
+//    private String concatDomainImagePath(String content) {
+//        String result = content;
+//        String regex = "<img src=\"";
+//        if(result.contains(regex)){
+//            int fromIndex = 0;
+//            while(fromIndex<result.length() && fromIndex>=0){
+//                fromIndex = result.indexOf(regex, fromIndex);
+//                if(fromIndex != -1){
+//                    fromIndex = fromIndex + 10;
+//                    StringBuilder stringBuilder = new StringBuilder(result);
+//                    stringBuilder.insert(fromIndex, domain);
+//                    result = stringBuilder.toString();
+//                }
+//                
+//            }
+//        }
+//        
+//        return result;
+//    }
 
     private String getTopicByIdJsonString(String topicId){
         StringBuilder sb = new StringBuilder();

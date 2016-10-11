@@ -7,20 +7,25 @@ import java.util.Properties;
 public class PropertiesUtils {
 
     
-    private static Properties prop;
+    private static final Properties CONFIG_PROPERTIES = initialInstance();
 
-    public static Properties getProperties(){
-        if(prop == null){
-            try{
-                prop = new Properties();
-                InputStream input = PropertiesUtils.class.getClassLoader().getResourceAsStream("config.properties");
-                prop.load(input);
-            } catch (Exception e){
-                throw new RuntimeException(e.getMessage(), e);
-            }
+    private static Properties initialInstance(){
+        try{
+            Properties prop = new Properties();
+            InputStream input = PropertiesUtils.class.getClassLoader().getResourceAsStream("config.properties");
+            prop.load(input);
+            return prop;
+        } catch (Exception e){
+            throw new RuntimeException(e.getMessage(), e);
         }
-        
-        return prop;
+    }
+    
+    public static String getProperties(String keyName){
+        String value = System.getenv(keyName);
+        if(value == null || "".equals(value)){
+            value = CONFIG_PROPERTIES.getProperty(keyName);
+        } 
+        return value;
     }
     
 }

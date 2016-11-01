@@ -1,14 +1,20 @@
-package th.co.gosoft.go10.model;
+package th.co.gosoft.go10.model.v0;
 
-public class LikeModel {
+public class TransactionModel {
 
     private String _id;
     private String _rev;
     private String topicId;
     private String empEmail;
-    private boolean statusLike;
 	private String type;
-
+	private String date;
+   
+	public String getDate() {
+		return date;
+	}
+	public void setDate(String date) {
+		this.date = date;
+	}
 	public String get_id() {
         return _id;
     }
@@ -33,12 +39,6 @@ public class LikeModel {
     public void setEmpEmail(String empEmail) {
         this.empEmail = empEmail;
     }
-    public boolean isStatusLike() {
-		return statusLike;
-	}
-	public void setStatusLike(boolean statusLike) {
-		this.statusLike = statusLike;
-	}
     public String getType() {
         return type;
     }

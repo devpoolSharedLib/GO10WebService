@@ -1,4 +1,4 @@
-package th.co.gosoft.go10.rest;
+package th.co.gosoft.go10.rest.v1;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -24,9 +24,9 @@ import com.cloudant.client.api.model.FindByIndexOptions;
 import com.cloudant.client.api.model.IndexField;
 import com.cloudant.client.api.model.IndexField.SortOrder;
 
-import th.co.gosoft.go10.model.NewLikeModel;
-import th.co.gosoft.go10.model.NewRoomRuleTopicModel;
-import th.co.gosoft.go10.model.NewTopicModel;
+import th.co.gosoft.go10.model.v1.NewLikeModel;
+import th.co.gosoft.go10.model.v1.NewRoomRuleTopicModel;
+import th.co.gosoft.go10.model.v1.NewTopicModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
 import th.co.gosoft.go10.util.ConcatDomainUtils;
 
@@ -36,7 +36,6 @@ public class NewTopicService {
     private static DateFormat postFormat = createSimpleDateFormat("yyyy/MM/dd HH:mm:ss", "GMT+7");
     private static DateFormat getFormat = createSimpleDateFormat("dd/MM/yyyy HH:mm:ss", "GMT+7");
     private static Database db = CloudantClientUtils.getDBNewInstance();
-//    private String domain;
     private String stampDate;
     
     @POST
@@ -62,22 +61,17 @@ public class NewTopicService {
         	newTopicModel.setUpdateDate(stampDate);
             response = db.save(newTopicModel);
         }else if(newTopicModel.getType().equals("comment")){
-        	
         	newTopicModel.setDate(stampDate);
         	response = db.save(newTopicModel);
-        	
         	NewTopicModel hostTopic = db.find(NewTopicModel.class, newTopicModel.getTopicId());
         	hostTopic.setUpdateDate(stampDate);
-        	
         	if("Admin".equals(hostTopic.getAvatarName())){
                 NewRoomRuleTopicModel newRoomRuleTopicModel = parseToRoomRuleTopicModel(hostTopic);
                 newRoomRuleTopicModel.setPin(0);
                 response = db.update(newRoomRuleTopicModel);
             } else {
-            	newTopicModel.setDate(stampDate);
                 response = db.update(hostTopic);
             }
-            
         }
         
         String result = response.getId();
@@ -96,7 +90,6 @@ public class NewTopicService {
         NewTopicModel newHostTopic = db.find(NewTopicModel.class, newLikeModel.getTopicId());
         newHostTopic.setCountLike(newHostTopic.getCountLike()+1);
         if("Admin".equals(newHostTopic.getAvatarName())){
-        	
             NewRoomRuleTopicModel newRoomRuleTopicModel = parseToRoomRuleTopicModel(newHostTopic);
             newRoomRuleTopicModel.setPin(0);
             db.update(newRoomRuleTopicModel);
@@ -197,18 +190,6 @@ public class NewTopicService {
         return resultList;
     }
     
-    private List<NewTopicModel> insertRoomRuleTopicAtZero(List<NewTopicModel> formatDateList, NewTopicModel roomRuleTopic) {
-        List<NewTopicModel> resultList = new ArrayList<>();
-        for (int i=0; i<=formatDateList.size(); i++) {
-            if(i == 0) {
-                resultList.add(roomRuleTopic);
-            } else {
-                resultList.add(formatDateList.get(i-1));
-            }
-        }
-        return resultList;
-    }
-
     @GET
     @Path("/getroomruletoppic")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -238,60 +219,29 @@ public class NewTopicService {
         return resultList;
     }
   
+    private List<NewTopicModel> insertRoomRuleTopicAtZero(List<NewTopicModel> formatDateList, NewTopicModel roomRuleTopic) {
+        List<NewTopicModel> resultList = new ArrayList<>();
+        for (int i=0; i<=formatDateList.size(); i++) {
+            if(i == 0) {
+                resultList.add(roomRuleTopic);
+            } else {
+                resultList.add(formatDateList.get(i-1));
+            }
+        }
+        return resultList;
+    }
+    
     private static DateFormat createSimpleDateFormat(String formatString, String timeZone) {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.US);
+        DateFormat dateFormat = new SimpleDateFormat(formatString, Locale.US);
         dateFormat.setTimeZone(TimeZone.getTimeZone(timeZone));
         return dateFormat;
     }
     
-//    public String deleteDomainImagePath(String content) {
-//        String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
-//        if (VCAP_SERVICES != null) {
-//            domain = System.getenv("domain_image_path")+"/"+System.getenv("folder_name")+"/";
-//        } else {
-//            Properties prop = PropertiesUtils.getProperties();
-//            domain = prop.getProperty("domain_image_path")+"/"+ prop.getProperty("folder_name")+"/";
-//            System.out.println(domain);
-//        }
-//        
-//        String result = "";
-//        if(content.contains(domain)){
-//            String[] parts = content.split(Pattern.quote(domain));
-//            for (String subString : parts) {
-//                result += subString;
-//            }
-//        } else {
-//            result = content;
-//        }
-//        
-//        return result;
-//    }
-
     public void concatDomainImagePath(List<NewTopicModel> newTopicModelList) {
         for (int i=0; i<newTopicModelList.size(); i++) {
         	newTopicModelList.get(i).setContent(ConcatDomainUtils.concatDomainImagePath(newTopicModelList.get(i).getContent()));
         }
     }
-
-//    private String concatDomainImagePath(String content) {
-//        String result = content;
-//        String regex = "<img src=\"";
-//        if(result.contains(regex)){
-//            int fromIndex = 0;
-//            while(fromIndex<result.length() && fromIndex>=0){
-//                fromIndex = result.indexOf(regex, fromIndex);
-//                if(fromIndex != -1){
-//                    fromIndex = fromIndex + 10;
-//                    StringBuilder stringBuilder = new StringBuilder(result);
-//                    stringBuilder.insert(fromIndex, domain);
-//                    result = stringBuilder.toString();
-//                }
-//                
-//            }
-//        }
-//        
-//        return result;
-//    }
 
     private String getTopicByIdJsonString(String topicId){
         StringBuilder sb = new StringBuilder();
@@ -354,7 +304,7 @@ public class NewTopicService {
         for (NewTopicModel newTopicModel : newTopicModelList) {
         	NewTopicModel resultModel = newTopicModel;
             resultModel.setDate(getFormat.format(parseStringToDate(newTopicModel.getDate())));
-            resultList.add(newTopicModel);
+            resultList.add(resultModel);
         }
         return resultList;
     }

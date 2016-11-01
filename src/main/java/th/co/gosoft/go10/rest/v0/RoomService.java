@@ -1,4 +1,4 @@
-package th.co.gosoft.go10.rest;
+package th.co.gosoft.go10.rest.v0;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ import com.cloudant.client.api.model.FindByIndexOptions;
 import com.cloudant.client.api.model.IndexField;
 import com.cloudant.client.api.model.IndexField.SortOrder;
 
-import th.co.gosoft.go10.model.RoomModel;
+import th.co.gosoft.go10.model.v0.RoomModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
 
 @Path("room")

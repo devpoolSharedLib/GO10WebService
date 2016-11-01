@@ -1,4 +1,4 @@
-package th.co.gosoft.go10.model;
+package th.co.gosoft.go10.model.v1;
 
 public class NewTopicModel {
 

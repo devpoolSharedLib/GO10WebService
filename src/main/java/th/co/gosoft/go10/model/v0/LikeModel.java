@@ -1,6 +1,6 @@
-package th.co.gosoft.go10.model;
+package th.co.gosoft.go10.model.v0;
 
-public class NewLikeModel {
+public class LikeModel {
 
     private String _id;
     private String _rev;
@@ -8,14 +8,7 @@ public class NewLikeModel {
     private String empEmail;
     private boolean statusLike;
 	private String type;
-	private String date;
-   
-	public String getDate() {
-		return date;
-	}
-	public void setDate(String date) {
-		this.date = date;
-	}
+
 	public String get_id() {
         return _id;
     }

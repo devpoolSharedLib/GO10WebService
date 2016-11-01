@@ -1,4 +1,4 @@
-package th.co.gosoft.go10.rest;
+package th.co.gosoft.go10.rest.v0;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -24,9 +24,9 @@ import com.cloudant.client.api.model.FindByIndexOptions;
 import com.cloudant.client.api.model.IndexField;
 import com.cloudant.client.api.model.IndexField.SortOrder;
 
-import th.co.gosoft.go10.model.LikeModel;
-import th.co.gosoft.go10.model.RoomRuleTopicModel;
-import th.co.gosoft.go10.model.TopicModel;
+import th.co.gosoft.go10.model.v0.LikeModel;
+import th.co.gosoft.go10.model.v0.RoomRuleTopicModel;
+import th.co.gosoft.go10.model.v0.TopicModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
 import th.co.gosoft.go10.util.ConcatDomainUtils;
 
@@ -36,7 +36,6 @@ public class TopicService {
     private static DateFormat postFormat = createSimpleDateFormat("yyyy/MM/dd HH:mm:ss", "GMT+7");
     private static DateFormat getFormat = createSimpleDateFormat("dd/MM/yyyy HH:mm:ss", "GMT+7");
     private static Database db = CloudantClientUtils.getDBNewInstance();
-//    private static String domain = initialDomainImagePath();
     private String stampDate;
        
     @POST
@@ -205,51 +204,16 @@ public class TopicService {
     }
     
     private static DateFormat createSimpleDateFormat(String formatString, String timeZone) {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.US);
+        DateFormat dateFormat = new SimpleDateFormat(formatString, Locale.US);
         dateFormat.setTimeZone(TimeZone.getTimeZone(timeZone));
         return dateFormat;
     }
-    
-//    public String deleteDomainImagePath(String content) {
-//        String result = "";
-//        if(content.contains(domain)){
-//            String[] parts = content.split(Pattern.quote(domain));
-//            for (String subString : parts) {
-//                result += subString;
-//            }
-//        } else {
-//            result = content;
-//        }
-//        
-//        return result;
-//    }
-
     
     public void concatDomainImagePath(List<TopicModel> topicModelList) {
         for (int i=0; i<topicModelList.size(); i++) {
             topicModelList.get(i).setContent(ConcatDomainUtils.concatDomainImagePath(topicModelList.get(i).getContent()));
         }
     }
-
-//    private String concatDomainImagePath(String content) {
-//        String result = content;
-//        String regex = "<img src=\"";
-//        if(result.contains(regex)){
-//            int fromIndex = 0;
-//            while(fromIndex<result.length() && fromIndex>=0){
-//                fromIndex = result.indexOf(regex, fromIndex);
-//                if(fromIndex != -1){
-//                    fromIndex = fromIndex + 10;
-//                    StringBuilder stringBuilder = new StringBuilder(result);
-//                    stringBuilder.insert(fromIndex, domain);
-//                    result = stringBuilder.toString();
-//                }
-//                
-//            }
-//        }
-//        
-//        return result;
-//    }
 
     private String getTopicByIdJsonString(String topicId){
         StringBuilder sb = new StringBuilder();
@@ -313,7 +277,7 @@ public class TopicService {
         for (TopicModel topicModel : topicModelList) {
             TopicModel resultModel = topicModel;
             resultModel.setDate(getFormat.format(parseStringToDate(topicModel.getDate())));
-            resultList.add(topicModel);
+            resultList.add(resultModel);
         }
         return resultList;
     }
@@ -343,18 +307,5 @@ public class TopicService {
         roomRuleTopicModel.setType(hostTopic.getType());
         return roomRuleTopicModel;
     }
-    
-//    private static String initialDomainImagePath(){
-//        String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
-//        String domain;
-//        if (VCAP_SERVICES != null) {
-//            domain = System.getenv("domain_image_path")+"/"+System.getenv("folder_name")+"/";
-//        } else {
-//            Properties prop = PropertiesUtils.getProperties();
-//            domain = prop.getProperty("domain_image_path")+"/"+ prop.getProperty("folder_name")+"/";
-//            System.out.println(domain);
-//        }
-//        return domain;
-//    }
     
 }

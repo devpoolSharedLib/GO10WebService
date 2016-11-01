@@ -29,7 +29,6 @@ public class KeyStoreUtilsTest {
     }
     
     @Test
-//    @Ignore
     public void parseSecretTransformationStringTest() {
         SecretKey key = keygenerator.generateKey();
         String keyString = KeyStoreUtils.parseSecretKeyToString(key);

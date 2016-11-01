@@ -1,4 +1,4 @@
-package th.co.gosoft.go10.model;
+package th.co.gosoft.go10.model.v0;
 
 public class TopicModel {
 

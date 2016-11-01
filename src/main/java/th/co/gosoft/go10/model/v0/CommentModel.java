@@ -1,16 +1,17 @@
-package th.co.gosoft.go10.model;
+package th.co.gosoft.go10.model.v0;
 
 import java.util.Date;
 
-public class HostModel {
+public class CommentModel {
     
     private String _id;
     private String _rev;
     private String topicId;
+    private String user;
     private String subject;
     private String content;
-    private String user;
     private Date date;
+    private String type;
     
     public String getSubject() {
         return subject;
@@ -54,8 +55,17 @@ public class HostModel {
     public void setTopicId(String topicId) {
         this.topicId = topicId;
     }
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     public String toString(){
         return "_id : "+_id+", _rev : "+_rev+", topicId : "+topicId+" subject : "+subject+", content : "+content+", user : "+user+", date : "+date+"\n";
     }
+
 
 }

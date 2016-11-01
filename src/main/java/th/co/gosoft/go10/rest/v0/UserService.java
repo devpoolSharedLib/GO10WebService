@@ -1,4 +1,4 @@
-package th.co.gosoft.go10.rest;
+package th.co.gosoft.go10.rest.v0;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +16,8 @@ import javax.ws.rs.core.Response;
 
 import com.cloudant.client.api.Database;
 
-import th.co.gosoft.go10.model.UserAuthenModel;
-import th.co.gosoft.go10.model.UserModel;
+import th.co.gosoft.go10.model.v0.UserAuthenModel;
+import th.co.gosoft.go10.model.v0.UserModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
 import th.co.gosoft.go10.util.EmailUtils;
 import th.co.gosoft.go10.util.KeyStoreUtils;
@@ -246,19 +246,5 @@ public class UserService {
         
         return stingBuilder.toString();
     }
-    
-//    private static void initialVariable(){
-//        String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
-//        if (VCAP_SERVICES != null) {
-//            FROM_EMAIL = System.getenv("send_email");
-//            PASSWORD = System.getenv("send_email_password");
-//            DOMAIN_LINK_RESET_PASSWORD = System.getenv("domain_reset_password");
-//        } else {
-//            Properties prop = PropertiesUtils.getProperties();
-//            FROM_EMAIL = prop.getProperty("send_email");
-//            PASSWORD = prop.getProperty("send_email_password");
-//            DOMAIN_LINK_RESET_PASSWORD = prop.getProperty("domain_reset_password");
-//        }
-//     }
     
 }

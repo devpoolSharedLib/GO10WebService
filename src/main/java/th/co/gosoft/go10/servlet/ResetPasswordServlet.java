@@ -19,29 +19,23 @@ import javax.ws.rs.QueryParam;
 
 import com.cloudant.client.api.Database;
 
-import th.co.gosoft.go10.model.UserAuthenModel;
+import th.co.gosoft.go10.model.v0.UserAuthenModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
 import th.co.gosoft.go10.util.KeyStoreUtils;
 
-/**
- * Servlet implementation class ResetPasswordServlet
- */
 @WebServlet("/ResetPasswordServlet")
 public class ResetPasswordServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     public ResetPasswordServlet() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doPost(request, response);
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		String password = request.getParameter("password");
 		System.out.println("password : " + password);
 		request.getQueryString();

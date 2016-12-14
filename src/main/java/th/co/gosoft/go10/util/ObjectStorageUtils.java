@@ -18,8 +18,6 @@ public class ObjectStorageUtils {
     
     public static OSClient<OSClientV3> connectObjectStorageService(){
     	
-//        initialVariable();
-        
         domainIdent = Identifier.byName(DOMAIN_NAME);
         projectIdent = Identifier.byName(PROJECT);  
         
@@ -29,24 +27,5 @@ public class ObjectStorageUtils {
                 .scopeToProject(projectIdent, domainIdent)
                 .authenticate();
     }
-    
-//    private static void initialVariable(){
-//        String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
-//        if (VCAP_SERVICES != null) {
-//            USER_ID = System.getenv("obs_user_id");
-//            PASSWORD = System.getenv("obs_password");
-//            AUTH_URL = System.getenv("obs_auth_url");
-//            DOMAIN_NAME = System.getenv("obs_domain_name");
-//            PROJECT = System.getenv("obs_project");
-//        } 
-//        else {
-//            Properties prop = PropertiesUtils.getProperties();
-//            USER_ID = prop.getProperty("obs_user_id");
-//            PASSWORD = prop.getProperty("obs_password");
-//            AUTH_URL = prop.getProperty("obs_auth_url");
-//            DOMAIN_NAME = prop.getProperty("obs_domain_name");
-//            PROJECT = prop.getProperty("obs_project");
-//        }
-//    }
     
 }

@@ -9,4 +9,8 @@
 	    <servlet-name>javax.ws.rs.core.Application</servlet-name>
 	    <url-pattern>/api/*</url-pattern>
   	</servlet-mapping>
+  	
+	<session-config>
+		<session-timeout>5</session-timeout>
+	</session-config>
 </web-app>

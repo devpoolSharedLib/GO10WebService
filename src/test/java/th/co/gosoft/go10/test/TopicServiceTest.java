@@ -10,8 +10,8 @@ import java.util.Locale;
 
 import org.junit.Test;
 
-import th.co.gosoft.go10.model.v0.TopicModel;
-import th.co.gosoft.go10.rest.v0.TopicService;
+import th.co.gosoft.go10.model.TopicModel;
+import th.co.gosoft.go10.rest.TopicService;
 
 public class TopicServiceTest {
 

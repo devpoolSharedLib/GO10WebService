@@ -8,8 +8,6 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-     
-	
 <title>GO10 Registration</title>
 
 <script src="js/jquery-1.11.3.js"></script>
@@ -102,8 +100,6 @@ function getAge(dateString)
 	    	<img  src="images/go10_logo.png" alt="GO10 Logo" height=70 width="70">
 			<b>GO10 Registration</b>
 	    </div>
-	
-	    
 	  </div><!-- /.container-fluid -->
 	</nav>
 	
@@ -136,8 +132,6 @@ function getAge(dateString)
 			<div class="row">
 				<div class="col-md-12"><input class="btn btn-primary" type="submit" value="Submit" style="width: 50%; margin-top: 20px" ></div>
 			</div>
-			
-				
 		</form>
 	</div>
 	

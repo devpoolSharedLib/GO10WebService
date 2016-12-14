@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -44,6 +45,20 @@ public class KeyStoreUtils {
             throw new RuntimeException(e.getMessage(), e);
         }
        
+    }
+    
+    public static boolean authenPassword(byte[] queryPassword, String inputPassword) {
+        SecretKey secretKey = KeyStoreUtils.getKeyFromCloudant("password-key");
+        Cipher desCipher;
+        try {
+            desCipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+            desCipher.init(Cipher.DECRYPT_MODE, secretKey);
+            byte[] textDecrypted = desCipher.doFinal(queryPassword);
+            String passDecryptedString = new String(textDecrypted);
+            return passDecryptedString.equals(inputPassword);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
     
     public static String parseSecretKeyToString(SecretKey secretKey){

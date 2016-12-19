@@ -2,15 +2,17 @@
 <%@page language="java"	contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <jsp:include page="header.jsp"></jsp:include>
 	
+
 <script type="text/javascript">
 function validateForm() {
  	var title = document.forms["postForm"]["title"].value;
-	var content = tinyMCE.get('articleContent').getContent();
-    if (title == null || title == "") {
+	var content = tinyMCE.get('articleContent').getContent({ format: 'text' });
+	var contentHtml =  tinyMCE.get('articleContent').getContent();
+   if (title.trim() == null || title.trim() == "") {
         $("#statusPost").text("Please insert Title.");
         $("#statusPost").css("color", "red");
         return false;
-    }else if (content == null || content == "") {
+    }else if ((content.trim() == null || content.trim() == "" ) && contentHtml.indexOf("<img") == -1) {
         $("#statusPost").text("Please insert content.");
         $("#statusPost").css("color", "red");
         return false;
@@ -47,23 +49,24 @@ for(x = 0; x < allRadios.length; x++){
     };
 }
 
+
 tinyMCE.init({
 	  selector: '#articleContent',
 	  //theme : "tinymce-advanced",
-	  theme_advanced_link_targets : "someframe=Some frame,otherframe=Some other frame",
+// 	  theme_advanced_link_targets : "someframe=Some frame,otherframe=Some other frame",
 	  element_format : 'html',
-	  entity_encoding : "raw",
-	  //valid_elements: "b,i,b/strong,i/em",
+	  entity_encoding : 'raw',
 	  extended_valid_elements: "b,i,b/strong,i/em",
-	  preview_styles: 'font-size color',
-	  default_link_target: "true",
+	  preview_styles: "font-size color",
 	  plugins: "placeholder link autoresize",
-	  //toolbar1: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright | indent outdent | link image',
+	  //toolbar1: 'undo redo | styleselect |0 bold italic | alignleft aligncenter alignright | indent outdent | link image',
 	  toolbar1: 'undo redo bold imageupload link ',
+// 	  link_context_toolbar: false,
 	  paste_data_images: true,
-	  relative_urls : false,
-	  remove_script_host : false,
-	  convert_urls : true,
+// 	  relative_urls : false,
+// 	  remove_script_host : false,
+	  statusbar: false,
+// 	  convert_urls : true,
 	  menubar : false,
    setup: function(editor) {
        var inp = $('<input id="tinymce-uploader" type="file" name="pic" accept="image/*" style="display:none">');
@@ -137,7 +140,6 @@ tinyMCE.init({
 	                
          	  var formdata = new FormData(this);
          	  formdata.append("file", resizedImage,"filename.jpg");
-               
                $.ajax({
            	        url: "/GO10WebService/UploadServlet",
            	        type: "POST",
@@ -145,8 +147,8 @@ tinyMCE.init({
            	        contentType: false,
    					processData: false,
            	        success: function(url) {	
-           	            alert("File has been uploaded successfully");
-           	          	//editor.insertContent('<img src="'+img.src+'"/>');
+//            	            alert("File has been uploaded successfully");
+//            	          	editor.insertContent('<img src="'+img.src+'"/>');
            	          	var urlImage = url.substring(13, url.length-2);
            	          	editor.insertContent('<img src="' + urlImage + '"  width="'+width+'" height="'+height+'" alt="insertImageUrl"' + '" />');
                        	inp.val('');
@@ -179,42 +181,56 @@ tinyMCE.init({
    } 
 });
 
-function checkPin(radioBtn) {
-	if(radioBtn.checked == true) {
-		radioBtn.checked = false;
-		radioBtn.value = "false";
-		return false;
-	}
-	else {
-		radioBtn.checked = true;
-		radioBtn.value = "true";
-		return true;
-	}
-}
+// function checkPin(radioBtn) {
+// 	if(radioBtn.checked == true) {
+// 		radioBtn.checked = false;
+// 		radioBtn.value = "false";
+// 		return false;
+// 	}
+// 	else {
+// 		radioBtn.checked = true;
+// 		radioBtn.value = "true";
+// 		return true;
+// 	}
+// }
+/* For Loading Popup*/
+$body = $("body");
 
+$(document).on({
+	ajaxStart: function() { $body.addClass("loading");    },
+	ajaxStop: function() { $body.removeClass("loading"); }    
+});
 </script>
+
 </head>
 <body>
-	<div class="col-md-6 col-md-offset-3 col-xs-12 col-sm-12">
-	<form name="postForm" id="postForm" action="/GO10WebService/PostTopicServlet" onsubmit="return validateForm()" method="post" accept-charset="UTF-8" style="width: 100%;">
-		  <div class="row">
-		  		<div class="col-md-12" style="text-align: center;"><input type="text" name="title" style="width: 100%;" class="form-control"  placeholder="Title" onkeypress="return handleEnter(this, event)"></div>
-		  </div>
-		  <br></br>
-	      <textarea cols="80" rows="10" id="articleContent" name="articleContent" placeholder="Write something ..."></textarea>
-	        <!-- &lt;h1&gt;Article Title&lt;/h1&gt;
-	        &lt;p&gt;Here's some sample text&lt;/p&gt;
-	      </textarea> --> 
-	      
-	      <div class="row">
-	      		<!-- <div class="col-md-6"><input class='radio-button' type="radio" id="checkpin" name="checkpin" value="" style="width: 10%; margin-top: 30px" onClick="return false" onMouseDown="checkPin(this)"/>PIN</div> 
+	<div class="modal"><!-- Place at bottom of page --></div>
+	<div class="container">
+		<h3>Post Topic</h3>
+		<br>
+		<div class="col-md-6 col-md-offset-3 col-xs-12 col-sm-12">
+			<form name="postForm" id="postForm" action="/GO10WebService/PostTopicServlet" onsubmit="return validateForm()" method="post" accept-charset="UTF-8" style="width: 100%;">
+				<div class="row">
+					<div class="col-md-12" style="text-align: center;">
+						<input type="text" name="title" style="width: 100%;" class="form-control" placeholder="Title" onkeypress="return handleEnter(this, event)">
+					</div>
+				</div>
+				<br>
+				<textarea cols="80" rows="10" id="articleContent" name="articleContent" placeholder="Write something ..."></textarea>
+				<div class="row">
+					<!-- <div class="col-md-6"><input class='radio-button' type="radio" id="checkpin" name="checkpin" value="" style="width: 10%; margin-top: 30px" onClick="return false" onMouseDown="checkPin(this)"/>PIN</div> 
 				<div class="col-md-6"><input class="btn btn-primary" type="submit" value="Post Topic" style="float: right; width: 20%; margin-top: 20px" ></div> -->
-				<div class="col-md-12"><input class="btn btn-primary" type="submit" value="Post Topic" style="float: right; width: 20%; margin-top: 20px" ></div>
-		  </div>
-	  </form>
-	</div>
-    <div class="col-md-6 col-md-offset-3 col-xs-12 col-sm-12" style="text-align: center;">
-		<br><br><label id="statusPost">${statusPost}</label>
+					<div class="col-md-12">
+						<input class="btn btn-primary" type="submit" value="Post Topic"style="float: right; width: 20%; margin-top: 20px">
+					</div>
+				</div>
+			</form>
+		</div>
+		<div class="col-md-6 col-md-offset-3 col-xs-12 col-sm-12"style="text-align: center;">
+			<br>
+			<br>
+			<label id="statusPost" style='color:green'>${statusPost}</label>
+		</div>
 	</div>
 </body>
 </html>

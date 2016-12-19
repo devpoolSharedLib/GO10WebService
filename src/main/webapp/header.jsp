@@ -14,14 +14,53 @@
 	<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
 	<script src="bootstrap/js/bootstrap.min.js"></script>
 	
+	
+<!-- 	<script src="jquery-ui-1.12.1/jquery-ui.min.js"></script> -->
+ 
+	<script src="jquery-ui-1.12.1/jquery-ui.min.js"></script>
+	
 	<link rel="stylesheet" type="text/css" href="selectize/css/selectize.bootstrap3.css" />
 	<script type="text/javascript" src="selectize/js/standalone/selectize.js"></script>
 	
 	<link rel="stylesheet" type="text/css" href="css/user_role_management.css" />
 	
 	<script type="text/javascript" src="/GO10WebService/tinymce/js/tinymce/tinymce.js"></script>
-	
-	<!-- <script type="text/javascript">
+
+	<style type="text/css">
+		/* Start by setting display:none to make this hidden.
+		   Then we position it in relation to the viewport window
+		   with position:fixed. Width, height, top and left speak
+		   for themselves. Background we set to 80% white with
+		   our animation centered, and no-repeating */
+		.modal {
+			display: none;
+			position: fixed;
+			z-index: 1000;
+			top: 0;
+			left: 0;
+			height: 100%;
+			width: 100%;
+			background: rgba(255, 255, 255, .8)
+				url('http://i.stack.imgur.com/FhHRx.gif') 50% 50% no-repeat;
+		}
+		
+		/* When the body has the loading class, we turn
+		   the scrollbar off with overflow:hidden */
+		body.loading {
+			overflow: hidden;
+		}
+		
+		/* Anytime the body has the loading class, our
+		   modal element will be visible */
+		body.loading .modal {
+			display: block;
+		}
+		
+	</style>
+
+
+
+<!-- <script type="text/javascript">
 		$(document).ready(function() {
 			$(document).on({
 			    ajaxStart: function() { 
@@ -43,6 +82,8 @@
 			}); 
 		});	
 	</script> -->
+	
+
 </head>
 <body>
 	<nav class="navbar navbar-default">

@@ -307,8 +307,10 @@ tinymce.PluginManager.add('link', function(editor) {
 			textListCtrl = {
 				name: 'text',
 				type: 'textbox',
-				size: 40,
-				label: 'Text to display',
+//				disabled: true,
+				style: "display: none;",
+//				size: 40,
+//				label: 'Text to display',
 				onchange: function() {
 					data.text = this.value();
 				}
@@ -402,13 +404,13 @@ tinymce.PluginManager.add('link', function(editor) {
 					onkeyup: updateText,
 					onbeforecall: onBeforeCall
 				},
-				textListCtrl,
-				linkTitleCtrl,
-				buildAnchorListControl(data.href),
-				linkListCtrl,
-				relListCtrl,
-				targetListCtrl,
-				classListCtrl
+				textListCtrl
+//				linkTitleCtrl,
+//				buildAnchorListControl(data.href),
+//				linkListCtrl,
+//				relListCtrl,
+//				targetListCtrl,
+//				classListCtrl
 			],
 			onSubmit: function(e) {
 				/*eslint dot-notation: 0*/

@@ -23,10 +23,11 @@ import th.co.gosoft.go10.model.NewTopicModel;
 import th.co.gosoft.go10.model.UserAdminModel;
 import th.co.gosoft.go10.model.UserModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
+import th.co.gosoft.go10.util.PropertiesUtils;
 
 @WebServlet("/PostTopicServlet")
 public class PostTopicServlet extends HttpServlet {
-	private static final String URL_POST = "http://localhost:9080/GO10WebService/api/newtopic/post";
+	private static final String URL_POST = PropertiesUtils.getProperties("url_post_topic");
 	
     public PostTopicServlet() {
         super();

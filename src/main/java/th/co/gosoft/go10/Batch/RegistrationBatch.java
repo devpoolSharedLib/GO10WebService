@@ -1,4 +1,4 @@
-package th.co.gosoft.go10.batch;
+package th.co.gosoft.go10.Batch;
 
 import java.io.File;
 import java.io.FileInputStream;

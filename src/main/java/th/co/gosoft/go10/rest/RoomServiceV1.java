@@ -34,7 +34,7 @@ public class RoomServiceV1 {
         System.out.println(">>>>>>>>>>>>>>>>>>> getRooms()");
         List<RoomModel> roomModelList = db.findByIndex(getRoomJsonString(empEmail), RoomModel.class, new FindByIndexOptions()
          		 .sort(new IndexField("_id", SortOrder.asc)).fields("_id").fields("_rev")
-         		 .fields("name").fields("desc").fields("type"));
+         		 .fields("name").fields("desc").fields("type").fields("postUser").fields("commentUser").fields("readUser"));
         System.out.println("GET Complete");
         return roomModelList;
     }

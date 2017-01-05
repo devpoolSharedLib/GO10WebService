@@ -64,11 +64,11 @@
 						<h1 style="text-align: center">Login</h1>
 						<div class="row">
 							<div class="col-md-12" style="text-align: left;"><h4>Email : </h4></div>
-							<div class="col-md-12" style="text-align: center;"><input type="text" name="email" style="width: 100%;" class="form-control"></div>
+							<div class="col-md-12" style="text-align: center;"><input type="text" name="j_username" style="width: 100%;" class="form-control"></div>
 						</div>
 						<div class="row" style="margin-top: 10px">
 							<div class="col-md-12" style="text-align: left;"><h4>Password : </h4></div>
-							<div class="col-md-12" style="text-align: center;"><input type="password" name="password" style="width: 100%;" class="form-control"></div>
+							<div class="col-md-12" style="text-align: center;"><input type="password" name="j_password" style="width: 100%;" class="form-control"></div>
 						</div>
 					</div>
 					<div class="row" style="margin: 0 20px 20px 20px; text-align: center">

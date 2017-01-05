@@ -97,8 +97,6 @@ public class PostTopicServlet extends HttpServlet {
     	
 		if(postTopic(jsonInString)){
 			System.out.println("Post Topic Complete");
-//    	    request.setAttribute("statusPost", "<span style='color:green'>Post Topic Complete.</span>");
-//            request.getRequestDispatcher("posttopic.jsp").forward(request, response);
 			session.setAttribute("statusPost", "Post Topic Complete");
 			response.sendRedirect("posttopic.jsp");
 		}else{
@@ -107,35 +105,39 @@ public class PostTopicServlet extends HttpServlet {
 	}
 
 	private boolean postTopic(String jsonInString){
-	        
-	        try{
-	        	URL object=new URL(URL_POST);
-	        	HttpURLConnection con = (HttpURLConnection) object.openConnection();
-	        	con.setDoOutput(true);
-	        	con.setDoInput(true);
-	        	con.setRequestProperty("Content-Type", "application/json");
-	        	con.setRequestProperty("Accept", "application/json");
-	        	con.setRequestMethod("POST");
-	        	con.connect();
-	        	OutputStream os = con.getOutputStream();
-	        	OutputStreamWriter osw = new OutputStreamWriter(os, "UTF-8");
-	        	osw.write(jsonInString);
-	        	osw.flush();
-	        	osw.close();
-	        	
-	        	int HttpResult = con.getResponseCode(); 
-	        	if (HttpResult == 201) {
-	        		return true;
-	        	} else {
-	        		System.out.println(con.getResponseMessage());  
-	        	    return false;
-	        	}  
-	        	
-	        } catch(Exception e) {
-	        	System.out.println("Error : " + e.getMessage());  
-	        	return false;
-	        }
-	        	 
+	    HttpURLConnection con = null;
+        try{
+        	URL object=new URL(URL_POST);
+        	con = (HttpURLConnection) object.openConnection();
+        	con.setDoOutput(true);
+        	con.setDoInput(true);
+        	con.setRequestProperty("Content-Type", "application/json");
+        	con.setRequestProperty("Accept", "application/json");
+        	con.setRequestMethod("POST");
+        	con.connect();
+        	OutputStream os = con.getOutputStream();
+        	OutputStreamWriter osw = new OutputStreamWriter(os, "UTF-8");
+        	osw.write(jsonInString);
+        	osw.flush();
+        	osw.close();
+        	
+        	int HttpResult = con.getResponseCode(); 
+        	if (HttpResult == 201) {
+        		return true;
+        	} else {
+        		System.out.println(con.getResponseMessage());  
+        	    return false;
+        	}  
+        	
+        } catch(Exception e) {
+        	System.out.println("Error : " + e.getMessage());  
+        	return false;
+        } finally {
+            if (con != null) {
+                con.disconnect();
+            }
+            
+        }
 	}
 	
 	private  List<UserModel> getUserModel(String empEmail) {

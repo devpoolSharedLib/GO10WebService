@@ -64,16 +64,10 @@ public class RoomServiceV1 {
         userRoleManagementModel.setPostUser(roomModel.getPostUser());
         userRoleManagementModel.setCommentUser(roomModel.getCommentUser());
         userRoleManagementModel.setReadUser(roomModel.getReadUser());
-//        roomModel.setPostUser(splitStringToArray(localUserRoleManagentModel.getUserPost()));
-//        roomModel.setCommentUser(splitStringToArray(localUserRoleManagentModel.getUserComment()));
-//        roomModel.setReadUser(splitStringToArray(localUserRoleManagentModel.getUserRead()));
-//        db.update(roomModel);
-//        System.out.println("POST Complete");
         userRoleManagementModel.setPostUserModelList(db.findByIndex(getUserModelFromEmails(roomModel.getPostUser()), UserModel.class, new FindByIndexOptions()
                  .fields("_id").fields("_rev").fields("empName").fields("empEmail").fields("type")));
         userRoleManagementModel.setCommentUserModelList(db.findByIndex(getUserModelFromEmails(roomModel.getCommentUser()), UserModel.class, new FindByIndexOptions()
                 .fields("_id").fields("_rev").fields("empName").fields("empEmail").fields("type")));
-        System.out.println(userRoleManagementModel.getCommentUserModelList());
         userRoleManagementModel.setReadUserModelList(db.findByIndex(getUserModelFromEmails(roomModel.getReadUser()), UserModel.class, new FindByIndexOptions()
                 .fields("_id").fields("_rev").fields("empName").fields("empEmail").fields("type")));
         System.out.println("GET Complete");

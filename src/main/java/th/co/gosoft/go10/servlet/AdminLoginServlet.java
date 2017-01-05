@@ -35,8 +35,8 @@ public class AdminLoginServlet extends HttpServlet {
 	    System.out.println("AdminLoginServlet doPost()");
 //	    LoginContext lc = null;
 	    HttpSession session = request.getSession();
-	    String email = request.getParameter("email").toLowerCase();
-        String password = request.getParameter("password");
+	    String email = request.getParameter("j_username").toLowerCase();
+        String password = request.getParameter("j_password");
 //        System.out.println("username : "+username+", password : "+password);
 //        try {
 //            lc = new LoginContext("GO10", new JAASCallbackHandler(username, password));

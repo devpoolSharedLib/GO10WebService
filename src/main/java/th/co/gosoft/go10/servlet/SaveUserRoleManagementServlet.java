@@ -3,6 +3,10 @@ package th.co.gosoft.go10.servlet;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -13,10 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 import th.co.gosoft.go10.model.UserRoleManagementModel;
 import th.co.gosoft.go10.util.PropertiesUtils;
 
@@ -35,20 +35,34 @@ public class SaveUserRoleManagementServlet extends HttpServlet {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	    HttpURLConnection con = null;
 	    String roomId = (String) request.getSession().getAttribute("roomId");
 	    ObjectMapper mapper = new ObjectMapper();
 	    UserRoleManagementModel userRoleManagementModel = parseJSONrequestToModel(request, mapper);
 	    userRoleManagementModel.setRoomId(roomId);
         try{
-            OkHttpClient client = new OkHttpClient();
-            RequestBody body = RequestBody.create(JSON, mapper.writeValueAsString(userRoleManagementModel));
-            Request okHttpRequest = new Request.Builder().url(POST_URL).post(body).build();
-            Response okHttpResponse = client.newCall(okHttpRequest).execute();
-            int responseStatus =  okHttpResponse.code();
+            URL object=new URL(POST_URL);
+            con = (HttpURLConnection) object.openConnection();
+            con.setDoOutput(true);
+            con.setDoInput(true);
+            con.setRequestProperty("Content-Type", "application/json");
+            con.setRequestProperty("Accept", "application/json");
+            con.setRequestMethod("POST");
+            OutputStream os = con.getOutputStream();
+            OutputStreamWriter osw = new OutputStreamWriter(os, "UTF-8");
+            osw.write(mapper.writeValueAsString(userRoleManagementModel));
+            osw.flush();
+            osw.close();
+            int responseStatus = con.getResponseCode();
             response.setStatus(responseStatus);
             response.getWriter().print(responseStatus);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            if (con != null) {
+                con.disconnect();
+            }
+            
         }
 	}
 

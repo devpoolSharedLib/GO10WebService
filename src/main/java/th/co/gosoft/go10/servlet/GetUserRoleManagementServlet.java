@@ -1,6 +1,10 @@
 package th.co.gosoft.go10.servlet;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -8,9 +12,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import th.co.gosoft.go10.util.PropertiesUtils;
 
 @WebServlet("/GetUserRoleManagementServlet")
@@ -27,20 +28,34 @@ public class GetUserRoleManagementServlet extends HttpServlet {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	    HttpURLConnection con = null;
 	    String roomId = (String) request.getSession().getAttribute("roomId");
-//	    String roomId = "rm01";
         String getURL = GET_URL+"?roomId="+roomId;
         
         try{
-            OkHttpClient client = new OkHttpClient();
-            Request okHttpRequest = new Request.Builder().url(getURL).build();
-            Response okHttpResponse = client.newCall(okHttpRequest).execute();
-            String responseString =  okHttpResponse.body().string();
-            System.out.println("response string : "+responseString);
-            response.setContentType("application/json");
-            response.getWriter().print(responseString);
+            URL obj = new URL(getURL);
+            con = (HttpURLConnection) obj.openConnection();
+            con.setRequestMethod("GET");
+            int status = con.getResponseCode();
+            if(status == 200) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line+"\n");
+                }
+                br.close();
+                response.setContentType("application/json");
+                System.out.println("get user role : "+sb.toString());
+                response.getWriter().print(sb.toString());
+            }
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            if (con != null) {
+                con.disconnect();
+            }
+            
         }
 	}
 

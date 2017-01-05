@@ -7,7 +7,7 @@ import th.co.gosoft.go10.util.PropertiesUtils;
 
 public class AdminService {
     
-    private static final String GET_URL = PropertiesUtils.getProperties("domain_email_ful_text");
+    private static final String GET_URL = PropertiesUtils.getProperties("domain_email_full_text_search");
 
     public String getEmailFulTextSerch(String empEmail){
         String getURL = GET_URL+"?empEmail="+empEmail;
@@ -23,6 +23,10 @@ public class AdminService {
             throw new RuntimeException(e.getMessage(), e);
         }
         
+    }
+    
+    public int saveUserRoleManagement(){
+        return 1;
     }
     
 }

@@ -27,14 +27,26 @@ public class AdminLoginServlet extends HttpServlet {
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	    System.out.println("AdminLoginServlet doGet()");
 		doPost(request, response);
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	    System.out.println("AdminLoginServlet doPost()");
+//	    LoginContext lc = null;
 	    HttpSession session = request.getSession();
 	    String email = request.getParameter("email").toLowerCase();
         String password = request.getParameter("password");
-        
+//        System.out.println("username : "+username+", password : "+password);
+//        try {
+//            lc = new LoginContext("GO10", new JAASCallbackHandler(username, password));
+//            lc.login();
+//            Subject subject = lc.getSubject();
+//            subject.getPrincipals();
+//        } catch (LoginException e) {
+//            throw new ServletException(e.getMessage(), e);
+//        }
+
         List<UserAdminModel> userAdminModelList = db.findByIndex(getUserAdminByEmailJsonString(email), UserAdminModel.class);
         if(checkUserAdmin(userAdminModelList)){
         	try {

@@ -4,12 +4,14 @@
 <jsp:include page="header.jsp"></jsp:include>
 	
 <script type="text/javascript">
-
+	
+	var initializeObject; 
+	var selectizeControlPost;
+	var selectizeControlComment;
+	var selectizeControlRead;
+	
 	$(document).ready(function() {
-// 		validateSesstion();
-		initialSelectize('txtPost');
-		initialSelectize('txtComment');
-		initialSelectize('txtRead');
+		initialData();
 	});	
 	
 	function validateSesstion(){
@@ -25,12 +27,49 @@
 		}); 
 	}
 	
+	function initialData(){
+		$.ajax({
+            url: '/GO10WebService/GetUserRoleManagementServlet',
+            type: 'GET',
+            contentType: "application/json",
+            error: function() {
+                alert("error");
+            },
+            success: function(data, textStatus, jqXHR) {
+				initializeObject = data;
+				initialSelectize('txtPost');
+				initialSelectize('txtComment');
+				initialSelectize('txtRead');
+            }
+       	});
+	}
+	
 	function initialSelectize(txtId){
-		$('#'+txtId).selectize({
+		var optionObject;
+		var valueList;
+		var radioboxId;
+		switch(txtId) {
+		    case "txtPost":
+				radioboxId = "postSpecific";
+	    		optionObject = initializeObject.postUserModelList;
+	        	valueList = initializeObject.postUser;
+		        break;
+		    case "txtComment":
+				radioboxId = "commentSpecific";
+	    		optionObject = initializeObject.commentUserModelList;
+	        	valueList = initializeObject.commentUser;
+		        break;
+		    case "txtRead":
+				radioboxId = "readSpecific";
+	    		optionObject = initializeObject.readUserModelList;
+	        	valueList = initializeObject.readUser; 
+		        break;
+		}
+		var $select = $('#'+txtId).selectize({
 	     	valueField: 'empEmail',
 		    labelField: 'empName',
 		    searchField: ['empName', 'empEmail'],
-		    options: [],
+		    options : optionObject,
 			create: false,
 			maxItems: null,
 		    render: {	
@@ -50,13 +89,15 @@
 		        }
 		    },
 		    load: function(query, callback) {
+	    		var selectize = this;
 		        if (!query.length) {
 		        	return callback();
 		        }
 		        $.ajax({
-		            url: '<%= PropertiesUtils.getProperties("domain_email_ful_text") %>',
+		            url: '/GO10WebService/GetEmailFullTextSearchServlet',
 		            type: 'GET',
 		            data: {empEmail: query},
+		            global: false,
 		            error: function() {
 		                callback();
 		            },
@@ -66,10 +107,14 @@
 	        	});
 		    }
 		});
-	}
-	
-	function getValue(){
-		alert("value : "+$('#input-tags').val());
+		var control = $select[0].selectize;
+		control.setValue(valueList);
+		if("all" == valueList) {
+			closeTxt(txtId);
+		} else {
+			$("#"+radioboxId).prop("checked", true);
+		}
+		return control;
 	}
 	
 	function openTxt(txtId){
@@ -84,12 +129,12 @@
 		if(validateForm()){
 			var obj = getData();
 			$.ajax({
-	            url: '<%= PropertiesUtils.getProperties("domain_new_user_role") %>',
+	            url: '/GO10WebService/SaveUserRoleManagementServlet',
 	            type: 'POST',
 	            data: JSON.stringify(obj),
 	            contentType: "application/json",
 	            error: function() {
-	                alert("error");
+	                $("#status").text('Error.').css("display", "block").css("color", "red");
 	            },
 	            success: function(res, textStatus, jqXHR) {
 					if(201 == jqXHR.status){
@@ -102,24 +147,23 @@
 
 	function getData(){
 		var obj = new Object();
-		obj.roomId = <%= session.getAttribute("roomId")%>;
 		var radUserPost = $("input[name=radUserPost]:checked").val();
 		if(radUserPost == 'all') {
-			obj.userPost = radUserPost;
+			obj.postUser = [radUserPost];
 		} else if (radUserPost == 'specific') {
-			obj.userPost = $("#txtPost").val();
+			obj.postUser = $("#txtPost").val().split(',');
 		}
 		var radUserComment = $("input[name=radUserComment]:checked").val();
 		if(radUserComment == 'all') {
-			obj.userComment = radUserComment;
+			obj.commentUser = [radUserComment];
 		} else if (radUserComment == 'specific') {
-			obj.userComment = $("#txtComment").val();
+			obj.commentUser = $("#txtComment").val().split(',');
 		}
 		var radUserRead = $("input[name=radUserRead]:checked").val();
 		if(radUserRead == 'all') {
-			obj.userRead = radUserRead;
+			obj.readUser = [radUserRead];
 		} else if (radUserRead == 'specific') {
-			obj.userRead = $("#txtRead").val();
+			obj.readUser = $("#txtRead").val().split(',');
 		}
 		return obj;
 	}
@@ -140,8 +184,14 @@
 		return result; 
 	}
 	
-</script>
+	$body = $("body");
+	$(document).on({
+		ajaxStart: function() { $body.addClass("loading"); },
+		ajaxStop: function() { $body.removeClass("loading"); }    
+	});
 	
+</script>
+	<div class="modal"><!-- Place at bottom of page --></div>
 	<div class="container">
 		<h3>User Role Management</h3>
 		
@@ -152,13 +202,13 @@
 					<div class="form-group">
 						<label for="radUserPost" class="col-md-2 col-xs-4 control-label"><h4>Post</h4></label>
 						<div class="col-xs-8 radio-magin">
-							<label class="radio-inline"><input type="radio" name="radUserPost" id="radAll" value="all" checked="checked" onclick="closeTxt('txtPost')">All Users</label>
-							<label class="radio-inline"><input type="radio" name="radUserPost" id="radSpecific" value="specific" onclick="openTxt('txtPost')">Specific User</label>
+							<label class="radio-inline"><input type="radio" name="radUserPost" id="postAll" value="all" checked="checked" onclick="closeTxt('txtPost')">All Users</label>
+							<label class="radio-inline"><input type="radio" name="radUserPost" id="postSpecific" value="specific" onclick="openTxt('txtPost')">Specific User</label>
 						</div>
 					</div>
 				</div>
 				<div class="col-md-10 col-md-offset-2" style="text-align: left;">
-					<input type="text" id="txtPost" style="width: 100%;" class="contacts" disabled="disabled">
+					<input type="text" id="txtPost" style="width: 100%;" class="contacts">
 				</div>
 			</div>
 			<div class="row role-div">
@@ -166,13 +216,13 @@
 					<div class="form-group">
 						<label for="radUserComment" class="col-md-2 col-xs-4 control-label"><h4>Comment</h4></label>
 						<div class="col-xs-8 radio-magin">
-							<label class="radio-inline"><input type="radio" name="radUserComment" id="radAll" value="all" checked="checked" onclick="closeTxt('txtComment')">All Users</label>
-							<label class="radio-inline"><input type="radio" name="radUserComment" id="radSpecific" value="specific" onclick="openTxt('txtComment')">Specific User</label>
+							<label class="radio-inline"><input type="radio" name="radUserComment" id="commentAll" value="all" checked="checked" onclick="closeTxt('txtComment')">All Users</label>
+							<label class="radio-inline"><input type="radio" name="radUserComment" id="commentSpecific" value="specific" onclick="openTxt('txtComment')">Specific User</label>
 						</div>
 					</div>
 				</div>
 				<div class="col-md-10 col-md-offset-2" style="text-align: left;">
-					<input type="text" id="txtComment" style="width: 100%;" class="contacts" disabled="disabled">
+					<input type="text" id="txtComment" style="width: 100%;" class="contacts">
 				</div>
 			</div>
 			<div class="row role-div">
@@ -180,13 +230,13 @@
 					<div class="form-group">
 						<label for="radUserRead" class="col-md-2 col-xs-4 control-label"><h4>Read</h4></label>
 						<div class="col-xs-8 radio-magin">
-							<label class="radio-inline"><input type="radio" name="radUserRead" id="radAll" value="all" checked="checked" onclick="closeTxt('txtRead')">All Users</label>
-							<label class="radio-inline"><input type="radio" name="radUserRead" id="radSpecific" value="specific" onclick="openTxt('txtRead')">Specific User</label>
+							<label class="radio-inline"><input type="radio" name="radUserRead" id="readAll" value="all" checked="checked" onclick="closeTxt('txtRead')">All Users</label>
+							<label class="radio-inline"><input type="radio" name="radUserRead" id="readSpecific" value="specific" onclick="openTxt('txtRead')">Specific User</label>
 						</div>
 					</div>
 				</div>
 				<div class="col-md-10 col-md-offset-2" style="text-align: left;">
-					<input type="text" id="txtRead" style="width: 100%;" class="contacts" disabled="disabled">
+					<input type="text" id="txtRead" style="width: 100%;" class="contacts">
 				</div>
 			</div>
 			<div class="row">

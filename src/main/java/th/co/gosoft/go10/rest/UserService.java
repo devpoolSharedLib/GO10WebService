@@ -168,18 +168,18 @@ public class UserService {
     }
     
     @GET
-    @Path("/getEmailFulTextSerch")
+    @Path("/getEmailFullTextSerch")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<UserModel> getEmailFulTextSerch(@QueryParam("empEmail") String empEmail) {
-        System.out.println(">>>>>>>>>>>>>>>>>>> getEmailFulTextSerch() empEmail : "+empEmail);
+        System.out.println(">>>>>>>>>>>>>>>>>>> getEmailFullTextSerch() empEmail : "+empEmail);
         Database db = CloudantClientUtils.getDBNewInstance();
-        List<UserModel> userModelList = db.findByIndex(getEmailFulTextSerchJsonString(empEmail), UserModel.class, 
-                new FindByIndexOptions().useIndex("_design/emp-email-design-doc"));
+        List<UserModel> userModelList = db.findByIndex(getEmailFullTextSerchJsonString(empEmail), UserModel.class, 
+                new FindByIndexOptions().useIndex("_design/emp-email-design-doc").fields("empName").fields("empEmail"));
         System.out.println("list size : "+userModelList.size());
         return userModelList;
     }
     
-    private String getEmailFulTextSerchJsonString(String empEmail) {
+    private String getEmailFullTextSerchJsonString(String empEmail) {
         StringBuilder stingBuilder = new StringBuilder();
         stingBuilder.append("{\"selector\": {");
         stingBuilder.append("\"empEmail\": {\"$regex\": \""+empEmail+"\"}");

@@ -126,7 +126,6 @@
 		        		<%
 		        			for (RoomModel roomModel : groupModelList) {
  						%>
-<%-- 							<li><a href="/GO10WebService/SessionServlet?roomId=<%=roomModel.get_id() %>&page=javascript:document.write(testtest)">Room : <%=roomModel.getName() %></a></li> --%>
 							<li><a href="javascript:gotoSessionServlet('<%=roomModel.get_id() %>','<%=roomModel.getName() %>');">Room : <%=roomModel.getName() %></a></li>
 						<%
 							}   

@@ -27,7 +27,9 @@ import th.co.gosoft.go10.util.PropertiesUtils;
 
 @WebServlet("/PostTopicServlet")
 public class PostTopicServlet extends HttpServlet {
-	private static final String URL_POST = PropertiesUtils.getProperties("url_post_topic");
+    
+    private static final long serialVersionUID = 1L;
+    private static final String URL_POST = PropertiesUtils.getProperties("url_post_topic");
 	
     public PostTopicServlet() {
         super();
@@ -121,26 +123,15 @@ public class PostTopicServlet extends HttpServlet {
 	        	osw.flush();
 	        	osw.close();
 	        	
-	        	StringBuilder sb = new StringBuilder();  
 	        	int HttpResult = con.getResponseCode(); 
 	        	if (HttpResult == 201) {
-	        		/* get output form servlet */
-//	        	    BufferedReader br = new BufferedReader(
-//	        	            new InputStreamReader(con.getInputStream(), "utf-8"));
-//	        	    String line = null;  
-//	        	    while ((line = br.readLine()) != null) {  
-//	        	        sb.append(line + "\n");  
-//	        	    }
-//	        	    br.close();
-//	        	    System.out.println("" + sb.toString()); 
 	        		return true;
-	            	
 	        	} else {
 	        		System.out.println(con.getResponseMessage());  
 	        	    return false;
 	        	}  
 	        	
-	        }catch(Exception e) {
+	        } catch(Exception e) {
 	        	System.out.println("Error : " + e.getMessage());  
 	        	return false;
 	        }

@@ -29,13 +29,10 @@ public class SecurityUtils {
         UserAdminModel userAdminModel = (UserAdminModel) session.getAttribute("userAdminModel");
         List<RoomModel> roomModels = db.findByIndex(getRoomsByRoomIdJsonString(userAdminModel.getRoomAdmin()), RoomModel.class);
         
-        System.out.println("Session roomName : " + session.getAttribute("roomName"));
-        
     	if (session == null || (session.getAttribute("roomName") == null)) {
+    	    session.setAttribute("roomId", roomModels.get(0).get_id());
     		session.setAttribute("roomName", roomModels.get(0).getName());
     	}
-    	
-    	System.out.println("Session roomName : " + session.getAttribute("roomName"));
     	
         return roomModels;
     }

@@ -55,6 +55,9 @@ public class PostTopicServlet extends HttpServlet {
         System.out.println("content : " + content);
         
         
+        String roomId = (String) session.getAttribute("roomId");
+        System.out.println("ROOM ID : " + roomId);
+        
 		UserAdminModel useradminmodel = (UserAdminModel) session.getAttribute("userAdminModel");
 		System.out.println("RoomAdmin : " + useradminmodel.getRoomAdmin());
 		System.out.println("empEmail : " + useradminmodel.getEmpEmail());
@@ -81,7 +84,7 @@ public class PostTopicServlet extends HttpServlet {
         newtopicmodel.setContent(content);
         newtopicmodel.setCountLike(0);
         newtopicmodel.setEmpEmail(userModelList.get(0).getEmpEmail());
-        newtopicmodel.setRoomId(useradminmodel.getRoomAdmin().get(0));	
+        newtopicmodel.setRoomId(roomId);	
         newtopicmodel.setSubject(subject);
         newtopicmodel.setType("host");
         newtopicmodel.setDate("");
@@ -91,7 +94,7 @@ public class PostTopicServlet extends HttpServlet {
         String jsonInString = mapper.writeValueAsString(newtopicmodel);
     	
 		if(postTopic(jsonInString)){
-			System.out.println("Post Pin Topic Complete");
+			System.out.println("Post Topic Complete");
 //    	    request.setAttribute("statusPost", "<span style='color:green'>Post Topic Complete.</span>");
 //            request.getRequestDispatcher("posttopic.jsp").forward(request, response);
 			session.setAttribute("statusPost", "Post Topic Complete");

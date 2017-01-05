@@ -14,7 +14,6 @@
 	<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
 	<script src="bootstrap/js/bootstrap.min.js"></script>
 	
-	
 <!-- 	<script src="jquery-ui-1.12.1/jquery-ui.min.js"></script> -->
  
 	<script src="jquery-ui-1.12.1/jquery-ui.min.js"></script>
@@ -57,9 +56,15 @@
 		}
 		
 	</style>
-
-
-
+	
+	<script type="text/javascript" >
+		function gotoSessionServlet(roomId,roomName){
+			var path = window.location.pathname;
+			var currentPage = path.split("/").pop();
+			window.location.href = "/GO10WebService/SessionServlet?roomId=" + roomId + "&roomName=" + roomName + "&currentPage=" + currentPage
+		}
+	</script>
+ 
 <!-- <script type="text/javascript">
 		$(document).ready(function() {
 			$(document).on({
@@ -103,11 +108,11 @@
 		          <ul class="dropdown-menu">
 		            <li><a href="user_role_management.jsp">User Role Management</a></li>
 		            <li><a href="posttopic.jsp">Post Topic</a></li>
-		            <li><a href="#">Something else here</a></li>
+		            <!-- <li><a href="#">Something else here</a></li>
 		            <li role="separator" class="divider"></li>
 		            <li><a href="#">Separated link</a></li>
 		            <li role="separator" class="divider"></li>
-		            <li><a href="#">One more separated link</a></li>
+		            <li><a href="#">One more separated link</a></li> -->
 		          </ul>
 		        </li>
 		      </ul>
@@ -116,14 +121,15 @@
 					List<RoomModel> groupModelList = SecurityUtils.getInstance().getRoom(session);
 				%>
 		        <li class="dropdown" style="display: inline;">
-		        	<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Room :  <%= groupModelList.get(0).getName() %> <span class="caret"></span></a>
-		        	<ul class='dropdown-menu'>
+		        		<a href="#" class="dropdown-toggle" id="roomName" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Room :  <%=session.getAttribute("roomName") %> <span  class="caret"></span></a>
+		        	<ul class='dropdown-menu' id="menuRoomName">
 		        		<%
 		        			for (RoomModel roomModel : groupModelList) {
  						%>
-							<li><a href=#>Room : <%=roomModel.getName() %></a></li>
+<%-- 							<li><a href="/GO10WebService/SessionServlet?roomId=<%=roomModel.get_id() %>&page=javascript:document.write(testtest)">Room : <%=roomModel.getName() %></a></li> --%>
+							<li><a href="javascript:gotoSessionServlet('<%=roomModel.get_id() %>','<%=roomModel.getName() %>');">Room : <%=roomModel.getName() %></a></li>
 						<%
-							}
+							}   
  						%>
 		        	</ul>
 		        </li>

@@ -34,20 +34,6 @@ function handleEnter (field, event) {
 		return true;
 	}      
 	
-var allRadios = document.getElementsByName('checkpin');
-var booRadio;
-var x = 0;
-for(x = 0; x < allRadios.length; x++){
-
-    allRadios[x].onclick = function() {
-        if(booRadio == this){
-            this.checked = false;
-            booRadio = null;
-        }else{
-            booRadio = this;
-        }
-    };
-}
 
 
 tinyMCE.init({
@@ -181,18 +167,6 @@ tinyMCE.init({
    } 
 });
 
-// function checkPin(radioBtn) {
-// 	if(radioBtn.checked == true) {
-// 		radioBtn.checked = false;
-// 		radioBtn.value = "false";
-// 		return false;
-// 	}
-// 	else {
-// 		radioBtn.checked = true;
-// 		radioBtn.value = "true";
-// 		return true;
-// 	}
-// }
 /* For Loading Popup*/
 $body = $("body");
 
@@ -201,9 +175,7 @@ $(document).on({
 	ajaxStop: function() { $body.removeClass("loading"); }    
 });
 </script>
-
-</head>
-<body>
+	
 	<div class="modal"><!-- Place at bottom of page --></div>
 	<div class="container">
 		<h3>Post Topic</h3>

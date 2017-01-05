@@ -1,7 +1,5 @@
 package th.co.gosoft.go10.rest;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -19,8 +17,10 @@ import com.cloudant.client.api.model.IndexField;
 import com.cloudant.client.api.model.IndexField.SortOrder;
 
 import th.co.gosoft.go10.model.RoomModel;
+import th.co.gosoft.go10.model.UserModel;
 import th.co.gosoft.go10.model.UserRoleManagementModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
+import th.co.gosoft.go10.util.StringUtils;
 
 @Path("roomv1")
 public class RoomServiceV1 {
@@ -40,31 +40,46 @@ public class RoomServiceV1 {
     }
 
     @POST
-    @Path("/newUserRole")
+    @Path("/postUserRoleManagement")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response newUserRole(UserRoleManagementModel userRoleManagementModel) {
+    public Response postUserRoleManagement(UserRoleManagementModel userRoleManagementModel) {
         UserRoleManagementModel localUserRoleManagentModel = userRoleManagementModel;
-        System.out.println(">>>>>>>>>>>>>>>>>>> newUserRole() //room id : "+localUserRoleManagentModel.getRoomId());
+        System.out.println(">>>>>>>>>>>>>>>>>>> postUserRoleManagement() //room id : "+localUserRoleManagentModel.getRoomId());
         RoomModel roomModel = db.find(RoomModel.class, localUserRoleManagentModel.getRoomId());
-        roomModel.setPostUser(splitStringToArray(localUserRoleManagentModel.getUserPost()));
-        roomModel.setCommentUser(splitStringToArray(localUserRoleManagentModel.getUserComment()));
-        roomModel.setReadUser(splitStringToArray(localUserRoleManagentModel.getUserRead()));
+        roomModel.setPostUser(localUserRoleManagentModel.getPostUser());
+        roomModel.setCommentUser(localUserRoleManagentModel.getCommentUser());
+        roomModel.setReadUser(localUserRoleManagentModel.getReadUser());
         db.update(roomModel);
         System.out.println("POST Complete");
         return Response.status(201).entity("complete").build();
     }
     
-    public List<String> splitStringToArray(String userString) {
-        List<String> result;
-        if ("all".equals(userString)) {
-            result = new ArrayList<>(); 
-            result.add("all");
-        } else {
-            result = Arrays.asList(userString.split("\\s*,\\s*"));
-        }
-        return result;
+    @GET
+    @Path("/getUserRoleManagement")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public UserRoleManagementModel getUserRole(@QueryParam("roomId") String roomId) {
+        System.out.println(">>>>>>>>>>>>>>>>>>> getUserRoleManagement() //room id : "+roomId);
+        UserRoleManagementModel userRoleManagementModel = new UserRoleManagementModel();
+        RoomModel roomModel = db.find(RoomModel.class, roomId);
+        userRoleManagementModel.setPostUser(roomModel.getPostUser());
+        userRoleManagementModel.setCommentUser(roomModel.getCommentUser());
+        userRoleManagementModel.setReadUser(roomModel.getReadUser());
+//        roomModel.setPostUser(splitStringToArray(localUserRoleManagentModel.getUserPost()));
+//        roomModel.setCommentUser(splitStringToArray(localUserRoleManagentModel.getUserComment()));
+//        roomModel.setReadUser(splitStringToArray(localUserRoleManagentModel.getUserRead()));
+//        db.update(roomModel);
+//        System.out.println("POST Complete");
+        userRoleManagementModel.setPostUserModelList(db.findByIndex(getUserModelFromEmails(roomModel.getPostUser()), UserModel.class, new FindByIndexOptions()
+                 .fields("_id").fields("_rev").fields("empName").fields("empEmail").fields("type")));
+        userRoleManagementModel.setCommentUserModelList(db.findByIndex(getUserModelFromEmails(roomModel.getCommentUser()), UserModel.class, new FindByIndexOptions()
+                .fields("_id").fields("_rev").fields("empName").fields("empEmail").fields("type")));
+        System.out.println(userRoleManagementModel.getCommentUserModelList());
+        userRoleManagementModel.setReadUserModelList(db.findByIndex(getUserModelFromEmails(roomModel.getReadUser()), UserModel.class, new FindByIndexOptions()
+                .fields("_id").fields("_rev").fields("empName").fields("empEmail").fields("type")));
+        System.out.println("GET Complete");
+        return userRoleManagementModel;
     }
-
+    
     private String getRoomJsonString(String empEmail) {
         StringBuilder stingBuilder = new StringBuilder();
         stingBuilder.append("{\"selector\": {");
@@ -74,6 +89,20 @@ public class RoomServiceV1 {
         stingBuilder.append("{\"readUser\":{\"$elemMatch\": {");
         stingBuilder.append("\"$or\": [\"all\", \""+empEmail+"\"]");
         stingBuilder.append("}}}]");
+        stingBuilder.append("},");
+        stingBuilder.append("\"fields\": [\"_id\",\"_rev\",\"name\",\"desc\", \"type\"]}");
+        return stingBuilder.toString();
+    }
+    
+    private String getUserModelFromEmails(List<String> empEmailList) {
+        StringBuilder stingBuilder = new StringBuilder();
+        stingBuilder.append("{\"selector\": {");
+        stingBuilder.append("\"_id\": {\"$gt\": 0},");
+        stingBuilder.append("\"$and\": [");
+        stingBuilder.append("{\"type\":\"user\"},");
+        stingBuilder.append("{\"empEmail\":{");
+        stingBuilder.append("\"$or\": "+StringUtils.parseListToString(empEmailList));
+        stingBuilder.append("}}]");
         stingBuilder.append("},");
         stingBuilder.append("\"fields\": [\"_id\",\"_rev\",\"name\",\"desc\", \"type\"]}");
         return stingBuilder.toString();

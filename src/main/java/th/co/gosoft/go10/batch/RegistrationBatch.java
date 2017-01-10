@@ -34,8 +34,8 @@ public class RegistrationBatch {
 	private static UserAuthenModel userAuthenModel;
 	
 	public static void main(String[] args) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
-		System.out.println("TEST");
-		String excelFilePath = "Registration.xlsx";
+		System.out.println("Batch Registration");
+		String excelFilePath = "Registration_oct2016-jan2017.xlsx";
 		readExcelFile(excelFilePath);
     }
 	
@@ -60,7 +60,7 @@ public class RegistrationBatch {
 		 
 	            switch (columnIndex) {
 	            case 0:
-	            	userAuthenModel.setPassword(encryptPassword((String) getCellValue(nextCell)));
+	            	userAuthenModel.setPassword(encryptPassword(String.valueOf(getCellValue(nextCell))));
 	                break;
 	            case 1:
 	            	userModel.setEmpName((String) getCellValue(nextCell));
@@ -70,7 +70,7 @@ public class RegistrationBatch {
 	            	userAuthenModel.setEmpEmail((String) getCellValue(nextCell));
 	                break;
 	            case 3:
-	            	userModel.setBirthday((String) getCellValue(nextCell));
+	            	userModel.setBirthday(String.valueOf(getCellValue(nextCell)));
 	                break;
 	            }
 	 

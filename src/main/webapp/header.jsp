@@ -14,8 +14,6 @@
 	<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
 	<script src="bootstrap/js/bootstrap.min.js"></script>
 	
-<!-- 	<script src="jquery-ui-1.12.1/jquery-ui.min.js"></script> -->
- 
 	<script src="jquery-ui-1.12.1/jquery-ui.min.js"></script>
 	
 	<link rel="stylesheet" type="text/css" href="selectize/css/selectize.bootstrap3.css" />
@@ -58,36 +56,48 @@
 	</style>
 	
 	<script type="text/javascript" >
-		function gotoSessionServlet(roomId,roomName){
+		function gotoSessionServlet(roomId,roomName) {
 			var path = window.location.pathname;
 			var currentPage = path.split("/").pop();
 			window.location.href = "/GO10WebService/SessionServlet?roomId=" + roomId + "&roomName=" + roomName + "&currentPage=" + currentPage
 		}
 	</script>
- 
-<!-- <script type="text/javascript">
+
+	<script type="text/javascript">
 		$(document).ready(function() {
-			$(document).on({
-			    ajaxStart: function() { 
-				    $.ajax({   
-						url: '/GO10WebService/VerifiedSessionServlet',   
-						type: 'GET',  
-						dataType: 'json',
-						success: function(timeout) {
-							alert("timeout : "+timeout);   
-							if (timeout) {
-								window.location.href = "/GO10WebService/login.jsp";
-							}
-						},
-					}); 
-			    },
-			    ajaxStop: function() { 
+// 			validateSesstion();
+// 			$(document).on({
+// 			    ajaxStart: function() { 
+// 				    $.ajax({   
+// 						url: '/GO10WebService/VerifiedSessionServlet',   
+// 						type: 'GET',  
+// 						dataType: 'json',
+// 						success: function(timeout) {
+// 							if (timeout) {
+// 								window.location.href = "/GO10WebService/login.jsp";
+// 							}
+// 						},
+// 					}); 
+// 			    },
+// 			    ajaxStop: function() { 
 			    
-			    }    
-			}); 
+// 			    }    
+// 			}); 
 		});	
-	</script> -->
-	
+		
+		function validateSesstion() {
+			$.ajax({   
+				url: '/GO10WebService/VerifiedSessionServlet',   
+				type: 'GET',  
+				dataType: 'json',
+				success: function(timeout) {
+					if (timeout) {
+						window.location.href = "/GO10WebService/login.jsp";
+					}
+				},
+			}); 
+		}
+	</script>
 
 </head>
 <body>
@@ -118,28 +128,33 @@
 		      </ul>
 		      <ul class="nav navbar-nav navbar-right">
 		      	<%
-					List<RoomModel> groupModelList = SecurityUtils.getInstance().getRoom(session);
+// 		      		System.out.print("session : "+session != null);
+// 		      		if(session != null) {
+// 						List<RoomModel> groupModelList = SecurityUtils.getInstance().getRoom(session);
 				%>
-		        <li class="dropdown" style="display: inline;">
-		        		<a href="#" class="dropdown-toggle" id="roomName" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Room :  <%=session.getAttribute("roomName") %> <span  class="caret"></span></a>
-		        	<ul class='dropdown-menu' id="menuRoomName">
-		        		<%
-		        			for (RoomModel roomModel : groupModelList) {
- 						%>
-							<li><a href="javascript:gotoSessionServlet('<%=roomModel.get_id() %>','<%=roomModel.getName() %>');">Room : <%=roomModel.getName() %></a></li>
-						<%
-							}   
- 						%>
-		        	</ul>
-		        </li>
-		        <li class="dropdown">
-		          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><%=session.getAttribute("empEmail") %> <span class="caret"></span></a>
-		          <ul class="dropdown-menu">
-		            <!-- <li><a href="#">Action</a></li>
-		            <li role="separator" class="divider"></li> -->
-		            <li><a href="/GO10WebService/LogoutServlet">Logout</a></li>
-		          </ul>
-		        </li>
+<!-- 		        <li class="dropdown" style="display: inline;"> -->
+<%-- 		        		<a href="#" class="dropdown-toggle" id="roomName" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Room :  <%=session.getAttribute("roomName") %> <span  class="caret"></span></a> --%>
+<!-- 		        	<ul class='dropdown-menu' id="menuRoomName"> -->
+<%-- 		        		<% --%>
+<!-- // 		        			for (RoomModel roomModel : groupModelList) { -->
+<%--  						%> --%>
+<%-- 							<li><a href="javascript:gotoSessionServlet('<%=roomModel.get_id() %>','<%=roomModel.getName() %>');">Room : <%=roomModel.getName() %></a></li> --%>
+<%-- 						<% --%>
+<!-- // 							}    -->
+<%--  						%> --%>
+<!-- 		        	</ul> -->
+<!-- 		        </li> -->
+<!-- 		        <li class="dropdown"> -->
+<%-- 		          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><%=session.getAttribute("empEmail") %> <span class="caret"></span></a> --%>
+<!-- 		          <ul class="dropdown-menu"> -->
+<!-- 		            <li><a href="#">Action</a></li>
+<!-- 		            <li role="separator" class="divider"></li> --> -->
+<!-- 		            <li><a href="/GO10WebService/LogoutServlet">Logout</a></li> -->
+<!-- 		          </ul> -->
+<!-- 		        </li> -->
+<%-- 		        <%  --%>
+<!-- // 		        	} -->
+<%-- 		        %> --%>
 		      </ul>
 		    </div><!-- /.navbar-collapse -->
 	  	</div><!-- /.container-fluid -->

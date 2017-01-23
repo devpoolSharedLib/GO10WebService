@@ -25,6 +25,7 @@ public class VerifiedSessionServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
+            System.out.println("VerifiedSessionServlet doPost");
 	    	Boolean sessionTimeout = false;
         	HttpSession session = request.getSession(false);
         	

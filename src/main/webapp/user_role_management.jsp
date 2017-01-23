@@ -14,26 +14,13 @@
 		initialData();
 	});	
 	
-	function validateSesstion(){
-		$.ajax({   
-			url: '/GO10WebService/VerifiedSessionServlet',   
-			type: 'GET',  
-			dataType: 'json',
-			success: function(timeout) {
-				if (timeout) {
-					window.location.href = "/GO10WebService/login.jsp";
-				}
-			},
-		}); 
-	}
-	
-	function initialData(){
+	function initialData() {
 		$.ajax({
             url: '/GO10WebService/GetUserRoleManagementServlet',
             type: 'GET',
             contentType: "application/json",
             error: function() {
-                alert("error");
+                alert("initialData error");
             },
             success: function(data, textStatus, jqXHR) {
 				initializeObject = data;
@@ -44,7 +31,7 @@
        	});
 	}
 	
-	function initialSelectize(txtId){
+	function initialSelectize(txtId) {
 		var optionObject;
 		var valueList;
 		var radioboxId;

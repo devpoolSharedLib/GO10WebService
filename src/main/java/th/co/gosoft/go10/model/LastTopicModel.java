@@ -14,6 +14,7 @@ public class LastTopicModel {
     private String type;
     private String roomId;
     private Integer countLike;
+    private Integer countRead;
     private String updateDate;
     private Integer pin;
     
@@ -108,6 +109,14 @@ public class LastTopicModel {
     }
     public void setPin(Integer pin) {
         this.pin = pin;
+    }
+
+    public Integer getCountRead() {
+        return countRead;
+    }
+
+    public void setCountRead(Integer countRead) {
+        this.countRead = countRead;
     }
     
 }

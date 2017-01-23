@@ -1,4 +1,4 @@
-package th.co.gosoft.go10.rest;
+package th.co.gosoft.go10.rest.v116103;
 
 import java.util.List;
 
@@ -22,8 +22,8 @@ import th.co.gosoft.go10.model.UserRoleManagementModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
 import th.co.gosoft.go10.util.StringUtils;
 
-@Path("roomv1")
-public class RoomServiceV1 {
+@Path("v116103/room")
+public class RoomService {
 
     private static Database db = CloudantClientUtils.getDBNewInstance();
     
@@ -31,10 +31,11 @@ public class RoomServiceV1 {
     @Path("/get")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<RoomModel> getRooms(@QueryParam("empEmail") String empEmail) {
-        System.out.println(">>>>>>>>>>>>>>>>>>> getRooms()");
+        System.out.println(">>>>>>>>>>>>>>>>>>> v116103 getRooms()");
         List<RoomModel> roomModelList = db.findByIndex(getRoomJsonString(empEmail), RoomModel.class, new FindByIndexOptions()
          		 .sort(new IndexField("_id", SortOrder.asc)).fields("_id").fields("_rev")
          		 .fields("name").fields("desc").fields("type").fields("postUser").fields("commentUser").fields("readUser"));
+        System.out.println("room list size : "+roomModelList.size());
         System.out.println("GET Complete");
         return roomModelList;
     }

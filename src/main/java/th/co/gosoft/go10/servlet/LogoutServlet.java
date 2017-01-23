@@ -1,7 +1,6 @@
 package th.co.gosoft.go10.servlet;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;

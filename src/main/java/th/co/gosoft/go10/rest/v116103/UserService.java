@@ -1,4 +1,4 @@
-package th.co.gosoft.go10.rest;
+package th.co.gosoft.go10.rest.v116103;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ import th.co.gosoft.go10.util.EmailUtils;
 import th.co.gosoft.go10.util.KeyStoreUtils;
 import th.co.gosoft.go10.util.PropertiesUtils;
 
-@Path("user")
+@Path("v116103/user")
 public class UserService {
 	private static final String SUBJECT = "GO10, reset your password";
 	private static final String EMAIL_CONTENT = "\nPlease copy and paste the following link in Google Chrome Browser. \n\n";

@@ -3,6 +3,8 @@ package th.co.gosoft.go10.servlet;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import javax.crypto.BadPaddingException;
@@ -15,6 +17,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.QueryParam;
 
 import com.cloudant.client.api.Database;
@@ -45,7 +48,7 @@ public class RegisterServlet extends HttpServlet {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
+		HttpSession session = request.getSession();
 	    try{
 //	        initialVariable();
 	        String empSurName = request.getParameter("surname");
@@ -53,6 +56,11 @@ public class RegisterServlet extends HttpServlet {
 	        String empEmail = request.getParameter("email");
 	        String password = request.getParameter("password");
 	        String birthday = request.getParameter("birthday");
+	        SimpleDateFormat formatstringtodate = new SimpleDateFormat("dd-MM-yyyy");
+	        Date date = formatstringtodate.parse(birthday);
+	        SimpleDateFormat formatdatetostring = new SimpleDateFormat("MMMM-dd-yyyy");
+	        birthday = formatdatetostring.format(date);
+	        
 	        if(isInvalidInput(empSurName, empLastName, empEmail, password, birthday)){
 	            throw new Exception("Invalid input");
 	        } else if(!getUserByEmail(empEmail).isEmpty()){
@@ -87,8 +95,11 @@ public class RegisterServlet extends HttpServlet {
 //                EmailUtils.sendFromGMail(FROM_EMAIL, PASSWORD, empEmail, SUBJECT, body);
                 
 //                request.setAttribute("status", "<span style='color:green'>Registration Complete<br>Please check your inbox and activate your account</span>");
-                request.setAttribute("status", "<span style='color:green'>Register Complete.</span>");
-                request.getRequestDispatcher("/registration.jsp").forward(request, response);
+//                request.setAttribute("status", "<span style='color:green'>Register Complete.</span>");
+//                request.getRequestDispatcher("/registration.jsp").forward(request, response);
+                session.setAttribute("statusRegis", "Register Complete.");
+                response.sendRedirect("registration.jsp");
+                
 	        }
 	    } catch (Exception e){
 	        request.setAttribute("status", "Registration Error");

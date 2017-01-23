@@ -32,30 +32,25 @@ function validateForm() {
 	var birthday = document.forms["regisForm"]["birthday"].value;
 	var password = document.forms["regisForm"]["password"].value;
 	var confirmPassword = document.forms["regisForm"]["confirmPassword"].value;
-	var age = getAge(birthday);
     if (surname == null || surname == "" || lastname == null || lastname == "") {
-        $("#status").text("Please insert surname and lastname.");
-        $("#status").css("color", "red");
+        $("#statusRegis").text("Please insert surname and lastname.");
+        $("#statusRegis").css("color", "red");
         return false;
     }else if (email == null || email == "") {
-        $("#status").text("Please insert Email.");
-        $("#status").css("color", "red");
+        $("#statusRegis").text("Please insert Email.");
+        $("#statusRegis").css("color", "red");
         return false;
     }else if (birthday == null || birthday == "" ) {
-        $("#status").text("Please insert Birthday.");
-        $("#status").css("color", "red");
+        $("#statusRegis").text("Please insert Birthday.");
+        $("#statusRegis").css("color", "red");
         return false;
     }else if(!isEmailFommat(email)||!isGosoftEmailFommat(email)){
-    	$("#status").text("Please insert correct email.");
-        $("#status").css("color", "red");
+    	$("#statusRegis").text("Please insert correct email.");
+        $("#statusRegis").css("color", "red");
         return false;
     }else if(password == null || password == "" || confirmPassword == null || confirmPassword == "" || password != confirmPassword){
-    	$("#status").text("Please insert correct password.");
-        $("#status").css("color", "red");
-        return false;
-    }else if(parseInt(age)<15){
-    	$("#status").text("This application should be older 15.");
-        $("#status").css("color", "red");
+    	$("#statusRegis").text("Please insert correct password.");
+        $("#statusRegis").css("color", "red");
         return false;
     }
 }
@@ -71,24 +66,9 @@ function isEmailFommat(email) {
 
 
 $(document).ready(function() {
-	 createSingleDatepicker("singleDatepickerDiv", "birthday");
+// 	 createSingleDatepicker("singleDatepickerDiv", "birthday");
+	$("#birthday").mask("99-99-9999",{placeholder:"dd-mm-yyyy"});
 });	
-
-function getAge(dateString) 
-{
-    var today = new Date();
-    var birthDate = new Date(dateString);
-    var age = today.getFullYear() - birthDate.getFullYear();
-    var m = today.getMonth() - birthDate.getMonth();
-    var d = today.getDate() - birthDate.getDate();
-    if (m < 0 || (m == 0 && d<0)) 
-    {
-        age--;
-    }
-    return age;
-}
-
-
 
 </script>
 </head>
@@ -127,7 +107,8 @@ function getAge(dateString)
 			</div>
 			<div class="row">
 				<div class="col-md-4" style="text-align: left;"><h4>Birthday : </h4></div>
-				<div class="col-md-8" id="singleDatepickerDiv"></div>
+<!-- 				<div class="col-md-8" id="singleDatepickerDiv"></div> -->
+				<div class="col-md-8" style="text-align: center;"><input type="text" id="birthday" name="birthday" style="width: 100%;" class="form-control"></div>
 			</div>
 			<div class="row">
 				<div class="col-md-12"><input class="btn btn-primary" type="submit" value="Submit" style="width: 50%; margin-top: 20px" ></div>
@@ -136,7 +117,7 @@ function getAge(dateString)
 	</div>
 	
 	<div class="col-md-6 col-md-offset-3 col-xs-12 col-sm-12" style="text-align: center;">
-		<br><br><label id="status">${status}</label>
+		<br><br><label id="statusRegis">${statusRegis}</label>
 	</div>
 	
 </body>

@@ -30,12 +30,12 @@ import th.co.gosoft.go10.util.KeyStoreUtils;
 
 @WebServlet("/RegisterServlet")
 public class RegisterServlet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
-//	private static final String SUBJECT = "GO10 - Please activate your account";
-//	private static final String EMAIL_CONTENT = "ขอบคุณที่ลงทะเบียน \n\nกรุณา copy และ  paste ใน  Google Chrome Browser \n\n";
-//	private static final String EMAIL_CONTACT = "\n\nขอบคุณครับ\nGO10";
-//	private static final String EMAIL_FOOTER = " \n\n\n หากท่านพบปัญหา หรือต้องการสอบถามข้อมูลเพิ่มเติมสามารถติดต่อได้ที่  thanomcho@gosoft.co.th, manitkan@gosoft.co.th, jirapaschi@gosoft.co.th";
-//	private static String FROM_EMAIL;
+    private static final long serialVersionUID = 1L;
+//  private static final String SUBJECT = "GO10 - Please activate your account";
+//  private static final String EMAIL_CONTENT = "ขอบคุณที่ลงทะเบียน \n\nกรุณา copy และ  paste ใน  Google Chrome Browser \n\n";
+//  private static final String EMAIL_CONTACT = "\n\nขอบคุณครับ\nGO10";
+//  private static final String EMAIL_FOOTER = " \n\n\n หากท่านพบปัญหา หรือต้องการสอบถามข้อมูลเพิ่มเติมสามารถติดต่อได้ที่  thanomcho@gosoft.co.th, manitkan@gosoft.co.th, jirapaschi@gosoft.co.th";
+//  private static String FROM_EMAIL;
 //    private static String PASSWORD;
 //    private static String DOMAIN_LINK;
     
@@ -43,35 +43,35 @@ public class RegisterServlet extends HttpServlet {
         super();
     }
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		doPost(request, response);
-	}
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        doPost(request, response);
+    }
 
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession();
-	    try{
-//	        initialVariable();
-	        String empSurName = request.getParameter("surname");
-	        String empLastName = request.getParameter("lastname");
-	        String empEmail = request.getParameter("email");
-	        String password = request.getParameter("password");
-	        String birthday = request.getParameter("birthday");
-	        SimpleDateFormat formatstringtodate = new SimpleDateFormat("dd-MM-yyyy");
-	        Date date = formatstringtodate.parse(birthday);
-	        SimpleDateFormat formatdatetostring = new SimpleDateFormat("MMMM-dd-yyyy");
-	        birthday = formatdatetostring.format(date);
-	        
-	        if(isInvalidInput(empSurName, empLastName, empEmail, password, birthday)){
-	            throw new Exception("Invalid input");
-	        } else if(!getUserByEmail(empEmail).isEmpty()){
-	            request.setAttribute("status", "<span style='color:red'>this email is already registered.</span>");
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        try{
+//          initialVariable();
+            String empSurName = request.getParameter("surname");
+            String empLastName = request.getParameter("lastname");
+            String empEmail = request.getParameter("email");
+            String password = request.getParameter("password");
+            String birthday = request.getParameter("birthday");
+            SimpleDateFormat formatstringtodate = new SimpleDateFormat("dd-MM-yyyy");
+            Date date = formatstringtodate.parse(birthday);
+            SimpleDateFormat formatdatetostring = new SimpleDateFormat("MMMM-dd-yyyy");
+            birthday = formatdatetostring.format(date);
+            
+            if(isInvalidInput(empSurName, empLastName, empEmail, password, birthday)){
+                throw new Exception("Invalid input");
+            } else if(!getUserByEmail(empEmail).isEmpty()){
+                request.setAttribute("status", "<span style='color:red'>this email is already registered.</span>");
                 request.getRequestDispatcher("/registration.jsp").forward(request, response);
-	        } else {
-	            byte[] passEncrypt = encryptPassword(password);
-	            String token = EncryptUtils.encode(empEmail);
-//	            String tokenVar = "?token=";
-	            
-	            Database db = CloudantClientUtils.getDBNewInstance();
+            } else {
+                byte[] passEncrypt = encryptPassword(password);
+                String token = EncryptUtils.encode(empEmail);
+//              String tokenVar = "?token=";
+                
+                Database db = CloudantClientUtils.getDBNewInstance();
                 UserModel userModel = new UserModel();
                 userModel.setEmpName(empSurName + " " + empLastName);
                 userModel.setEmpEmail(empEmail);
@@ -100,13 +100,13 @@ public class RegisterServlet extends HttpServlet {
                 session.setAttribute("statusRegis", "Register Complete.");
                 response.sendRedirect("registration.jsp");
                 
-	        }
-	    } catch (Exception e){
-	        request.setAttribute("status", "Registration Error");
-	        throw new RuntimeException(e.getMessage(), e);
-	    }
-	    
-	}
+            }
+        } catch (Exception e){
+            request.setAttribute("status", "Registration Error");
+            throw new RuntimeException(e.getMessage(), e);
+        }
+        
+    }
 
     private byte[] encryptPassword(String password) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         SecretKey secretKey = KeyStoreUtils.getKeyFromCloudant("password-key");
@@ -118,16 +118,16 @@ public class RegisterServlet extends HttpServlet {
     private boolean isInvalidInput(String empSurName, String empLastName, String empEmail, String password, String birthday) {
         return empSurName == null || empSurName.isEmpty() || empLastName == null || empLastName.isEmpty() || empEmail == null || empEmail.isEmpty() ||  password == null || password.isEmpty() || birthday == null || birthday.isEmpty();
     }
-	
-	private List<UserModel> getUserByEmail(@QueryParam("token") String email) {
+    
+    private List<UserModel> getUserByEmail(@QueryParam("token") String email) {
         System.out.println(">>>>>>>>>>>>>>>>>>> getUserByEmail() // email : "+email);
         Database db = CloudantClientUtils.getDBNewInstance();
         List<UserModel> userModelList = db.findByIndex(getUserByEmailJsonString(email), UserModel.class);
         System.out.println("GET Complete");
         return userModelList;
     }
-	
-	private String getUserByEmailJsonString(String email){
+    
+    private String getUserByEmailJsonString(String email){
         StringBuilder stingBuilder = new StringBuilder();
         stingBuilder.append("{\"selector\": {");
         stingBuilder.append("\"_id\": {\"$gt\": 0},");
@@ -137,8 +137,8 @@ public class RegisterServlet extends HttpServlet {
         
         return stingBuilder.toString();
     }
-	 
-//	private static void initialVariable(){
+     
+//  private static void initialVariable(){
 //        String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
 //        if (VCAP_SERVICES != null) {
 //            FROM_EMAIL = System.getenv("send_email");
@@ -150,5 +150,5 @@ public class RegisterServlet extends HttpServlet {
 //            PASSWORD = prop.getProperty("send_email_password");
 //            DOMAIN_LINK = prop.getProperty("domain_acctivate");
 //        }
-//	 }
+//   }
 }

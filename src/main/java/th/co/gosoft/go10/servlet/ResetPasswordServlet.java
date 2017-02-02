@@ -3,6 +3,7 @@ package th.co.gosoft.go10.servlet;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.List;
 
 import javax.crypto.BadPaddingException;
@@ -21,6 +22,7 @@ import com.cloudant.client.api.Database;
 
 import th.co.gosoft.go10.model.UserAuthenModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
+import th.co.gosoft.go10.util.DateUtils;
 import th.co.gosoft.go10.util.KeyStoreUtils;
 
 @WebServlet("/ResetPasswordServlet")
@@ -36,7 +38,8 @@ public class ResetPasswordServlet extends HttpServlet {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String password = request.getParameter("password");
+	    String stampDate = DateUtils.dbFormat.format(new Date());
+	    String password = request.getParameter("password");
 		System.out.println("password : " + password);
 		request.getQueryString();
 		String token = request.getParameter("token");
@@ -53,6 +56,7 @@ public class ResetPasswordServlet extends HttpServlet {
         	byte[] passEncrypt = encryptPassword(password);
         	UserAuthenModel userAuthenModel = userAuthenModelList.get(0);
         	userAuthenModel.setPassword(passEncrypt);
+        	userAuthenModel.setUpdateDate(stampDate);
         	Database db = CloudantClientUtils.getDBNewInstance();
         	db.update(userAuthenModel);
        		System.out.println("Update Password Complete");

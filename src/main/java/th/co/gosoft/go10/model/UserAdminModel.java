@@ -9,6 +9,8 @@ public class UserAdminModel {
     private String empEmail;
     private String type;
     private List<String> roomAdmin;
+    private String date;
+    private String updateDate;
     
     public String get_id() {
         return _id;
@@ -39,5 +41,17 @@ public class UserAdminModel {
     }
     public void setRoomAdmin(List<String> roomAdmin) {
         this.roomAdmin = roomAdmin;
+    }
+    public String getDate() {
+        return date;
+    }
+    public void setDate(String date) {
+        this.date = date;
+    }
+    public String getUpdateDate() {
+        return updateDate;
+    }
+    public void setUpdateDate(String updateDate) {
+        this.updateDate = updateDate;
     }
 }

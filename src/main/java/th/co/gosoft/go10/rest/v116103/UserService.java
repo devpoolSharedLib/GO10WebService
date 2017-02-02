@@ -1,6 +1,7 @@
 package th.co.gosoft.go10.rest.v116103;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -18,6 +19,7 @@ import com.cloudant.client.api.model.FindByIndexOptions;
 import th.co.gosoft.go10.model.UserAuthenModel;
 import th.co.gosoft.go10.model.UserModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
+import th.co.gosoft.go10.util.DateUtils;
 import th.co.gosoft.go10.util.EmailUtils;
 import th.co.gosoft.go10.util.KeyStoreUtils;
 import th.co.gosoft.go10.util.PropertiesUtils;
@@ -30,6 +32,8 @@ public class UserService {
 	private static final String FROM_EMAIL = PropertiesUtils.getProperties("send_email");
     private static final String PASSWORD = PropertiesUtils.getProperties("send_email_password");
     private static final String DOMAIN_LINK_RESET_PASSWORD = PropertiesUtils.getProperties("domain_reset_password");
+    
+    private String stampDate;
     
     @GET
     @Path("/getUserByAccountId")
@@ -127,8 +131,11 @@ public class UserService {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response updateUser(UserModel userModel) {
         System.out.println(">>>>>>>>>>>>>>>>>>> updateUser()");
+        stampDate = DateUtils.dbFormat.format(new Date());
+        System.out.println("StampDate : "+stampDate);
         Database db = CloudantClientUtils.getDBNewInstance();
         userModel.setActivate(true);
+        userModel.setUpdateDate(stampDate);
         com.cloudant.client.api.model.Response response = db.update(userModel);
         String result = response.getRev();
         System.out.println(">>>>>>>>>>>>>>>>>>> post result Rev : "+result);

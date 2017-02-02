@@ -12,6 +12,8 @@ public class RoomModel {
     private List<String> postUser;
     private List<String> commentUser;
     private List<String> readUser;
+    private Integer totalTopic;
+    private Integer topalPurge;
     
     public RoomModel(){}
     
@@ -84,4 +86,21 @@ public class RoomModel {
         this.readUser = readUser;
     }
 
+    public Integer getTotalTopic() {
+        return totalTopic;
+    }
+
+    public void setTotalTopic(Integer totalTopic) {
+        this.totalTopic = totalTopic;
+    }
+
+    public Integer getTopalPurge() {
+        return topalPurge;
+    }
+
+    public void setTopalPurge(Integer topalPurge) {
+        this.topalPurge = topalPurge;
+    }
+
+    
 }

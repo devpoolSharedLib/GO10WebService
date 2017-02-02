@@ -1,14 +1,10 @@
 package th.co.gosoft.go10.rest.v116103;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -32,12 +28,11 @@ import th.co.gosoft.go10.model.RoomModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
 import th.co.gosoft.go10.util.ConcatDomainUtils;
 import th.co.gosoft.go10.util.DateUtils;
+import th.co.gosoft.go10.util.PushNotificationUtils;
 
 @Path("v116103/topic")
 public class TopicService {
 
-    private static DateFormat postFormat = createSimpleDateFormat("yyyy/MM/dd HH:mm:ss", "GMT+7");
-    private static DateFormat getFormat = createSimpleDateFormat("dd/MM/yyyy HH:mm:ss", "GMT+7");
     private static Database db = CloudantClientUtils.getDBNewInstance();
     private String stampDate;
     
@@ -46,19 +41,18 @@ public class TopicService {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response createTopic(LastTopicModel lastTopicModel) {
         System.out.println(">>>>>>>>>>>>>>>>>>> topicModel()");
-        postFormat.setTimeZone(TimeZone.getTimeZone("GMT+7"));
         System.out.println("topic subject : "+lastTopicModel.getSubject());
         System.out.println("topic content : "+lastTopicModel.getContent());
         System.out.println("topic type : "+lastTopicModel.getType());
         lastTopicModel.setContent(ConcatDomainUtils.deleteDomainImagePath(lastTopicModel.getContent()));
-        stampDate = postFormat.format(new Date());
+        stampDate = DateUtils.dbFormat.format(new Date());
         System.out.println("StampDate : "+stampDate);
         com.cloudant.client.api.model.Response response = null;
-        if(lastTopicModel.getType().equals("host")){
+        if(lastTopicModel.getType().equals("host")) { 
             lastTopicModel.setDate(stampDate);
             lastTopicModel.setUpdateDate(stampDate);
             response = db.save(lastTopicModel);
-        }else if(lastTopicModel.getType().equals("comment")){
+        } else if(lastTopicModel.getType().equals("comment")) {
             lastTopicModel.setDate(stampDate);
             response = db.save(lastTopicModel);
             LastTopicModel hostTopicModel = db.find(LastTopicModel.class, lastTopicModel.getTopicId());
@@ -66,6 +60,7 @@ public class TopicService {
             response = db.update(hostTopicModel);
         }
         String result = response.getId();
+        PushNotificationUtils.sendMessagePushNotification("hi");
         System.out.println(">>>>>>>>>>>>>>>>>>> post result id : "+result);
         System.out.println("POST Complete");
         return Response.status(201).entity(result).build();
@@ -76,7 +71,7 @@ public class TopicService {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response newLike(LastLikeModel lastLikeModel){
         System.out.println("newLike() topic id : "+lastLikeModel.getTopicId());
-        stampDate = postFormat.format(new Date());
+        stampDate = DateUtils.dbFormat.format(new Date());
         System.out.println("StampDate : "+stampDate);
         LastTopicModel lastTopicModel = db.find(LastTopicModel.class, lastLikeModel.getTopicId());
         lastTopicModel.setCountLike(lastTopicModel.getCountLike() == null ? 1 : lastTopicModel.getCountLike()+1);
@@ -93,7 +88,7 @@ public class TopicService {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response updateLike(LastLikeModel lastLikeModel){
         System.out.println("updateLike() topic id : " +lastLikeModel.getTopicId());
-        stampDate = postFormat.format(new Date());
+        stampDate = DateUtils.dbFormat.format(new Date());
         System.out.println("StampDate : "+stampDate);
         LastTopicModel lastTopicModel = db.find(LastTopicModel.class, lastLikeModel.getTopicId());
         lastTopicModel.setCountLike(lastTopicModel.getCountLike()+1);
@@ -109,7 +104,7 @@ public class TopicService {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response updateDisLike(LastLikeModel lastLikeModel){
         System.out.println("updateDisLike() topic id : "+lastLikeModel.getTopicId());
-        stampDate = postFormat.format(new Date());
+        stampDate = DateUtils.dbFormat.format(new Date());
         System.out.println("StampDate : "+stampDate);
         LastTopicModel lastTopicModel = db.find(LastTopicModel.class, lastLikeModel.getTopicId());
         lastTopicModel.setCountLike(lastTopicModel.getCountLike()-1);
@@ -138,7 +133,7 @@ public class TopicService {
                  .sort(new IndexField("date", SortOrder.asc)));
         increaseReadCount(topicModelList.get(0), empEmail);
         concatDomainImagePath(topicModelList);
-        List<LastTopicModel> resultList = formatDate(topicModelList);
+        List<LastTopicModel> resultList = DateUtils.formatDBDateToClientDate(topicModelList);
         System.out.println("GET Complete");
         return resultList;
     }
@@ -166,7 +161,7 @@ public class TopicService {
         System.out.println(">>>>>>>>>>>>>>>>>>> getTopicListByRoomId() //room id : "+roomId);
         List<LastTopicModel> LastTopicModelList = db.findByIndex(getTopicListByRoomIdJsonString(roomId), LastTopicModel.class, new FindByIndexOptions()
              .sort(new IndexField("date", SortOrder.desc)));
-        List<LastTopicModel> formatDateList = formatDate(LastTopicModelList);
+        List<LastTopicModel> formatDateList = DateUtils.formatDBDateToClientDate(LastTopicModelList);
         List<LastTopicModel> roomRuleList = getRoomRuleToppic(roomId);
         List<LastTopicModel> resultList = insertRoomRuleTopicAtZero(formatDateList, roomRuleList.get(0));
         System.out.println("size : "+resultList.size());
@@ -179,11 +174,10 @@ public class TopicService {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<LastTopicModel> getRoomRuleToppic(@QueryParam("roomId") String roomId){
         System.out.println(">>>>>>>>>>>>>>>>>>> getRoomRuleToppic()");
-        List<LastTopicModel> newTopicModelList = db.findByIndex(getRoomRuleToppicJsonString(roomId), LastTopicModel.class, new FindByIndexOptions()
+        List<LastTopicModel> topicModelList = db.findByIndex(getRoomRuleToppicJsonString(roomId), LastTopicModel.class, new FindByIndexOptions()
              .fields("_id").fields("_rev").fields("avatarName").fields("avatarPic").fields("subject")
              .fields("content").fields("date").fields("type").fields("roomId").fields("countLike"));
-        
-        List<LastTopicModel> resultList = formatDate(newTopicModelList);
+        List<LastTopicModel> resultList = DateUtils.formatDBDateToClientDate(topicModelList);
         System.out.println("size : "+resultList.size());
         System.out.println("GET Complete");
         return resultList;
@@ -192,7 +186,7 @@ public class TopicService {
     private void increaseReadCount(LastTopicModel lastTopicModel, String empEmail) {
         try {
             System.out.println(">>>>>>>>>>>>>>>>>> increaseReadCount() topicModelMap : "+lastTopicModel.get_id()+", empEmail : "+empEmail);
-            stampDate = postFormat.format(new Date());
+            stampDate = DateUtils.dbFormat.format(new Date());
             System.out.println("StampDate : "+stampDate);
             LastTopicModel localLastTopicModel = lastTopicModel;
             List<ReadModel> readModelList = db.findByIndex(getReadModelByEmpEmail(localLastTopicModel.get_id(), empEmail), ReadModel.class);
@@ -316,17 +310,11 @@ public class TopicService {
     public boolean isNextDay(String dateInDBString, String currentDateString) throws ParseException {
         Calendar dateInDBCalendar = Calendar.getInstance();
         Calendar currentCalendar = Calendar.getInstance();
-        dateInDBCalendar.setTime(postFormat.parse(dateInDBString));
-        currentCalendar.setTime(postFormat.parse(currentDateString));
+        dateInDBCalendar.setTime(DateUtils.dbFormat.parse(dateInDBString));
+        currentCalendar.setTime(DateUtils.clientFormat.parse(currentDateString));
         return (dateInDBCalendar.get(Calendar.YEAR) <= currentCalendar.get(Calendar.YEAR)) && (dateInDBCalendar.get(Calendar.DAY_OF_YEAR) < currentCalendar.get(Calendar.DAY_OF_YEAR));
     }
 
-    private static DateFormat createSimpleDateFormat(String formatString, String timeZone) {
-        DateFormat dateFormat = new SimpleDateFormat(formatString, Locale.US);
-        dateFormat.setTimeZone(TimeZone.getTimeZone(timeZone));
-        return dateFormat;
-    }
-    
     public void concatDomainImagePath(List<LastTopicModel> lastTopicModelList) {
         for (int i=0; i<lastTopicModelList.size(); i++) {
             String content = (String) lastTopicModelList.get(i).getContent();
@@ -359,22 +347,4 @@ public class TopicService {
         return stingBuilder.toString();
     }
     
-    public List<LastTopicModel> formatDate(List<LastTopicModel> lastTopicModelList) {
-        List<LastTopicModel> resultList = new ArrayList<>();
-        for (LastTopicModel lastTopicModel : lastTopicModelList) {
-            LastTopicModel resultModel = lastTopicModel;
-            resultModel.setDate(getFormat.format(parseStringToDate(lastTopicModel.getDate())));
-            resultList.add(resultModel);
-        }
-        return resultList;
-    }
-    
-    private Date parseStringToDate(String dateString){
-        try {
-            return postFormat.parse(dateString);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
 }

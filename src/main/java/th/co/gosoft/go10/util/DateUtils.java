@@ -13,8 +13,8 @@ import th.co.gosoft.go10.model.LastTopicModel;
 
 public class DateUtils {
 
-    private static DateFormat dbFormat = createSimpleDateFormat("yyyy/MM/dd HH:mm:ss", "GMT+7");
-    private static DateFormat clientFormat = createSimpleDateFormat("dd/MM/yyyy HH:mm:ss", "GMT+7");
+    public static DateFormat dbFormat = createSimpleDateFormat("yyyy/MM/dd HH:mm:ss", "GMT+7");
+    public static DateFormat clientFormat = createSimpleDateFormat("dd/MM/yyyy HH:mm:ss", "GMT+7");
     
     public static List<LastTopicModel> formatDBDateToClientDate(List<LastTopicModel> lastTopicModelList) {
         List<LastTopicModel> resultList = new ArrayList<LastTopicModel>();

@@ -25,6 +25,7 @@ import com.cloudant.client.api.Database;
 import th.co.gosoft.go10.model.UserAuthenModel;
 import th.co.gosoft.go10.model.UserModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
+import th.co.gosoft.go10.util.DateUtils;
 import th.co.gosoft.go10.util.EncryptUtils;
 import th.co.gosoft.go10.util.KeyStoreUtils;
 
@@ -48,6 +49,7 @@ public class RegisterServlet extends HttpServlet {
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String stampDate = DateUtils.dbFormat.format(new Date());
         HttpSession session = request.getSession();
         try{
 //          initialVariable();
@@ -56,8 +58,8 @@ public class RegisterServlet extends HttpServlet {
             String empEmail = request.getParameter("email");
             String password = request.getParameter("password");
             String birthday = request.getParameter("birthday");
-            SimpleDateFormat formatstringtodate = new SimpleDateFormat("dd-MM-yyyy");
-            Date date = formatstringtodate.parse(birthday);
+            SimpleDateFormat formatStringTodate = new SimpleDateFormat("dd-MM-yyyy");
+            Date date = formatStringTodate.parse(birthday);
             SimpleDateFormat formatdatetostring = new SimpleDateFormat("MMMM-dd-yyyy");
             birthday = formatdatetostring.format(date);
             
@@ -80,6 +82,8 @@ public class RegisterServlet extends HttpServlet {
                 userModel.setActivate(true);
                 userModel.setType("user");
                 userModel.setBirthday(birthday);
+                userModel.setDate(stampDate);
+                userModel.setUpdateDate(stampDate);
                 db.save(userModel);
                 
                 UserAuthenModel userAuthenModel = new UserAuthenModel();
@@ -87,6 +91,8 @@ public class RegisterServlet extends HttpServlet {
                 userAuthenModel.setPassword(passEncrypt);
                 userAuthenModel.setType("authen");
                 userAuthenModel.setToken(token);
+                userAuthenModel.setDate(stampDate);
+                userAuthenModel.setUpdateDate(stampDate);
                 db.save(userAuthenModel);
                 
 //                String body = EMAIL_CONTENT + DOMAIN_LINK + tokenVar+token;

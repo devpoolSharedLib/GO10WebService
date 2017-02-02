@@ -13,6 +13,8 @@ public class UserModel {
     private boolean activate;
     private String type;
     private String birthday;
+    private String date;
+    private String updateDate;
     
     public String getBirthday() {
 		return birthday;
@@ -80,6 +82,17 @@ public class UserModel {
     public void setType(String type) {
         this.type = type;
     }
-    
+    public String getDate() {
+        return date;
+    }
+    public void setDate(String date) {
+        this.date = date;
+    }
+    public String getUpdateDate() {
+        return updateDate;
+    }
+    public void setUpdateDate(String updateDate) {
+        this.updateDate = updateDate;
+    }
     
 }

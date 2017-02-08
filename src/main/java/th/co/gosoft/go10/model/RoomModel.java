@@ -14,6 +14,7 @@ public class RoomModel {
     private List<String> readUser;
     private Integer totalTopic;
     private Integer topalPurge;
+    private Integer badgeNumber;
     
     public RoomModel(){}
     
@@ -102,5 +103,12 @@ public class RoomModel {
         this.topalPurge = topalPurge;
     }
 
-    
+    public Integer getBadgeNumber() {
+        return badgeNumber;
+    }
+
+    public void setBadgeNumber(Integer badgeNumber) {
+        this.badgeNumber = badgeNumber;
+    }
+
 }

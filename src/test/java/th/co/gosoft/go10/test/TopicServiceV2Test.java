@@ -2,7 +2,6 @@ package th.co.gosoft.go10.test;
 
 import static org.junit.Assert.assertEquals;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,14 +23,6 @@ public class TopicServiceV2Test {
         assertEquals(2, resultList.size());
         assertEquals("31/10/2016 12:11:04", resultList.get(0).get("date"));
         assertEquals("31/10/2016 12:12:05", resultList.get(1).get("date"));
-    }
-    
-    @Test
-    public void isNextDayTest() throws ParseException{
-        TopicServiceV2 topicServiceV2 = new TopicServiceV2();
-        assertEquals(true, topicServiceV2.isNextDay("2016/10/30 10:11:04", "2016/10/31 12:11:04"));
-        assertEquals(false, topicServiceV2.isNextDay("2016/10/31 10:11:04", "2016/10/31 12:11:04"));
-        assertEquals(true, topicServiceV2.isNextDay("2016/10/31 10:11:04", "2016/11/01 09:00:01"));
     }
     
     @Test

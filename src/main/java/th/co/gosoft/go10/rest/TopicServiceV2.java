@@ -4,7 +4,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -87,7 +86,7 @@ public class TopicServiceV2 {
             } else {
                 System.out.println("read model is not null");
                 Map readModelMap = readModelMapList.get(0);
-                if(isNextDay((String) readModelMap.get("date"), stampDate)){
+                if(DateUtils.isNextDay((String) readModelMap.get("date"), stampDate)){
                     readModelMap.put("date", stampDate);
                     db.update(readModelMap);
                     localTopicModelMap.put("countRead", getCountRead(localTopicModelMap)+1);
@@ -136,15 +135,6 @@ public class TopicServiceV2 {
         readModelMap.put("type", "read");
         readModelMap.put("date", stampDate);
         return readModelMap;
-    }
-
-    public boolean isNextDay(String dateInDBString, String currentDateString) throws ParseException {
-        System.out.println("date in db : "+dateInDBString+", current Date : "+currentDateString);
-        Calendar dateInDBCalendar = Calendar.getInstance();
-        Calendar currentCalendar = Calendar.getInstance();
-        dateInDBCalendar.setTime(postFormat.parse(dateInDBString));
-        currentCalendar.setTime(postFormat.parse(currentDateString));
-        return (dateInDBCalendar.get(Calendar.YEAR) <= currentCalendar.get(Calendar.YEAR)) && (dateInDBCalendar.get(Calendar.DAY_OF_YEAR) < currentCalendar.get(Calendar.DAY_OF_YEAR));
     }
 
     private static DateFormat createSimpleDateFormat(String formatString, String timeZone) {

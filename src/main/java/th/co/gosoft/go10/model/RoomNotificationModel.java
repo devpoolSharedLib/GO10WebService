@@ -7,7 +7,9 @@ public class RoomNotificationModel {
     private String roomId;
     private String empEmail;
     private Integer countTopic;
+    private String date;
     private String updateDate;
+    private String type;
     
     public String get_id() {
         return _id;
@@ -39,10 +41,22 @@ public class RoomNotificationModel {
     public void setCountTopic(Integer countTopic) {
         this.countTopic = countTopic;
     }
+    public String getDate() {
+        return date;
+    }
+    public void setDate(String date) {
+        this.date = date;
+    }
     public String getUpdateDate() {
         return updateDate;
     }
     public void setUpdateDate(String updateDate) {
         this.updateDate = updateDate;
+    }
+    public String getType() {
+        return type;
+    }
+    public void setType(String type) {
+        this.type = type;
     }
 }

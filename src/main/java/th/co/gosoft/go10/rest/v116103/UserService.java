@@ -16,6 +16,8 @@ import javax.ws.rs.core.Response;
 import com.cloudant.client.api.Database;
 import com.cloudant.client.api.model.FindByIndexOptions;
 
+import th.co.gosoft.go10.model.RoomModel;
+import th.co.gosoft.go10.model.RoomNotificationModel;
 import th.co.gosoft.go10.model.UserAuthenModel;
 import th.co.gosoft.go10.model.UserModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
@@ -33,6 +35,8 @@ public class UserService {
     private static final String PASSWORD = PropertiesUtils.getProperties("send_email_password");
     private static final String DOMAIN_LINK_RESET_PASSWORD = PropertiesUtils.getProperties("domain_reset_password");
     
+    private static Database db = CloudantClientUtils.getDBNewInstance();
+    
     private String stampDate;
     
     @GET
@@ -40,7 +44,6 @@ public class UserService {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<UserModel> getUserByAccountId(@QueryParam("accountId") String accountId) {
         System.out.println(">>>>>>>>>>>>>>>>>>> getUserByAccountId() // accountId : "+accountId);
-        Database db = CloudantClientUtils.getDBNewInstance();
         List<UserModel> userModelList = db.findByIndex(getUserByAccountIdJsonString(accountId), UserModel.class);
         System.out.println("GET Complete");
         return userModelList;
@@ -51,7 +54,6 @@ public class UserService {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<UserModel> getUserByToken(@QueryParam("token") String token) {
         System.out.println(">>>>>>>>>>>>>>>>>>> getUserByToken() // token : "+token);
-        Database db = CloudantClientUtils.getDBNewInstance();
         List<UserModel> userModelList = db.findByIndex(getUserByTokenJsonString(token), UserModel.class);
         System.out.println("GET Complete");
         return userModelList;
@@ -63,7 +65,6 @@ public class UserService {
     public List<UserModel> getUserByUserPassword(@QueryParam("email") String email, @QueryParam("password") String password) {
         String localEmail = email.toLowerCase();
         System.out.println(">>>>>>>>>>>>>>>>>>> getUserByUserPassword() // user : "+localEmail+", password : "+password);
-        Database db = CloudantClientUtils.getDBNewInstance();
         List<UserAuthenModel> userAuthenModelList = db.findByIndex(getUserAuthenByEmailJsonString(localEmail), UserAuthenModel.class);
         
         if(userAuthenModelList != null && !userAuthenModelList.isEmpty() && !KeyStoreUtils.authenPassword(userAuthenModelList.get(0).getPassword(), password)){
@@ -80,7 +81,6 @@ public class UserService {
     @Path("/activateUserByToken")
     public String activateUserByToken(@QueryParam("token") String token) {
         System.out.println(">>>>>>>>>>>>>>>>>>> activateUserByToken() // token : " + token);
-        Database db = CloudantClientUtils.getDBNewInstance();
         List<UserAuthenModel> userAuthenModelList = db.findByIndex(activateUserByTokenJsonString(token), UserAuthenModel.class);
         if(userAuthenModelList != null && !userAuthenModelList.isEmpty()){
         	List<UserModel> userModelList =  db.findByIndex(getUserByEmailJsonString(userAuthenModelList.get(0).getEmpEmail()), UserModel.class);
@@ -103,7 +103,6 @@ public class UserService {
     @Path("/resetPasswordByEmail")
     public String resetPasswordByEmail(@QueryParam("email") String email) {
         System.out.println(">>>>>>>>>>>>>>>>>>> resetPasswordByEmail() // email : " + email);
-        Database db = CloudantClientUtils.getDBNewInstance();
         List<UserModel> userModelList = db.findByIndex(getUserByEmailJsonString(email), UserModel.class);
         if(userModelList != null && !userModelList.isEmpty()){
         	List<UserAuthenModel> userAuthenModelList =  db.findByIndex(getUserAuthenByEmailJsonString(userModelList.get(0).getEmpEmail()), UserAuthenModel.class);
@@ -133,7 +132,6 @@ public class UserService {
         System.out.println(">>>>>>>>>>>>>>>>>>> updateUser()");
         stampDate = DateUtils.dbFormat.format(new Date());
         System.out.println("StampDate : "+stampDate);
-        Database db = CloudantClientUtils.getDBNewInstance();
         userModel.setActivate(true);
         userModel.setUpdateDate(stampDate);
         com.cloudant.client.api.model.Response response = db.update(userModel);
@@ -147,7 +145,6 @@ public class UserService {
     @Path("/checkAvatarName")
     public Response checkAvatarName(@QueryParam("avatarName") String avatarName) {
         System.out.println(">>>>>>>>>>>>>>>>>>> checkAvatarName() avatarName : "+avatarName);
-        Database db = CloudantClientUtils.getDBNewInstance();
         List<UserModel> userModelList = db.findByIndex(getUserByAvatarNameJsonString(avatarName), UserModel.class,
                 new FindByIndexOptions().useIndex("_design/avatar-name-design-doc"));
         if(userModelList == null || userModelList.isEmpty()){
@@ -163,7 +160,6 @@ public class UserService {
     @Path("/checkUserActivation")
     public Response checkUserActivation(@QueryParam("empEmail") String empEmail) {
         System.out.println(">>>>>>>>>>>>>>>>>>> checkAvatarName() empEmail : "+empEmail);
-        Database db = CloudantClientUtils.getDBNewInstance();
         List<UserModel> userModelList = db.findByIndex(getUserByEmailJsonString(empEmail), UserModel.class);
         if(userModelList.get(0).isActivate()){
             System.out.println("This user account is activate.");
@@ -179,11 +175,66 @@ public class UserService {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<UserModel> getEmailFulTextSerch(@QueryParam("empEmail") String empEmail) {
         System.out.println(">>>>>>>>>>>>>>>>>>> getEmailFullTextSerch() empEmail : "+empEmail);
-        Database db = CloudantClientUtils.getDBNewInstance();
         List<UserModel> userModelList = db.findByIndex(getEmailFullTextSerchJsonString(empEmail), UserModel.class, 
                 new FindByIndexOptions().useIndex("_design/emp-email-design-doc").fields("empName").fields("empEmail"));
         System.out.println("list size : "+userModelList.size());
         return userModelList;
+    }
+    
+    @GET
+    @Path("/checkRoomNotificationModel")
+    @Produces(MediaType.TEXT_PLAIN + "; charset=UTF-8")
+    public Response checkRoomNotificationModel(@QueryParam("empEmail") String empEmail){
+        System.out.println(">>>>>>>>>>>>>>>>>>> checkRoomNotificationModel() empEmail : "+empEmail);
+        String result;
+        List<RoomNotificationModel> roomNotificationModelList = db.findByIndex(getRoomNotificationModelByEmpEmailString(empEmail), RoomNotificationModel.class);
+        if(roomNotificationModelList == null || roomNotificationModelList.isEmpty()) {
+            result = createAllRoomNotificationModelForUser(empEmail);
+        } else {
+            result = roomNotificationModelList.get(0).getDate();            
+        }
+        System.out.println("RoomNotification Date : "+result);
+        return Response.status(201).entity(result).build();
+    }
+    
+    private String createAllRoomNotificationModelForUser(String empEmail) {
+        stampDate = DateUtils.dbFormat.format(new Date());
+        List<RoomModel> roomModelList = db.findByIndex(getRoomJsonString(empEmail), RoomModel.class);
+        for (RoomModel roomModel : roomModelList) {
+            System.out.println("loop : "+roomModel.get_id());
+            RoomNotificationModel roomNotificationModel = new RoomNotificationModel();
+            roomNotificationModel.setEmpEmail(empEmail);
+            roomNotificationModel.setRoomId(roomModel.get_id());
+            roomNotificationModel.setCountTopic(roomModel.getTotalTopic());
+            roomNotificationModel.setDate(stampDate);
+            roomNotificationModel.setUpdateDate(stampDate);
+            roomNotificationModel.setType("roomNotification");
+            db.save(roomNotificationModel);
+        }
+        return stampDate;
+    }
+    
+    private String getRoomJsonString(String empEmail) {
+        StringBuilder stingBuilder = new StringBuilder();
+        stingBuilder.append("{\"selector\": {");
+        stingBuilder.append("\"_id\": {\"$gt\": 0},");
+        stingBuilder.append("\"$and\": [");
+        stingBuilder.append("{\"type\":\"room\"},");
+        stingBuilder.append("{\"readUser\":{\"$elemMatch\": {");
+        stingBuilder.append("\"$or\": [\"all\", \""+empEmail+"\"]");
+        stingBuilder.append("}}}]");
+        stingBuilder.append("},");
+        stingBuilder.append("\"fields\": [\"_id\",\"_rev\",\"name\",\"desc\", \"type\"]}");
+        return stingBuilder.toString();
+    }
+
+    private String getRoomNotificationModelByEmpEmailString(String empEmail) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\"selector\": {");
+        sb.append("\"_id\": {\"$gt\": 0},");
+        sb.append("\"$and\": [{\"type\":\"roomNotification\"}, {\"empEmail\":\""+empEmail+"\"}]");
+        sb.append("}}");
+        return sb.toString();    
     }
     
     private String getEmailFullTextSerchJsonString(String empEmail) {

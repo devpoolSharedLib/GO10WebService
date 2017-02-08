@@ -1,8 +1,6 @@
 package th.co.gosoft.go10.rest.v116103;
 
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -25,14 +23,15 @@ import th.co.gosoft.go10.model.LastLikeModel;
 import th.co.gosoft.go10.model.LastTopicModel;
 import th.co.gosoft.go10.model.ReadModel;
 import th.co.gosoft.go10.model.RoomModel;
+import th.co.gosoft.go10.model.RoomNotificationModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
 import th.co.gosoft.go10.util.ConcatDomainUtils;
 import th.co.gosoft.go10.util.DateUtils;
-import th.co.gosoft.go10.util.PushNotificationUtils;
 
 @Path("v116103/topic")
 public class TopicService {
 
+    private static final String NOTIFICATION_MESSAGE = "You have new topic.";
     private static Database db = CloudantClientUtils.getDBNewInstance();
     private String stampDate;
     
@@ -52,6 +51,8 @@ public class TopicService {
             lastTopicModel.setDate(stampDate);
             lastTopicModel.setUpdateDate(stampDate);
             response = db.save(lastTopicModel);
+            lastTopicModel.set_id(response.getId());
+            increaseReadCount(lastTopicModel, lastTopicModel.getEmpEmail());
         } else if(lastTopicModel.getType().equals("comment")) {
             lastTopicModel.setDate(stampDate);
             response = db.save(lastTopicModel);
@@ -59,8 +60,10 @@ public class TopicService {
             hostTopicModel.setUpdateDate(stampDate);
             response = db.update(hostTopicModel);
         }
+        updateTotalTopicInRoomModel(lastTopicModel.getRoomId());
+//        PushNotificationUtils.sendMessagePushNotification(NOTIFICATION_MESSAGE);
+        
         String result = response.getId();
-        PushNotificationUtils.sendMessagePushNotification("hi");
         System.out.println(">>>>>>>>>>>>>>>>>>> post result id : "+result);
         System.out.println("POST Complete");
         return Response.status(201).entity(result).build();
@@ -141,15 +144,17 @@ public class TopicService {
     @GET
     @Path("/gethottopiclist")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public List<LastTopicModel> getHotTopicList(@QueryParam("empEmail") String empEmail){
-        System.out.println(">>>>>>>>>>>>>>>>>>> v116103 getHotTopicList()");
+    public List<LastTopicModel> getHotTopicList(@QueryParam("empEmail") String empEmail, @QueryParam("startDate") String startDate){
+        System.out.println(">>>>>>>>>>>>>>>>>>> getHotTopicList() empEmail : "+empEmail+" startDate : "+startDate);
         List<RoomModel> roomModelList = db.findByIndex(getRoomJsonStringReadUser(empEmail), RoomModel.class, new FindByIndexOptions()
                 .sort(new IndexField("_id", SortOrder.asc)).fields("_id").fields("_rev")
                 .fields("name").fields("desc").fields("type"));
         
         List<LastTopicModel> lastTopicModelList = db.findByIndex(getHotTopicListJsonString(roomModelList), LastTopicModel.class, new FindByIndexOptions()
                  .sort(new IndexField("updateDate", SortOrder.desc)).limit(20));
-        List<LastTopicModel> resultList = DateUtils.formatDBDateToClientDate(lastTopicModelList);
+        List<LastTopicModel> completeList = checkStatusRead(lastTopicModelList, empEmail, startDate);
+        System.out.println("status read : "+completeList.get(0).getStatusRead());
+        List<LastTopicModel> resultList = DateUtils.formatDBDateToClientDate(completeList);
         System.out.println("getHotTopicList list size : "+resultList.size());
         return lastTopicModelList;
     }
@@ -157,13 +162,15 @@ public class TopicService {
     @GET
     @Path("/gettopiclistbyroom")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public List<LastTopicModel> getTopicListByRoomId(@QueryParam("roomId") String roomId){
-        System.out.println(">>>>>>>>>>>>>>>>>>> getTopicListByRoomId() //room id : "+roomId);
+    public List<LastTopicModel> getTopicListByRoomId(@QueryParam("roomId") String roomId, @QueryParam("empEmail") String empEmail, @QueryParam("startDate") String startDate) {
+        System.out.println(">>>>>>>>>>>>>>>>>>> getTopicListByRoomId() //room id : "+roomId+" empEmail : "+empEmail+" startDate : "+startDate);
         List<LastTopicModel> LastTopicModelList = db.findByIndex(getTopicListByRoomIdJsonString(roomId), LastTopicModel.class, new FindByIndexOptions()
              .sort(new IndexField("date", SortOrder.desc)));
         List<LastTopicModel> formatDateList = DateUtils.formatDBDateToClientDate(LastTopicModelList);
         List<LastTopicModel> roomRuleList = getRoomRuleToppic(roomId);
-        List<LastTopicModel> resultList = insertRoomRuleTopicAtZero(formatDateList, roomRuleList.get(0));
+        List<LastTopicModel> completeList = checkStatusRead(roomRuleList, empEmail, startDate);
+        updateUpdateDateInNotificationModel(roomId, empEmail);
+        List<LastTopicModel> resultList = insertRoomRuleTopicAtZero(formatDateList, completeList.get(0));
         System.out.println("size : "+resultList.size());
         System.out.println("GET Complete");
         return resultList;
@@ -172,7 +179,7 @@ public class TopicService {
     @GET
     @Path("/getroomruletoppic")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public List<LastTopicModel> getRoomRuleToppic(@QueryParam("roomId") String roomId){
+    public List<LastTopicModel> getRoomRuleToppic(@QueryParam("roomId") String roomId) {
         System.out.println(">>>>>>>>>>>>>>>>>>> getRoomRuleToppic()");
         List<LastTopicModel> topicModelList = db.findByIndex(getRoomRuleToppicJsonString(roomId), LastTopicModel.class, new FindByIndexOptions()
              .fields("_id").fields("_rev").fields("avatarName").fields("avatarPic").fields("subject")
@@ -183,13 +190,48 @@ public class TopicService {
         return resultList;
     }
     
+    private void updateUpdateDateInNotificationModel(String roomId, String empEmail) {
+        String stampDate = DateUtils.dbFormat.format(new Date());
+        List<RoomNotificationModel> roomNotificationModelList = db.findByIndex(getRoomNotificationModelByRoomIdAndEmpEmail(roomId, empEmail), RoomNotificationModel.class);
+        RoomNotificationModel roomNotificationModel = roomNotificationModelList.get(0);
+        List<RoomModel> roomModelList = db.findByIndex(getRoomModelByRoomId(roomId), RoomModel.class);
+        RoomModel roomModel = roomModelList.get(0);
+        roomNotificationModel.setCountTopic(roomModel.getTotalTopic());
+        roomNotificationModel.setUpdateDate(stampDate);
+        db.update(roomNotificationModel);
+    }
+    
+    private void updateTotalTopicInRoomModel(String roomId) {
+        RoomModel roomModel = db.find(RoomModel.class, roomId);
+        roomModel.setTotalTopic(roomModel.getTotalTopic() == null ? 1 : roomModel.getTotalTopic()+1);
+        db.update(roomModel);
+    }
+    
+    private List<LastTopicModel> checkStatusRead(List<LastTopicModel> lastTopicModelList, String empEmail, String startDate) {
+        List<LastTopicModel> resultList = new ArrayList<>();
+        for (LastTopicModel lastTopicModel : lastTopicModelList) {
+            if(DateUtils.isAfterDate(startDate, lastTopicModel.getDate())) {
+                List<ReadModel> readModelList = db.findByIndex(getReadModelByEmpEmailString(lastTopicModel.get_id(), empEmail), ReadModel.class);
+                if(readModelList == null || readModelList.isEmpty()) {
+                    lastTopicModel.setStatusRead(false);
+                } else {
+                    lastTopicModel.setStatusRead(true);
+                }
+            } else {
+                lastTopicModel.setStatusRead(true); 
+            }
+            resultList.add(lastTopicModel);
+        }
+        return resultList;
+    }
+
     private void increaseReadCount(LastTopicModel lastTopicModel, String empEmail) {
         try {
             System.out.println(">>>>>>>>>>>>>>>>>> increaseReadCount() topicModelMap : "+lastTopicModel.get_id()+", empEmail : "+empEmail);
             stampDate = DateUtils.dbFormat.format(new Date());
             System.out.println("StampDate : "+stampDate);
             LastTopicModel localLastTopicModel = lastTopicModel;
-            List<ReadModel> readModelList = db.findByIndex(getReadModelByEmpEmail(localLastTopicModel.get_id(), empEmail), ReadModel.class);
+            List<ReadModel> readModelList = db.findByIndex(getReadModelByEmpEmailString(localLastTopicModel.get_id(), empEmail), ReadModel.class);
             if (readModelList == null || readModelList.isEmpty()) {
                 System.out.println("read model is null");
                 ReadModel readModel = createReadModelMap(localLastTopicModel.get_id(), empEmail);
@@ -199,7 +241,7 @@ public class TopicService {
             } else {
                 System.out.println("read model is not null");
                 ReadModel readModel = readModelList.get(0);
-                if(isNextDay(readModel.getDate(), stampDate)) {
+                if(DateUtils.isNextDay(readModel.getDate(), stampDate)) {
                     readModel.setDate(stampDate);
                     db.update(readModel);
                     localLastTopicModel.setCountRead(getCountRead(localLastTopicModel)+1);
@@ -211,7 +253,25 @@ public class TopicService {
         }
     }
 
-    private String getReadModelByEmpEmail(String topicId, String empEmail) {
+    private String getRoomNotificationModelByRoomIdAndEmpEmail(String roomId, String empEmail) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\"selector\": {");
+        sb.append("\"_id\": {\"$gt\": 0},");
+        sb.append("\"$and\": [{\"type\":\"roomNotification\"}, {\"roomId\":\""+roomId+"\"}, {\"empEmail\":\""+empEmail+"\"}]");
+        sb.append("}}");
+        return sb.toString();    
+    }
+    
+    private String getRoomModelByRoomId(String roomId) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\"selector\": {");
+        sb.append("\"_id\": {\"$gt\": 0},");
+        sb.append("\"$and\": [{\"type\":\"room\"}, {\"_id\":\""+roomId+"\"}]");
+        sb.append("}}");
+        return sb.toString();    
+    }
+    
+    private String getReadModelByEmpEmailString(String topicId, String empEmail) {
         StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
@@ -221,7 +281,7 @@ public class TopicService {
         return sb.toString();
     }
     
-    private String getHotTopicListJsonString(List<RoomModel> roomModelList){
+    private String getHotTopicListJsonString(List<RoomModel> roomModelList) {
         String roomIdString = generateRoomIdString(roomModelList);
         StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");
@@ -235,7 +295,7 @@ public class TopicService {
         return sb.toString();
     }
     
-    private String getTopicByIdJsonString(String topicId){
+    private String getTopicByIdJsonString(String topicId) {
         StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
@@ -261,7 +321,7 @@ public class TopicService {
         return stingBuilder.toString();
     }
     
-    private String getTopicListByRoomIdJsonString(String roomId){
+    private String getTopicListByRoomIdJsonString(String roomId) {
         StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
@@ -273,7 +333,7 @@ public class TopicService {
         return sb.toString();
     }
     
-    private String getLikeModelByTopicIdAndEmpEmailJsonString(String topicId, String empEmail){
+    private String getLikeModelByTopicIdAndEmpEmailJsonString(String topicId, String empEmail) {
         StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
@@ -283,7 +343,7 @@ public class TopicService {
         return sb.toString();
     }
     
-    private String getRoomRuleToppicJsonString(String roomId){
+    private String getRoomRuleToppicJsonString(String roomId) {
         StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
@@ -305,14 +365,6 @@ public class TopicService {
         readModel.setType("read");
         readModel.setDate(stampDate);
         return readModel;
-    }
-
-    public boolean isNextDay(String dateInDBString, String currentDateString) throws ParseException {
-        Calendar dateInDBCalendar = Calendar.getInstance();
-        Calendar currentCalendar = Calendar.getInstance();
-        dateInDBCalendar.setTime(DateUtils.dbFormat.parse(dateInDBString));
-        currentCalendar.setTime(DateUtils.clientFormat.parse(currentDateString));
-        return (dateInDBCalendar.get(Calendar.YEAR) <= currentCalendar.get(Calendar.YEAR)) && (dateInDBCalendar.get(Calendar.DAY_OF_YEAR) < currentCalendar.get(Calendar.DAY_OF_YEAR));
     }
 
     public void concatDomainImagePath(List<LastTopicModel> lastTopicModelList) {

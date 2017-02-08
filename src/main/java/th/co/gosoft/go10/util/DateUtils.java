@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -40,4 +41,29 @@ public class DateUtils {
         dateFormat.setTimeZone(TimeZone.getTimeZone(timeZone));
         return dateFormat;
     }
+    
+    public static boolean isNextDay(String dateInDBString, String currentDateString) throws ParseException {
+        Calendar dateInDBCalendar = Calendar.getInstance();
+        Calendar currentCalendar = Calendar.getInstance();
+        dateInDBCalendar.setTime(DateUtils.dbFormat.parse(dateInDBString));
+        currentCalendar.setTime(DateUtils.dbFormat.parse(currentDateString));
+        return (dateInDBCalendar.get(Calendar.YEAR) <= currentCalendar.get(Calendar.YEAR)) && (dateInDBCalendar.get(Calendar.DAY_OF_YEAR) < currentCalendar.get(Calendar.DAY_OF_YEAR));
+    }
+    
+    public static boolean isAfterDate(String firstDateString, String secondDateString) {
+        System.out.println("firstDate : "+firstDateString+", seccondDate : "+secondDateString);
+        try {
+            Date firstDate = DateUtils.dbFormat.parse(firstDateString);
+            Date secondDate = DateUtils.dbFormat.parse(secondDateString);
+            if (secondDate.after(firstDate)) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (ParseException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+
 }

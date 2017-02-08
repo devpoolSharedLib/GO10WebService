@@ -17,7 +17,7 @@ public class LastTopicModel {
     private Integer countRead;
     private String updateDate;
     private Integer pin;
-    private String statusRead;
+    private Boolean statusRead;
     
     public LastTopicModel(){}
     
@@ -120,11 +120,12 @@ public class LastTopicModel {
         this.countRead = countRead;
     }
 
-    public String getStatusRead() {
+    public Boolean getStatusRead() {
         return statusRead;
     }
 
-    public void setStatusRead(String statusRead) {
+    public void setStatusRead(Boolean statusRead) {
         this.statusRead = statusRead;
     }
+
 }

@@ -54,6 +54,7 @@ public class TopicService {
             lastTopicModel.set_id(response.getId());
             lastTopicModel.set_rev(response.getRev());
             increaseReadCount(lastTopicModel, lastTopicModel.getEmpEmail());
+            updateUpdateDateInNotificationModel(lastTopicModel.getRoomId(), lastTopicModel.getEmpEmail());
         } else if(lastTopicModel.getType().equals("comment")) {
             lastTopicModel.setDate(stampDate);
             response = db.save(lastTopicModel);

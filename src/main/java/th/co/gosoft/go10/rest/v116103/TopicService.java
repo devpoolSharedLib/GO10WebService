@@ -53,16 +53,17 @@ public class TopicService {
             response = db.save(lastTopicModel);
             lastTopicModel.set_id(response.getId());
             lastTopicModel.set_rev(response.getRev());
+            updateTotalTopicInRoomModel(lastTopicModel.getRoomId());
             increaseReadCount(lastTopicModel, lastTopicModel.getEmpEmail());
-            updateCountTopicInNotificationModel(lastTopicModel.getRoomId(), lastTopicModel.getEmpEmail());
+            plusCountTopicInNotificationModel(lastTopicModel.getRoomId(), lastTopicModel.getEmpEmail());
         } else if(lastTopicModel.getType().equals("comment")) {
             lastTopicModel.setDate(stampDate);
             response = db.save(lastTopicModel);
             LastTopicModel hostTopicModel = db.find(LastTopicModel.class, lastTopicModel.getTopicId());
             hostTopicModel.setUpdateDate(stampDate);
             response = db.update(hostTopicModel);
+            updateTotalTopicInRoomModel(lastTopicModel.getRoomId());
         }
-        updateTotalTopicInRoomModel(lastTopicModel.getRoomId());
 //        PushNotificationUtils.sendMessagePushNotification(NOTIFICATION_MESSAGE);
         
         String result = response.getId();
@@ -190,6 +191,15 @@ public class TopicService {
         System.out.println("size : "+resultList.size());
         System.out.println("GET Complete");
         return resultList;
+    }
+    
+    private void plusCountTopicInNotificationModel(String roomId, String empEmail) {
+        String stampDate = DateUtils.dbFormat.format(new Date());
+        List<RoomNotificationModel> roomNotificationModelList = db.findByIndex(getRoomNotificationModelByRoomIdAndEmpEmail(roomId, empEmail), RoomNotificationModel.class);
+        RoomNotificationModel roomNotificationModel = roomNotificationModelList.get(0);
+        roomNotificationModel.setCountTopic(roomNotificationModel.getCountTopic() + 1);
+        roomNotificationModel.setUpdateDate(stampDate);
+        db.update(roomNotificationModel);
     }
     
     private void updateCountTopicInNotificationModel(String roomId, String empEmail) {

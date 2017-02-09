@@ -169,10 +169,10 @@ public class TopicService {
         System.out.println(">>>>>>>>>>>>>>>>>>> getTopicListByRoomId() //room id : "+roomId+" empEmail : "+empEmail+" startDate : "+startDate);
         List<LastTopicModel> LastTopicModelList = db.findByIndex(getTopicListByRoomIdJsonString(roomId), LastTopicModel.class, new FindByIndexOptions()
              .sort(new IndexField("date", SortOrder.desc)));
-        List<LastTopicModel> formatDateList = DateUtils.formatDBDateToClientDate(LastTopicModelList);
         List<LastTopicModel> roomRuleList = getRoomRuleToppic(roomId);
-        List<LastTopicModel> completeList = checkStatusRead(formatDateList, empEmail, startDate);
-        List<LastTopicModel> resultList = insertRoomRuleTopicAtZero(completeList, roomRuleList.get(0));
+        List<LastTopicModel> fullList = insertRoomRuleTopicAtZero(LastTopicModelList, roomRuleList.get(0));
+        List<LastTopicModel> completeList = checkStatusRead(fullList, empEmail, startDate);
+        List<LastTopicModel> resultList = DateUtils.formatDBDateToClientDate(completeList);
         System.out.println("size : "+resultList.size());
         updateCountTopicInNotificationModel(roomId, empEmail);
         System.out.println("GET Complete");
@@ -250,6 +250,7 @@ public class TopicService {
                 db.save(readModel);
                 localLastTopicModel.setCountRead(getCountRead(localLastTopicModel)+1);
                 db.update(localLastTopicModel);
+                plusCountTopicInNotificationModel(lastTopicModel.getRoomId(), lastTopicModel.getEmpEmail());
             } else {
                 System.out.println("read model is not null");
                 ReadModel readModel = readModelList.get(0);

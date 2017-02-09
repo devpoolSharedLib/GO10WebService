@@ -201,7 +201,6 @@ public class UserService {
         stampDate = DateUtils.dbFormat.format(new Date());
         List<RoomModel> roomModelList = db.findByIndex(getRoomJsonString(empEmail), RoomModel.class);
         for (RoomModel roomModel : roomModelList) {
-            System.out.println("loop : "+roomModel.get_id());
             RoomNotificationModel roomNotificationModel = new RoomNotificationModel();
             roomNotificationModel.setEmpEmail(empEmail);
             roomNotificationModel.setRoomId(roomModel.get_id());
@@ -211,6 +210,7 @@ public class UserService {
             roomNotificationModel.setType("roomNotification");
             db.save(roomNotificationModel);
         }
+        System.out.println("createAllRoomNotificationModelForUser stampDate: "+stampDate);
         return stampDate;
     }
     

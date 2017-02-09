@@ -1,40 +1,40 @@
 package th.co.gosoft.go10.util;
 
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import com.google.gson.JsonObject;
-
 public class PushNotificationUtils {
 
-    private static String serviceURL = "https://mobile.au-syd.bluemix.net/imfpush/v1/apps/3c5e9860-be2b-4276-a53b-b12f0d3db6bb/messages";
+    private static String serviceURL = "https://onesignal.com/api/v1/notifications";
             
     public static void sendMessagePushNotification(String message) {
-        JsonObject parent = new JsonObject();
-        JsonObject child = new JsonObject();
-        child.addProperty("alert", "Notification from Server");
-        parent.add("message", child);
+        
+        String strJsonBody = "{"
+                +   "\"app_id\": \""+PropertiesUtils.getProperties("one_signal_app_id")+"\","
+                +   "\"included_segments\": [\"All\"],"
+                +   "\"contents\": {\"en\": \""+message+"\"}"
+                + "}";
         
         HttpURLConnection connection = null;
         try {
             URL url = new URL(serviceURL);
             connection = (HttpURLConnection) url.openConnection();
+            connection.setUseCaches(false);
             connection.setDoOutput(true);
             connection.setDoInput(true);
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json");
-            connection.setRequestProperty("Accept", "application/json");
-            connection.setRequestProperty("appSecret", "04e8c379-6cd7-4312-8ad5-3fe198897772");
-            connection.setRequestProperty("Accept-Language", "en-US");
-            OutputStream os = connection.getOutputStream();
-            OutputStreamWriter osw = new OutputStreamWriter(os, "UTF-8");
-            osw.write(parent.toString());
-            osw.close();
-            System.out.println(connection.getResponseCode()+" : "+connection.getResponseMessage());
+            connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            connection.setRequestProperty("Authorization", "Basic "+PropertiesUtils.getProperties("one_signal_api_key"));
+            
+            byte[] sendBytes = strJsonBody.getBytes("UTF-8");
+            connection.setFixedLengthStreamingMode(sendBytes.length);
+
+            OutputStream outputStream = connection.getOutputStream();
+            outputStream.write(sendBytes);
+
+            int httpResponse = connection.getResponseCode();
+            System.out.println("http response : "+httpResponse+", "+connection.getResponseMessage());
         } catch (Exception e) {
-            e.printStackTrace();
             throw new RuntimeException(e.getMessage(), e);
         } finally {
             if (connection != null) {

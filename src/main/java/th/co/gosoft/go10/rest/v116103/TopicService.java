@@ -27,6 +27,7 @@ import th.co.gosoft.go10.model.RoomNotificationModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
 import th.co.gosoft.go10.util.ConcatDomainUtils;
 import th.co.gosoft.go10.util.DateUtils;
+import th.co.gosoft.go10.util.PushNotificationUtils;
 
 @Path("v116103/topic")
 public class TopicService {
@@ -64,7 +65,7 @@ public class TopicService {
             response = db.update(hostTopicModel);
             updateTotalTopicInRoomModel(lastTopicModel.getRoomId());
         }
-//        PushNotificationUtils.sendMessagePushNotification(NOTIFICATION_MESSAGE);
+        PushNotificationUtils.sendMessagePushNotification(NOTIFICATION_MESSAGE);
         
         String result = response.getId();
         System.out.println(">>>>>>>>>>>>>>>>>>> post result id : "+result);

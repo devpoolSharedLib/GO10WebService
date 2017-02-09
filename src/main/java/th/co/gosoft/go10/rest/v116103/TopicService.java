@@ -54,7 +54,7 @@ public class TopicService {
             lastTopicModel.set_id(response.getId());
             lastTopicModel.set_rev(response.getRev());
             increaseReadCount(lastTopicModel, lastTopicModel.getEmpEmail());
-            updateUpdateDateInNotificationModel(lastTopicModel.getRoomId(), lastTopicModel.getEmpEmail());
+            updateCountTopicInNotificationModel(lastTopicModel.getRoomId(), lastTopicModel.getEmpEmail());
         } else if(lastTopicModel.getType().equals("comment")) {
             lastTopicModel.setDate(stampDate);
             response = db.save(lastTopicModel);
@@ -170,10 +170,10 @@ public class TopicService {
              .sort(new IndexField("date", SortOrder.desc)));
         List<LastTopicModel> formatDateList = DateUtils.formatDBDateToClientDate(LastTopicModelList);
         List<LastTopicModel> roomRuleList = getRoomRuleToppic(roomId);
-        List<LastTopicModel> completeList = checkStatusRead(roomRuleList, empEmail, startDate);
-        updateUpdateDateInNotificationModel(roomId, empEmail);
-        List<LastTopicModel> resultList = insertRoomRuleTopicAtZero(formatDateList, completeList.get(0));
+        List<LastTopicModel> completeList = checkStatusRead(formatDateList, empEmail, startDate);
+        List<LastTopicModel> resultList = insertRoomRuleTopicAtZero(completeList, roomRuleList.get(0));
         System.out.println("size : "+resultList.size());
+        updateCountTopicInNotificationModel(roomId, empEmail);
         System.out.println("GET Complete");
         return resultList;
     }
@@ -192,7 +192,7 @@ public class TopicService {
         return resultList;
     }
     
-    private void updateUpdateDateInNotificationModel(String roomId, String empEmail) {
+    private void updateCountTopicInNotificationModel(String roomId, String empEmail) {
         String stampDate = DateUtils.dbFormat.format(new Date());
         List<RoomNotificationModel> roomNotificationModelList = db.findByIndex(getRoomNotificationModelByRoomIdAndEmpEmail(roomId, empEmail), RoomNotificationModel.class);
         RoomNotificationModel roomNotificationModel = roomNotificationModelList.get(0);

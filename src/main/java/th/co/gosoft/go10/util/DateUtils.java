@@ -51,7 +51,6 @@ public class DateUtils {
     }
     
     public static boolean isAfterDate(String firstDateString, String secondDateString) {
-        System.out.println("firstDate : "+firstDateString+", seccondDate : "+secondDateString);
         try {
             Date firstDate = DateUtils.dbFormat.parse(firstDateString);
             Date secondDate = DateUtils.dbFormat.parse(secondDateString);

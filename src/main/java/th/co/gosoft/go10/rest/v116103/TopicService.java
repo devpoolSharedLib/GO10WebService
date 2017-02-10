@@ -207,7 +207,6 @@ public class TopicService {
     private int sumBadgeNumber(List<RoomModel> roomModelList) {
         int totalNumber = 0;
         for (RoomModel roomModel : roomModelList) {
-            System.out.println("room : "+roomModel.get_id()+", badge : "+roomModel.getBadgeNumber());
             totalNumber += roomModel.getBadgeNumber();
         }
         return totalNumber;

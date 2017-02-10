@@ -270,7 +270,7 @@ public class TopicService {
                 db.save(readModel);
                 localLastTopicModel.setCountRead(getCountRead(localLastTopicModel)+1);
                 db.update(localLastTopicModel);
-                plusCountTopicInNotificationModel(lastTopicModel.getRoomId(), lastTopicModel.getEmpEmail());
+                plusCountTopicInNotificationModel(lastTopicModel.getRoomId(), empEmail);
             } else {
                 System.out.println("read model is not null");
                 ReadModel readModel = readModelList.get(0);
@@ -292,6 +292,7 @@ public class TopicService {
         sb.append("\"_id\": {\"$gt\": 0},");
         sb.append("\"$and\": [{\"type\":\"roomNotification\"}, {\"roomId\":\""+roomId+"\"}, {\"empEmail\":\""+empEmail+"\"}]");
         sb.append("}}");
+        System.out.println("query string : "+sb.toString());
         return sb.toString();    
     }
     

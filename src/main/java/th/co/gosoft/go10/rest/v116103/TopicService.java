@@ -56,7 +56,6 @@ public class TopicService {
             lastTopicModel.set_rev(response.getRev());
             updateTotalTopicInRoomModel(lastTopicModel.getRoomId());
             increaseReadCount(lastTopicModel, lastTopicModel.getEmpEmail());
-            plusCountTopicInNotificationModel(lastTopicModel.getRoomId(), lastTopicModel.getEmpEmail());
         } else if(lastTopicModel.getType().equals("comment")) {
             lastTopicModel.setDate(stampDate);
             response = db.save(lastTopicModel);
@@ -194,12 +193,33 @@ public class TopicService {
         return resultList;
     }
     
+    @GET
+    @Path("/getbadgenumbernotification")
+    @Produces(MediaType.TEXT_PLAIN + ";charset=utf-8")
+    public Response getBadgeNumberNotification(@QueryParam("empEmail") String empEmail) {
+        System.out.println(">>>>>>>>>>>>>>>>>>> getBadgeNumberNotification() // empEmail : "+empEmail);
+        RoomService roomService = new RoomService();
+        List<RoomModel> roomModelList = roomService.getRooms(empEmail);
+        int totalBadge = sumBadgeNumber(roomModelList);
+        return Response.status(201).entity(totalBadge).build();
+    }
+    
+    private int sumBadgeNumber(List<RoomModel> roomModelList) {
+        int totalNumber = 0;
+        for (RoomModel roomModel : roomModelList) {
+            System.out.println("room : "+roomModel.get_id()+", badge : "+roomModel.getBadgeNumber());
+            totalNumber += roomModel.getBadgeNumber();
+        }
+        return totalNumber;
+    }
+
     private void plusCountTopicInNotificationModel(String roomId, String empEmail) {
         String stampDate = DateUtils.dbFormat.format(new Date());
         List<RoomNotificationModel> roomNotificationModelList = db.findByIndex(getRoomNotificationModelByRoomIdAndEmpEmail(roomId, empEmail), RoomNotificationModel.class);
         RoomNotificationModel roomNotificationModel = roomNotificationModelList.get(0);
         roomNotificationModel.setCountTopic(roomNotificationModel.getCountTopic() + 1);
         roomNotificationModel.setUpdateDate(stampDate);
+        System.out.println("room noti countTopic : "+roomNotificationModel.getCountTopic());
         db.update(roomNotificationModel);
     }
     

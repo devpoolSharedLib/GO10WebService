@@ -13,7 +13,8 @@ public class PushNotificationUtils {
         String strJsonBody = "{"
                 +   "\"app_id\": \""+PropertiesUtils.getProperties("one_signal_app_id")+"\","
                 +   "\"included_segments\": [\"All\"],"
-                +   "\"contents\": {\"en\": \""+message+"\"}"
+                +   "\"contents\": {\"en\": \""+message+"\"},"
+                +   "\"content_available\": true"
                 + "}";
         
         HttpURLConnection connection = null;

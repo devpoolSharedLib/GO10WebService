@@ -14,6 +14,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.STSourceType;
+
 import com.cloudant.client.api.Database;
 import com.cloudant.client.api.model.FindByIndexOptions;
 import com.cloudant.client.api.model.IndexField;
@@ -201,6 +203,7 @@ public class TopicService {
         RoomService roomService = new RoomService();
         List<RoomModel> roomModelList = roomService.getRooms(empEmail);
         int totalBadge = sumBadgeNumber(roomModelList);
+        System.out.println("Badge Number : "+totalBadge);
         return Response.status(201).entity(totalBadge).build();
     }
     

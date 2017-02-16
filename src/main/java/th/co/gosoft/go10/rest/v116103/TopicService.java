@@ -14,8 +14,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.STSourceType;
-
 import com.cloudant.client.api.Database;
 import com.cloudant.client.api.model.FindByIndexOptions;
 import com.cloudant.client.api.model.IndexField;
@@ -58,6 +56,7 @@ public class TopicService {
             lastTopicModel.set_rev(response.getRev());
             updateTotalTopicInRoomModel(lastTopicModel.getRoomId());
             increaseReadCount(lastTopicModel, lastTopicModel.getEmpEmail());
+            PushNotificationUtils.sendMessagePushNotification(NOTIFICATION_MESSAGE);
         } else if(lastTopicModel.getType().equals("comment")) {
             lastTopicModel.setDate(stampDate);
             response = db.save(lastTopicModel);
@@ -66,8 +65,6 @@ public class TopicService {
             response = db.update(hostTopicModel);
             updateTotalTopicInRoomModel(lastTopicModel.getRoomId());
         }
-        PushNotificationUtils.sendMessagePushNotification(NOTIFICATION_MESSAGE);
-        
         String result = response.getId();
         System.out.println(">>>>>>>>>>>>>>>>>>> post result id : "+result);
         System.out.println("POST Complete");

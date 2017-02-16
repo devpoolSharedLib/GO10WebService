@@ -1,28 +1,24 @@
 package th.co.gosoft.go10.servlet;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openstack4j.api.OSClient;
-import org.openstack4j.api.OSClient.OSClientV3;
-import org.openstack4j.model.common.DLPayload;
-import org.openstack4j.model.storage.object.SwiftObject;
-
-import th.co.gosoft.go10.util.ObjectStorageUtils;
+import th.co.gosoft.go10.util.PropertiesUtils;
 
 @WebServlet("/DownloadServlet")
 public class DownloadServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
+    private static final String S3_IMAGE_URL = PropertiesUtils.getProperties("domain_image_path")+"/"+PropertiesUtils.getProperties("folder_name");
+	
     public DownloadServlet() {
         super();
     }
@@ -32,28 +28,33 @@ public class DownloadServlet extends HttpServlet {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-	    
-	    String fileName = request.getParameter("imageName");
-	    
-	    OSClient<OSClientV3> os = ObjectStorageUtils.connectObjectStorageService();
-	    SwiftObject swiftObject = os.objectStorage().objects().get("go10", fileName);
-	    DLPayload dp = swiftObject.download();
-	    InputStream is = dp.getInputStream();
-	    
-	    response.setContentType("image/jpeg");  
-	    ServletOutputStream out = response.getOutputStream();  
-	      
-	    BufferedInputStream bin = new BufferedInputStream(is);  
-	    BufferedOutputStream bout = new BufferedOutputStream(out);  
-	    int ch =0;  
-	    while((ch=bin.read())!=-1) {  
-	        bout.write(ch);  
-	    }  
-	      
-	    bin.close();  
-	    is.close();  
-	    bout.close();  
-	    out.close();  
+	    InputStream inputStream = null;
+	    OutputStream outPutStream = null;
+	    try {
+	        String fileName = request.getParameter("imageName");
+	        URL url = new URL(S3_IMAGE_URL+"/"+fileName);
+	        
+	        inputStream = new BufferedInputStream(url.openStream());
+	        outPutStream = response.getOutputStream();
+	        
+	        byte[] buf = new byte[1024];
+	        int count = 0;
+	        while ((count = inputStream.read(buf)) >= 0) {
+	           outPutStream.write(buf, 0, count);
+	        }
+	        outPutStream.close();
+	        outPutStream.close();
+	    } catch (Exception e) {
+	        throw new RuntimeException(e.getMessage(), e);
+	    } finally {
+            if(inputStream != null) {
+                inputStream.close();
+            }
+            if(outPutStream != null) {
+                outPutStream.close();
+            }
+        }
+
 	}
     
 }

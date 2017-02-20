@@ -243,12 +243,13 @@ public class TopicService {
         List<LastTopicModel> resultList = new ArrayList<>();
         for (LastTopicModel lastTopicModel : lastTopicModelList) {
             if(DateUtils.isAfterDate(startDate, lastTopicModel.getDate())) {
-                List<ReadModel> readModelList = db.findByIndex(getReadModelByEmpEmailString(lastTopicModel.get_id(), empEmail), ReadModel.class);
-                if(readModelList == null || readModelList.isEmpty()) {
-                    lastTopicModel.setStatusRead(false);
-                } else {
-                    lastTopicModel.setStatusRead(true);
-                }
+//                List<ReadModel> readModelList = db.findByIndex(getReadModelByEmpEmailString(lastTopicModel.get_id(), empEmail), ReadModel.class);
+//                if(readModelList == null || readModelList.isEmpty()) {
+//                    lastTopicModel.setStatusRead(false);
+//                } else {
+//                    lastTopicModel.setStatusRead(true);
+//                }
+                lastTopicModel.setStatusRead(true);
             } else {
                 lastTopicModel.setStatusRead(true); 
             }

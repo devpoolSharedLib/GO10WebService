@@ -128,33 +128,33 @@
 		      </ul>
 		      <ul class="nav navbar-nav navbar-right">
 		      	<%
-// 		      		System.out.print("session : "+session != null);
-// 		      		if(session != null) {
-// 						List<RoomModel> groupModelList = SecurityUtils.getInstance().getRoom(session);
+ 		      		System.out.print("session : "+session != null);
+ 		      		if(session != null) {
+ 						List<RoomModel> groupModelList = SecurityUtils.getInstance().getRoom(session);
 				%>
-<!-- 		        <li class="dropdown" style="display: inline;"> -->
-<%-- 		        		<a href="#" class="dropdown-toggle" id="roomName" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Room :  <%=session.getAttribute("roomName") %> <span  class="caret"></span></a> --%>
-<!-- 		        	<ul class='dropdown-menu' id="menuRoomName"> -->
-<%-- 		        		<% --%>
-<!-- // 		        			for (RoomModel roomModel : groupModelList) { -->
-<%--  						%> --%>
-<%-- 							<li><a href="javascript:gotoSessionServlet('<%=roomModel.get_id() %>','<%=roomModel.getName() %>');">Room : <%=roomModel.getName() %></a></li> --%>
-<%-- 						<% --%>
-<!-- // 							}    -->
-<%--  						%> --%>
-<!-- 		        	</ul> -->
-<!-- 		        </li> -->
-<!-- 		        <li class="dropdown"> -->
-<%-- 		          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><%=session.getAttribute("empEmail") %> <span class="caret"></span></a> --%>
-<!-- 		          <ul class="dropdown-menu"> -->
-<!-- 		            <li><a href="#">Action</a></li>
-<!-- 		            <li role="separator" class="divider"></li> --> -->
-<!-- 		            <li><a href="/GO10WebService/LogoutServlet">Logout</a></li> -->
-<!-- 		          </ul> -->
-<!-- 		        </li> -->
-<%-- 		        <%  --%>
-<!-- // 		        	} -->
-<%-- 		        %> --%>
+ 		        <li class="dropdown" style="display: inline;">
+ 		        	<a href="#" class="dropdown-toggle" id="roomName" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Room :  <%=session.getAttribute("roomName") %> <span  class="caret"></span></a>
+ 		        	<ul class='dropdown-menu' id="menuRoomName">
+ 		        		<%
+ 		        			for (RoomModel roomModel : groupModelList) {
+  						%>
+							<li><a href="javascript:gotoSessionServlet('<%=roomModel.get_id() %>','<%=roomModel.getName() %>');">Room : <%=roomModel.getName() %></a></li>
+ 						<%
+ 							}    
+						%>
+ 		        	</ul>
+ 		        </li>
+ 		        <li class="dropdown">
+ 		          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><%=session.getAttribute("empEmail") %> <span class="caret"></span></a>
+ 		          <ul class="dropdown-menu">
+ 		            <li><a href="#">Action</a></li>
+ 		            <li role="separator" class="divider"></li>
+ 		            <li><a href="/GO10WebService/LogoutServlet">Logout</a></li>
+ 		          </ul>
+ 		        </li>
+ 		        <%
+ 		        	}
+				%>
 		      </ul>
 		    </div><!-- /.navbar-collapse -->
 	  	</div><!-- /.container-fluid -->

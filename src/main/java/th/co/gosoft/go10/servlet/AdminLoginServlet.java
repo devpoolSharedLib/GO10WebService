@@ -33,19 +33,9 @@ public class AdminLoginServlet extends HttpServlet {
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	    System.out.println("AdminLoginServlet doPost()");
-//	    LoginContext lc = null;
 	    HttpSession session = request.getSession();
 	    String email = request.getParameter("j_username").toLowerCase();
         String password = request.getParameter("j_password");
-//        System.out.println("username : "+username+", password : "+password);
-//        try {
-//            lc = new LoginContext("GO10", new JAASCallbackHandler(username, password));
-//            lc.login();
-//            Subject subject = lc.getSubject();
-//            subject.getPrincipals();
-//        } catch (LoginException e) {
-//            throw new ServletException(e.getMessage(), e);
-//        }
 
         List<UserAdminModel> userAdminModelList = db.findByIndex(getUserAdminByEmailJsonString(email), UserAdminModel.class);
         if(checkUserAdmin(userAdminModelList)){

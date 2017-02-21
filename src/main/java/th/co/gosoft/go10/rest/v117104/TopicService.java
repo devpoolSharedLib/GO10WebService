@@ -21,6 +21,7 @@ import com.cloudant.client.api.model.IndexField.SortOrder;
 
 import th.co.gosoft.go10.model.LastLikeModel;
 import th.co.gosoft.go10.model.LastTopicModel;
+import th.co.gosoft.go10.model.LogDeleteModel;
 import th.co.gosoft.go10.model.ReadModel;
 import th.co.gosoft.go10.model.RoomModel;
 import th.co.gosoft.go10.model.RoomNotificationModel;
@@ -81,8 +82,8 @@ public class TopicService {
         if(lastTopicModel.getType().equals("host")){
         	updateTotalDeleteInRoomModel(lastTopicModel.getRoomId());
         	deleteAllInTopic(lastTopicModel.get_id());
-        	System.out.println("delete in topic complete");
         }
+        insertLogDelete(lastTopicModel);
         return Response.status(201).build();
     }
     
@@ -265,6 +266,7 @@ public class TopicService {
         for(int i=0;i<topicModelList.size();i++){
         	db.remove(topicModelList.get(i));
         }
+        System.out.println("delete all in topic complete");
     }
     
     private List<LastTopicModel> checkStatusRead(List<LastTopicModel> lastTopicModelList, String empEmail, String startDate) {
@@ -328,6 +330,21 @@ public class TopicService {
         }
     }
 
+    private void insertLogDelete(LastTopicModel lastTopicModel) {
+		LogDeleteModel logDeletModelList = new LogDeleteModel();
+		stampDate = DateUtils.dbFormat.format(new Date());
+		logDeletModelList.setEmpEmail(lastTopicModel.getEmpEmail());
+		logDeletModelList.setContent(lastTopicModel.getContent());
+		logDeletModelList.setSubject(lastTopicModel.getSubject() == null ? "" : lastTopicModel.getSubject());
+		logDeletModelList.setRoomId(lastTopicModel.getRoomId());
+		logDeletModelList.setTypeDel(lastTopicModel.getType());
+		logDeletModelList.setTopId(lastTopicModel.getTopicId() == null ? "" : lastTopicModel.getTopicId());
+		logDeletModelList.setType("log");
+		logDeletModelList.setDate(stampDate);
+		db.save(logDeletModelList);
+		System.out.println("Insert Log Delete Complete");
+	}
+    
     private String getRoomNotificationModelByRoomIdAndEmpEmail(String roomId, String empEmail) {
         StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");

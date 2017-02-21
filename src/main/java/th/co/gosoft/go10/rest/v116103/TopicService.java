@@ -72,6 +72,21 @@ public class TopicService {
     }
     
     @POST
+    @Path("/deleteObj")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response deleteObj(LastTopicModel lastTopicModel){
+        System.out.println("deleteObj() _id : "+lastTopicModel.get_id());
+        db.remove(lastTopicModel);
+        System.out.println("DELETE "+ lastTopicModel.getEmpEmail() + " Complete");
+        if(lastTopicModel.getType().equals("host")){
+        	delTotalTopicInRoomModel(lastTopicModel.getRoomId());
+        	deleteAllInTopic(lastTopicModel.get_id());
+        	System.out.println("delete in topic complete");
+        }
+        return Response.status(201).build();
+    }
+    
+    @POST
     @Path("/newLike")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response newLike(LastLikeModel lastLikeModel){
@@ -239,6 +254,19 @@ public class TopicService {
         db.update(roomModel);
     }
     
+    private void delTotalTopicInRoomModel(String roomId) {
+        RoomModel roomModel = db.find(RoomModel.class, roomId);
+        roomModel.setTotalTopic(roomModel.getTotalTopic() == null ? 1 : roomModel.getTotalTopic()-1);
+        db.update(roomModel);
+    }
+    
+    private void deleteAllInTopic(String _id) {
+    	List<LastTopicModel> topicModelList = db.findByIndex(getAllByIdJsonString(_id), LastTopicModel.class);
+        for(int i=0;i<topicModelList.size();i++){
+        	db.remove(topicModelList.get(i));
+        }
+    }
+    
     private List<LastTopicModel> checkStatusRead(List<LastTopicModel> lastTopicModelList, String empEmail, String startDate) {
         List<LastTopicModel> resultList = new ArrayList<>();
         for (LastTopicModel lastTopicModel : lastTopicModelList) {
@@ -385,6 +413,16 @@ public class TopicService {
         sb.append("\"$and\": [{\"type\":\"host\"}, {\"roomId\":\""+roomId+"\"}]");
         sb.append("}}");
         return sb.toString();
+    }
+    
+    private String getAllByIdJsonString(String _id) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\"selector\": {");
+        sb.append("\"_id\": {\"$gt\": 0},");
+        sb.append("\"$and\": [{\"topicId\":\""+_id+"\"}]");
+        sb.append("}}");
+        System.out.println("query string : "+sb.toString());
+        return sb.toString();    
     }
     
     private int getCountRead(LastTopicModel lastTopicModel) {

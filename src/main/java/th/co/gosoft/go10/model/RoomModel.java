@@ -16,6 +16,8 @@ public class RoomModel {
     private Integer topalPurge;
     private Integer badgeNumber;
     private Integer totalDelete;
+    private Integer sort;
+    private Boolean show;
     
     public RoomModel(){}
     
@@ -118,6 +120,22 @@ public class RoomModel {
 
     public void setBadgeNumber(Integer badgeNumber) {
         this.badgeNumber = badgeNumber;
+    }
+
+    public Integer getSort() {
+        return sort;
+    }
+
+    public void setSort(Integer sort) {
+        this.sort = sort;
+    }
+
+    public Boolean getShow() {
+        return show;
+    }
+
+    public void setShow(Boolean show) {
+        this.show = show;
     }
 
 }

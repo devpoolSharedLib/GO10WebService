@@ -15,6 +15,7 @@ public class RoomModel {
     private Integer totalTopic;
     private Integer topalPurge;
     private Integer badgeNumber;
+    private Integer totalDelete;
     
     public RoomModel(){}
     
@@ -95,7 +96,15 @@ public class RoomModel {
         this.totalTopic = totalTopic;
     }
 
-    public Integer getTopalPurge() {
+    public Integer getTotalDelete() {
+		return totalDelete;
+	}
+
+	public void setTotalDelete(Integer totalDelete) {
+		this.totalDelete = totalDelete;
+	}
+
+	public Integer getTopalPurge() {
         return topalPurge;
     }
 

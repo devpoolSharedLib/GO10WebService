@@ -73,13 +73,13 @@ public class TopicService {
     
     @POST
     @Path("/deleteObj")
-    @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8") 
     public Response deleteObj(LastTopicModel lastTopicModel){
         System.out.println("deleteObj() _id : "+lastTopicModel.get_id());
         db.remove(lastTopicModel);
         System.out.println("DELETE "+ lastTopicModel.getEmpEmail() + " Complete");
         if(lastTopicModel.getType().equals("host")){
-        	delTotalTopicInRoomModel(lastTopicModel.getRoomId());
+        	updateTotalDeleteInRoomModel(lastTopicModel.getRoomId());
         	deleteAllInTopic(lastTopicModel.get_id());
         	System.out.println("delete in topic complete");
         }
@@ -254,9 +254,9 @@ public class TopicService {
         db.update(roomModel);
     }
     
-    private void delTotalTopicInRoomModel(String roomId) {
+    private void updateTotalDeleteInRoomModel(String roomId) {
         RoomModel roomModel = db.find(RoomModel.class, roomId);
-        roomModel.setTotalTopic(roomModel.getTotalTopic() == null ? 1 : roomModel.getTotalTopic()-1);
+        roomModel.setTotalDelete(roomModel.getTotalDelete() == null ? 1 : roomModel.getTotalDelete()+1);
         db.update(roomModel);
     }
     

@@ -268,14 +268,17 @@ public class TopicService {
     }
     
     private List<LastTopicModel> checkStatusRead(List<LastTopicModel> lastTopicModelList, String empEmail, String startDate) {
+        String topicIdString = generateTopicIdString(lastTopicModelList);
+        List<ReadModel> readModelList = db.findByIndex(getReadModelByEmpEmailString(empEmail, topicIdString), ReadModel.class, 
+                new FindByIndexOptions().sort(new IndexField("date", SortOrder.desc)).limit(30));
+        System.out.println("readModelList size : "+readModelList.size());
         List<LastTopicModel> resultList = new ArrayList<>();
         for (LastTopicModel lastTopicModel : lastTopicModelList) {
             if(DateUtils.isAfterDate(startDate, lastTopicModel.getDate())) {
-                List<ReadModel> readModelList = db.findByIndex(getReadModelByEmpEmailString(lastTopicModel.get_id(), empEmail), ReadModel.class);
-                if(readModelList == null || readModelList.isEmpty()) {
-                    lastTopicModel.setStatusRead(false);
-                } else {
+                if(hasReadModel(readModelList, lastTopicModel)) {
                     lastTopicModel.setStatusRead(true);
+                } else {
+                    lastTopicModel.setStatusRead(false);
                 }
             } else {
                 lastTopicModel.setStatusRead(true); 
@@ -285,13 +288,24 @@ public class TopicService {
         return resultList;
     }
 
+    private boolean hasReadModel(List<ReadModel> readModelList, LastTopicModel lastTopicModel) {
+        boolean result = false;
+        for (ReadModel readModel : readModelList) {
+            if(readModel.getTopicId().equals(lastTopicModel.get_id())){
+                result = true;
+                break;
+            }
+        }
+        return result;
+    }
+
     private void increaseReadCount(LastTopicModel lastTopicModel, String empEmail) {
         try {
             System.out.println(">>>>>>>>>>>>>>>>>> increaseReadCount() topicModelMap : "+lastTopicModel.get_id()+", empEmail : "+empEmail);
             stampDate = DateUtils.dbFormat.format(new Date());
             System.out.println("StampDate : "+stampDate);
             LastTopicModel localLastTopicModel = lastTopicModel;
-            List<ReadModel> readModelList = db.findByIndex(getReadModelByEmpEmailString(localLastTopicModel.get_id(), empEmail), ReadModel.class);
+            List<ReadModel> readModelList = db.findByIndex(getReadModelByTopicIdAndEmpEmailString(localLastTopicModel.get_id(), empEmail), ReadModel.class);
             if (readModelList == null || readModelList.isEmpty()) {
                 System.out.println("read model is null");
                 ReadModel readModel = createReadModelMap(localLastTopicModel.get_id(), empEmail);
@@ -333,7 +347,18 @@ public class TopicService {
         return sb.toString();    
     }
     
-    private String getReadModelByEmpEmailString(String topicId, String empEmail) {
+    private String getReadModelByEmpEmailString(String empEmail, String topicIdString) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\"selector\": {");
+        sb.append("\"_id\": {\"$gt\": 0},");
+        sb.append("\"$and\": [{\"type\":\"read\"}, {\"empEmail\":\""+empEmail+"\"}, {\"topicId\":{\"$or\": ["+topicIdString+"]}}]");
+        sb.append("},");
+        sb.append("\"fields\": [\"_id\",\"_rev\",\"topicId\",\"empEmail\",\"type\",\"date\"]}");
+        System.out.println("query : "+sb.toString());
+        return sb.toString();
+    }
+    
+    private String getReadModelByTopicIdAndEmpEmailString(String topicId, String empEmail) {
         StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
@@ -467,6 +492,17 @@ public class TopicService {
             stingBuilder.append(prefix);
             prefix = ",";
             stingBuilder.append("\""+roomModel.get_id()+"\"");
+        }
+        return stingBuilder.toString();
+    }
+    
+    private String generateTopicIdString(List<LastTopicModel> lastTopicModelList) {
+        StringBuilder stingBuilder = new StringBuilder();
+        String prefix = "";
+        for (LastTopicModel lastTopicModel : lastTopicModelList) {
+            stingBuilder.append(prefix);
+            prefix = ",";
+            stingBuilder.append("\""+lastTopicModel.get_id()+"\"");
         }
         return stingBuilder.toString();
     }

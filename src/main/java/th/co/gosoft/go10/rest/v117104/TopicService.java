@@ -21,6 +21,7 @@ import com.cloudant.client.api.model.IndexField.SortOrder;
 
 import th.co.gosoft.go10.model.LastLikeModel;
 import th.co.gosoft.go10.model.LastTopicModel;
+import th.co.gosoft.go10.model.LogDeleteModel;
 import th.co.gosoft.go10.model.ReadModel;
 import th.co.gosoft.go10.model.RoomModel;
 import th.co.gosoft.go10.model.RoomNotificationModel;

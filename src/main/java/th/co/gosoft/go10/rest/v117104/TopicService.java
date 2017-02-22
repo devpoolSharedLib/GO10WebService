@@ -62,8 +62,7 @@ public class TopicService {
             response = db.save(lastTopicModel);
             LastTopicModel hostTopicModel = db.find(LastTopicModel.class, lastTopicModel.getTopicId());
             hostTopicModel.setUpdateDate(stampDate);
-            response = db.update(hostTopicModel);
-            updateTotalTopicInRoomModel(lastTopicModel.getRoomId());
+            db.update(hostTopicModel);
         }
         String result = response.getId();
         System.out.println(">>>>>>>>>>>>>>>>>>> post result id : "+result);
@@ -151,7 +150,10 @@ public class TopicService {
         System.out.println(">>>>>>>>>>>>>>>>>>> getTopicById() //topcic id : "+topicId);
         List<LastTopicModel> topicModelList = db.findByIndex(getTopicByIdJsonString(topicId), LastTopicModel.class, new FindByIndexOptions()
                  .sort(new IndexField("date", SortOrder.asc)));
-        increaseReadCount(topicModelList.get(0), empEmail);
+        String newRev = increaseReadCount(topicModelList.get(0), empEmail);
+        if(newRev != null) {
+            topicModelList.get(0).set_rev(newRev);
+        }
         concatDomainImagePath(topicModelList);
         List<LastTopicModel> resultList = DateUtils.formatDBDateToClientDate(topicModelList);
         System.out.println("GET Complete");
@@ -299,8 +301,9 @@ public class TopicService {
         return result;
     }
 
-    private void increaseReadCount(LastTopicModel lastTopicModel, String empEmail) {
+    private String increaseReadCount(LastTopicModel lastTopicModel, String empEmail) {
         try {
+            String rev = null;
             System.out.println(">>>>>>>>>>>>>>>>>> increaseReadCount() topicModelMap : "+lastTopicModel.get_id()+", empEmail : "+empEmail);
             stampDate = DateUtils.dbFormat.format(new Date());
             System.out.println("StampDate : "+stampDate);
@@ -311,7 +314,7 @@ public class TopicService {
                 ReadModel readModel = createReadModelMap(localLastTopicModel.get_id(), empEmail);
                 db.save(readModel);
                 localLastTopicModel.setCountRead(getCountRead(localLastTopicModel)+1);
-                db.update(localLastTopicModel);
+                rev = db.update(localLastTopicModel).getRev();
                 plusCountTopicInNotificationModel(lastTopicModel.getRoomId(), empEmail);
             } else {
                 System.out.println("read model is not null");
@@ -320,9 +323,10 @@ public class TopicService {
                     readModel.setDate(stampDate);
                     db.update(readModel);
                     localLastTopicModel.setCountRead(getCountRead(localLastTopicModel)+1);
-                    db.update(localLastTopicModel);
+                    rev = db.update(localLastTopicModel).getRev();
                 }
             }
+            return rev;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }

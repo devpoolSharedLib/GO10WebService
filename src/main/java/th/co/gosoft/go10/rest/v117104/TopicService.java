@@ -184,16 +184,20 @@ public class TopicService {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<LastTopicModel> getTopicListByRoomId(@QueryParam("roomId") String roomId, @QueryParam("empEmail") String empEmail, @QueryParam("startDate") String startDate) {
         System.out.println(">>>>>>>>>>>>>>>>>>> getTopicListByRoomId() //room id : "+roomId+" empEmail : "+empEmail+" startDate : "+startDate);
-        List<LastTopicModel> LastTopicModelList = db.findByIndex(getTopicListByRoomIdJsonString(roomId), LastTopicModel.class, new FindByIndexOptions()
+        List<LastTopicModel> lastTopicModelList = db.findByIndex(getTopicListByRoomIdJsonString(roomId), LastTopicModel.class, new FindByIndexOptions()
              .sort(new IndexField("date", SortOrder.desc)));
-        List<LastTopicModel> roomRuleList = getRoomRuleToppic(roomId);
-        List<LastTopicModel> fullList = insertRoomRuleTopicAtZero(LastTopicModelList, roomRuleList.get(0));
-        List<LastTopicModel> completeList = checkStatusRead(fullList, empEmail, startDate);
-        List<LastTopicModel> resultList = DateUtils.formatDBDateToClientDate(completeList);
-        System.out.println("size : "+resultList.size());
-        updateCountTopicInNotificationModel(roomId, empEmail);
-        System.out.println("GET Complete");
-        return resultList;
+        if (lastTopicModelList.isEmpty()) {
+            return new ArrayList<>();
+        } else {
+            List<LastTopicModel> roomRuleList = getRoomRuleToppic(roomId);
+            List<LastTopicModel> fullList = insertRoomRuleTopicAtZero(lastTopicModelList, roomRuleList.get(0));
+            List<LastTopicModel> completeList = checkStatusRead(fullList, empEmail, startDate);
+            List<LastTopicModel> resultList = DateUtils.formatDBDateToClientDate(completeList);
+            System.out.println("size : "+resultList.size());
+            updateCountTopicInNotificationModel(roomId, empEmail);
+            System.out.println("GET Complete");
+            return resultList;
+        }
     }
     
     @GET

@@ -132,13 +132,16 @@ public class RoomService {
         StringBuilder stingBuilder = new StringBuilder();
         stingBuilder.append("{\"selector\": {");
         stingBuilder.append("\"_id\": {\"$gt\": 0},");
+        stingBuilder.append("\"sort\": {\"$gt\": 0},");
         stingBuilder.append("\"$and\": [");
         stingBuilder.append("{\"type\":\"room\"},");
         stingBuilder.append("{\"readUser\":{\"$elemMatch\": {");
         stingBuilder.append("\"$or\": [\"all\", \""+empEmail+"\"]");
-        stingBuilder.append("}}}]");
+        stingBuilder.append("}}},");
+        stingBuilder.append("{\"show\": true}]");
         stingBuilder.append("},");
         stingBuilder.append("\"fields\": [\"_id\",\"_rev\",\"name\",\"desc\", \"type\"]}");
+        System.out.println("query string : "+stingBuilder.toString());
         return stingBuilder.toString();
     }
     

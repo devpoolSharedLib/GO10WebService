@@ -186,7 +186,7 @@ public class TopicService {
         System.out.println(">>>>>>>>>>>>>>>>>>> getTopicListByRoomId() //room id : "+roomId+" empEmail : "+empEmail+" startDate : "+startDate);
         List<LastTopicModel> lastTopicModelList = db.findByIndex(getTopicListByRoomIdJsonString(roomId), LastTopicModel.class, new FindByIndexOptions()
              .sort(new IndexField("date", SortOrder.desc)));
-        if (lastTopicModelList.isEmpty()) {
+        if (lastTopicModelList == null || lastTopicModelList.isEmpty()) {
             return new ArrayList<>();
         } else {
             List<LastTopicModel> roomRuleList = getRoomRuleToppic(roomId);

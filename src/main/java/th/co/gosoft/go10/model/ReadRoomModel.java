@@ -1,10 +1,10 @@
 package th.co.gosoft.go10.model;
 
-public class ReadModel {
+public class ReadRoomModel {
 
     private String _id;
     private String _rev;
-    private String topicId;
+    private String roomId;
     private String empEmail;
     private String type;
     private String date;
@@ -21,11 +21,11 @@ public class ReadModel {
     public void set_rev(String _rev) {
         this._rev = _rev;
     }
-    public String getTopicId() {
-        return topicId;
+    public String getRoomId() {
+        return roomId;
     }
-    public void setTopicId(String topicId) {
-        this.topicId = topicId;
+    public void setRoomId(String roomId) {
+        this.roomId = roomId;
     }
     public String getEmpEmail() {
         return empEmail;

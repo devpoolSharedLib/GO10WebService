@@ -1,5 +1,6 @@
 package th.co.gosoft.go10.rest;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -68,6 +69,46 @@ public class TopicService {
     }
     
     @GET
+    @Path("/getreadtopic")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public List<ReadModel> getReadTopic(){
+        System.out.println(">>>>>>>>>>>>>>>>>>> getReadTopic()");
+        List<ReadModel> readModelList = db.findByIndex(getReadModelAll(), ReadModel.class);
+        System.out.println("size Read Model : "+readModelList.size());
+        System.out.println("GET Complete");
+        return readModelList;
+    }
+    
+    @GET
+    @Path("/getreadtopicbytopicid")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public List<ReadModel> getReadTopicbyTopicId(@QueryParam("topicId") String topicId){
+        System.out.println(">>>>>>>>>>>>>>>>>>> countReadTopic()");
+        List<ReadModel> readModelList = db.findByIndex(getReadModelByTopicId(topicId), ReadModel.class);
+        System.out.println("size Read Model By TopicId : "+readModelList.size());
+        System.out.println("GET Complete");
+        return readModelList;
+    }
+    
+    @GET
+    @Path("/getreadtopicbyroomid")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public int getReadTopicbyRoomId(@QueryParam("roomId") String roomId){
+        System.out.println(">>>>>>>>>>>>>>>>>>> getReadTopicbyRoomId()");
+        List<LastTopicModel> lastTopicModelList = db.findByIndex(getAllTopicListByRoomIdJsonString(roomId), LastTopicModel.class);
+        System.out.println("size Read Model By TopicId : "+lastTopicModelList.size());
+        List<ReadModel> readModelList;
+        int countReadTopic = 0;
+        for (LastTopicModel lastTopicModel : lastTopicModelList) {
+        	 readModelList = db.findByIndex(getReadModelByTopicId(lastTopicModel.get_id()), ReadModel.class);
+        	 countReadTopic += readModelList.size();
+		}
+        System.out.println("size Read Model By RoomId : "+countReadTopic);
+        System.out.println("GET Complete");
+        return countReadTopic;
+    }
+    
+    @GET
     @Path("/getnopintoppiclistbyroom")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<LastTopicModel> getNoPinToppicListbyRoomId(@QueryParam("roomId") String roomId){
@@ -92,6 +133,7 @@ public class TopicService {
         System.out.println("GET Complete");
         return resultList;
     }
+
     
     private String increaseReadCount(LastTopicModel lastTopicModel, String empEmail) {
         try {
@@ -175,6 +217,16 @@ public class TopicService {
         return sb.toString();
     }
     
+    private String getAllTopicListByRoomIdJsonString(String roomId){
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\"selector\": {");
+        sb.append("\"_id\": {\"$gt\": 0},");
+        sb.append("\"date\": {\"$gt\": 0},");
+        sb.append("\"$and\": [{\"type\":\"host\"}, {\"roomId\":\""+roomId+"\"}]");
+        sb.append("}}");
+        return sb.toString();
+    }
+    
     private String getRoomRuleToppicJsonString(String roomId){
         StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");
@@ -205,5 +257,25 @@ public class TopicService {
         return sb.toString();    
     }
 
+    private String getReadModelByTopicId(String topicId) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("{\"selector\": {");
+		sb.append("\"_id\": {\"$gt\": 0},");
+		sb.append("\"$and\": [{\"type\":\"read\"}, {\"topicId\":\"" + topicId + "\"}]");
+		sb.append("},");
+		sb.append("\"fields\": [\"_id\",\"_rev\",\"topicId\",\"empEmail\",\"type\",\"date\"]}");
+		return sb.toString();
+	}
+    
+    private String getReadModelAll() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("{\"selector\": {");
+		sb.append("\"_id\": {\"$gt\": 0},");
+		sb.append("\"$and\": [{\"type\":\"read\"}]");
+		sb.append("},");
+		sb.append("\"fields\": [\"_id\",\"_rev\",\"topicId\",\"empEmail\",\"type\",\"date\"]}");
+		return sb.toString();
+	}
+    
     
 }

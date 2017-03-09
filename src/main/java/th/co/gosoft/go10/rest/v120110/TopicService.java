@@ -1,4 +1,4 @@
-package th.co.gosoft.go10.rest.v117104;
+package th.co.gosoft.go10.rest.v120110;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,6 +23,7 @@ import th.co.gosoft.go10.model.LastLikeModel;
 import th.co.gosoft.go10.model.LastTopicModel;
 import th.co.gosoft.go10.model.LogDeleteModel;
 import th.co.gosoft.go10.model.ReadModel;
+import th.co.gosoft.go10.model.ReadRoomModel;
 import th.co.gosoft.go10.model.RoomModel;
 import th.co.gosoft.go10.model.RoomNotificationModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
@@ -30,7 +31,7 @@ import th.co.gosoft.go10.util.ConcatDomainUtils;
 import th.co.gosoft.go10.util.DateUtils;
 import th.co.gosoft.go10.util.PushNotificationUtils;
 
-@Path("v117104/topic")
+@Path("v120110/topic")
 public class TopicService {
 
 	private static final String NOTIFICATION_MESSAGE = "You have new topic.";
@@ -203,7 +204,9 @@ public class TopicService {
 			resultList = DateUtils.formatDBDateToClientDate(completeList);
 			updateCountTopicInNotificationModel(roomId, empEmail);
 		}
-
+		stampDate = DateUtils.dbFormat.format(new Date());
+		ReadRoomModel readRoomModel = createReadRoomModelMap(roomId,empEmail);
+		db.save(readRoomModel);
 		System.out.println("size : " + resultList.size());
 		System.out.println("GET Complete");
 		return resultList;
@@ -326,22 +329,17 @@ public class TopicService {
 			LastTopicModel localLastTopicModel = lastTopicModel;
 			List<ReadModel> readModelList = db.findByIndex(
 					getReadModelByTopicIdAndEmpEmailString(localLastTopicModel.get_id(), empEmail), ReadModel.class);
+			
+			ReadModel readModel = createReadModelMap(localLastTopicModel.get_id(), empEmail);
+			db.save(readModel);
+			localLastTopicModel.setCountRead(getCountRead(localLastTopicModel) + 1);
+			rev = db.update(localLastTopicModel).getRev();
+			
 			if (readModelList == null || readModelList.isEmpty()) {
 				System.out.println("read model is null");
-				ReadModel readModel = createReadModelMap(localLastTopicModel.get_id(), empEmail);
-				db.save(readModel);
-				localLastTopicModel.setCountRead(getCountRead(localLastTopicModel) + 1);
-				rev = db.update(localLastTopicModel).getRev();
 				plusCountTopicInNotificationModel(lastTopicModel.getRoomId(), empEmail);
 			} else {
 				System.out.println("read model is not null");
-				ReadModel readModel = readModelList.get(0);
-				if (DateUtils.isNextDay(readModel.getDate(), stampDate)) {
-					readModel.setDate(stampDate);
-					db.update(readModel);
-					localLastTopicModel.setCountRead(getCountRead(localLastTopicModel) + 1);
-					rev = db.update(localLastTopicModel).getRev();
-				}
 			}
 			return rev;
 		} catch (Exception e) {
@@ -509,6 +507,16 @@ public class TopicService {
 		return readModel;
 	}
 
+	private ReadRoomModel createReadRoomModelMap(String roomId, String empEmail) {
+		System.out.println("roomId : " + roomId + ", empEmail : " + empEmail);
+		ReadRoomModel readRoomModel = new ReadRoomModel();
+		readRoomModel.setRoomId(roomId);
+		readRoomModel.setEmpEmail(empEmail);
+		readRoomModel.setType("readRoom");
+		readRoomModel.setDate(stampDate);
+		return readRoomModel;
+	}
+	
 	public void concatDomainImagePath(List<LastTopicModel> lastTopicModelList) {
 		for (int i = 0; i < lastTopicModelList.size(); i++) {
 			String content = (String) lastTopicModelList.get(i).getContent();

@@ -11,7 +11,8 @@ public class LogDeleteModel {
 	private String typeDel;
 	private String topId;
 	private String empEmail;
-		
+	private String actionEmail;
+	
 	public String get_id() {
 		return _id;
 	}
@@ -71,5 +72,11 @@ public class LogDeleteModel {
 	}
 	public void setEmpEmail(String empEmail) {
 		this.empEmail = empEmail;
+	}
+	public String getActionEmail() {
+		return actionEmail;
+	}
+	public void setActionEmail(String actionEmail) {
+		this.actionEmail = actionEmail;
 	}
 }

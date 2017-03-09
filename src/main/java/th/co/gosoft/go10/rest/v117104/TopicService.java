@@ -80,9 +80,9 @@ public class TopicService {
         System.out.println("DELETE "+ lastTopicModel.getEmpEmail() + " Complete");
         if(lastTopicModel.getType().equals("host")){
         	updateTotalDeleteInRoomModel(lastTopicModel.getRoomId());
-        	deleteAllInTopic(lastTopicModel.get_id());
+        	deleteAllInTopic(lastTopicModel.get_id(),lastTopicModel.getEmpEmail());
         }
-        insertLogDelete(lastTopicModel);
+        insertLogDelete(lastTopicModel,lastTopicModel.getEmpEmail());
         return Response.status(201).build();
     }
     
@@ -261,9 +261,12 @@ public class TopicService {
         db.update(roomModel);
     }
     
-    private void deleteAllInTopic(String _id) {
+    private void deleteAllInTopic(String _id,String actionEmail) {
     	List<LastTopicModel> topicModelList = db.findByIndex(getAllByIdJsonString(_id), LastTopicModel.class);
         for(int i=0;i<topicModelList.size();i++){
+        	if(topicModelList.get(i).getType().equals("comment")){
+        		insertLogDelete(topicModelList.get(i), actionEmail);
+        	}
         	db.remove(topicModelList.get(i));
         }
         System.out.println("delete all in topic complete");
@@ -332,7 +335,7 @@ public class TopicService {
         }
     }
 
-    private void insertLogDelete(LastTopicModel lastTopicModel) {
+    private void insertLogDelete(LastTopicModel lastTopicModel, String actionEmail) {
 		LogDeleteModel logDeletModelList = new LogDeleteModel();
 		stampDate = DateUtils.dbFormat.format(new Date());
 		logDeletModelList.setEmpEmail(lastTopicModel.getEmpEmail());
@@ -340,9 +343,10 @@ public class TopicService {
 		logDeletModelList.setSubject(lastTopicModel.getSubject() == null ? "" : lastTopicModel.getSubject());
 		logDeletModelList.setRoomId(lastTopicModel.getRoomId());
 		logDeletModelList.setTypeDel(lastTopicModel.getType());
-		logDeletModelList.setTopId(lastTopicModel.getTopicId() == null ? "" : lastTopicModel.getTopicId());
+		logDeletModelList.setTopId((lastTopicModel.getTopicId() == null || lastTopicModel.getTopicId().equals("")) ? lastTopicModel.get_id() : lastTopicModel.getTopicId());
 		logDeletModelList.setType("log");
 		logDeletModelList.setDate(stampDate);
+		logDeletModelList.setActionEmail(actionEmail);
 		db.save(logDeletModelList);
 		System.out.println("Insert Log Delete Complete");
 	}

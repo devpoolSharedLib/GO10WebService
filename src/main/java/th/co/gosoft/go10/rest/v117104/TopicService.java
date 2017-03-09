@@ -477,15 +477,15 @@ public class TopicService {
         return lastTopicModel.getCountRead() == null ? 0 : lastTopicModel.getCountRead();
     }
     
-    private ReadModel createReadModelMap(String topicId, String empEmail) {
-        System.out.println("topicId : "+topicId+", empEmail : "+empEmail);
-        ReadModel readModel = new ReadModel();
-        readModel.setTopicId(topicId);
-        readModel.setEmpEmail(empEmail);
-        readModel.setType("read");
-        readModel.setDate(stampDate);
-        return readModel;
-    }
+	private ReadModel createReadModelMap(String topicId, String empEmail) {
+		System.out.println("topicId : " + topicId + ", empEmail : " + empEmail);
+		ReadModel readModel = new ReadModel();
+		readModel.setTopicId(topicId);
+		readModel.setEmpEmail(empEmail);
+		readModel.setType("read");
+		readModel.setDate(stampDate);
+		return readModel;
+	}
 
     public void concatDomainImagePath(List<LastTopicModel> lastTopicModelList) {
         for (int i=0; i<lastTopicModelList.size(); i++) {

@@ -9,7 +9,7 @@ public class PushNotificationUtils {
     private static String serviceURL = "https://onesignal.com/api/v1/notifications";
             
     public static void sendMessagePushNotification(String message) {
-        
+        System.out.println("One Signal Push Notification");
         String strJsonBody = "{"
                 +   "\"app_id\": \""+PropertiesUtils.getProperties("one_signal_app_id")+"\","
                 +   "\"included_segments\": [\"All\"],"

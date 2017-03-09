@@ -118,11 +118,11 @@
 		          <ul class="dropdown-menu">
 		            <li><a href="user_role_management.jsp">User Role Management</a></li>
 		            <li><a href="posttopic.jsp">Post Topic</a></li>
-		            <!-- <li><a href="#">Something else here</a></li>
-		            <li role="separator" class="divider"></li>
-		            <li><a href="#">Separated link</a></li>
-		            <li role="separator" class="divider"></li>
-		            <li><a href="#">One more separated link</a></li> -->
+		            <li><a href="topic_management.jsp">Topic Management</a></li>
+<!-- 		           	<li role="separator" class="divider"></li> -->
+<!-- 		            <li><a href="#">Separated link</a></li> -->
+<!-- 		            <li role="separator" class="divider"></li> -->
+<!-- 		            <li><a href="#">One more separated link</a></li> -->
 		          </ul>
 		        </li>
 		      </ul>

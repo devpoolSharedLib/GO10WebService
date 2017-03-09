@@ -9,6 +9,14 @@
 	    <servlet-name>javax.ws.rs.core.Application</servlet-name>
 	    <url-pattern>/api/*</url-pattern>
   	</servlet-mapping>
+  	<error-page>
+    	<error-code>403</error-code>
+    	<location>/login.jsp?error=2</location>
+	</error-page>
+	<error-page>
+    	<error-code>500</error-code>
+    	<location>/login.jsp?error=2</location>
+	</error-page>
   	
 	<session-config>
 		<session-timeout>5</session-timeout>

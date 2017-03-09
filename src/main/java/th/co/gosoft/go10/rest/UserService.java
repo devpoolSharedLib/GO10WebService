@@ -22,7 +22,7 @@ import th.co.gosoft.go10.util.EmailUtils;
 import th.co.gosoft.go10.util.KeyStoreUtils;
 import th.co.gosoft.go10.util.PropertiesUtils;
 
-@Path("user")
+@Path("server/user")
 public class UserService {
 	private static final String SUBJECT = "GO10, reset your password";
 	private static final String EMAIL_CONTENT = "\nPlease copy and paste the following link in Google Chrome Browser. \n\n";

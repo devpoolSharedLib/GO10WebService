@@ -172,35 +172,23 @@ public class TopicService {
         List<LastTopicModel> lastTopicModelList = db.findByIndex(getTopicListByRoomIdJsonString(roomId), LastTopicModel.class, new FindByIndexOptions()
              .sort(new IndexField("date", SortOrder.desc)));
         List<LastTopicModel> roomRuleList = getRoomRuleToppic(roomId);
-        if ((lastTopicModelList == null || lastTopicModelList.isEmpty()) && (roomRuleList == null || roomRuleList.isEmpty())) {
-            return resultList;
-        } else if (lastTopicModelList == null || lastTopicModelList.isEmpty()) {
-            List<LastTopicModel> completeList = checkStatusRead(roomRuleList, empEmail, startDate);
-            resultList = DateUtils.formatDBDateToClientDate(completeList);
-        } else if (roomRuleList == null || roomRuleList.isEmpty()) {
-            List<LastTopicModel> completeList = checkStatusRead(lastTopicModelList, empEmail, startDate);
-            resultList = DateUtils.formatDBDateToClientDate(completeList);
-        } else {
-            List<LastTopicModel> fullList = insertRoomRuleTopicAtZero(lastTopicModelList, roomRuleList.get(0));
+        List<LastTopicModel> fullList = insertRoomRuleTopicAtZero(lastTopicModelList, roomRuleList.get(0));
+        
+        if (fullList != null && !fullList.isEmpty()) {
             List<LastTopicModel> completeList = checkStatusRead(fullList, empEmail, startDate);
             resultList = DateUtils.formatDBDateToClientDate(completeList);
+            updateCountTopicInNotificationModel(roomId, empEmail);
         }
-        updateCountTopicInNotificationModel(roomId, empEmail);
+        
         System.out.println("size : "+resultList.size());
         System.out.println("GET Complete");
         return resultList;
     }
     
-    @GET
-    @Path("/getroomruletoppic")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public List<LastTopicModel> getRoomRuleToppic(@QueryParam("roomId") String roomId) {
-        System.out.println(">>>>>>>>>>>>>>>>>>> getRoomRuleToppic()");
+    private List<LastTopicModel> getRoomRuleToppic(@QueryParam("roomId") String roomId) {
         List<LastTopicModel> topicModelList = db.findByIndex(getRoomRuleToppicJsonString(roomId), LastTopicModel.class, new FindByIndexOptions()
              .fields("_id").fields("_rev").fields("avatarName").fields("avatarPic").fields("subject")
              .fields("content").fields("date").fields("type").fields("roomId").fields("countLike"));
-        System.out.println("size : "+topicModelList.size());
-        System.out.println("GET Complete");
         return topicModelList;
     }
     
@@ -420,7 +408,7 @@ public class TopicService {
         StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");
         sb.append("\"_id\": {\"$gt\": 0},");
-        sb.append("\"pin\": {\"$eq\": 0},");
+        sb.append("\"pin\": {\"$gte\": 0},");
         sb.append("\"$and\": [{\"type\":\"host\"}, {\"roomId\":\""+roomId+"\"}]");
         sb.append("}}");
         return sb.toString();

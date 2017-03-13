@@ -22,6 +22,7 @@ import com.cloudant.client.api.model.IndexField.SortOrder;
 import th.co.gosoft.go10.model.LastLikeModel;
 import th.co.gosoft.go10.model.LastTopicModel;
 import th.co.gosoft.go10.model.LogDeleteModel;
+import th.co.gosoft.go10.model.AccessAppModel;
 import th.co.gosoft.go10.model.ReadModel;
 import th.co.gosoft.go10.model.ReadRoomModel;
 import th.co.gosoft.go10.model.RoomModel;
@@ -183,6 +184,11 @@ public class TopicService {
 		System.out.println("status read : " + completeList.get(0).getStatusRead());
 		List<LastTopicModel> resultList = DateUtils.formatDBDateToClientDate(completeList);
 		System.out.println("getHotTopicList list size : " + resultList.size());
+		
+//		stampDate = DateUtils.dbFormat.format(new Date());
+//		AccessAppModel accessAppModel = createAccessAppModelMap(empEmail);
+//		db.save(accessAppModel);
+		
 		return lastTopicModelList;
 	}
 
@@ -232,6 +238,17 @@ public class TopicService {
 		return Response.status(201).entity(totalBadge).build();
 	}
 
+	@GET
+	@Path("/accessapp")
+	@Produces(MediaType.TEXT_PLAIN + ";charset=utf-8")
+	public Response setAccessApp(@QueryParam("empEmail") String empEmail) {
+		System.out.println(">>>>>>>>>>>>>>>>>>> setAccessApp() // empEmail : " + empEmail);
+		stampDate = DateUtils.dbFormat.format(new Date());
+		AccessAppModel accessAppModel = createAccessAppModelMap(empEmail);
+		db.save(accessAppModel);
+		return Response.status(201).build();
+	}
+	
 	private int sumBadgeNumber(List<RoomModel> roomModelList) {
 		int totalNumber = 0;
 		for (RoomModel roomModel : roomModelList) {
@@ -515,6 +532,16 @@ public class TopicService {
 		readRoomModel.setType("readRoom");
 		readRoomModel.setDate(stampDate);
 		return readRoomModel;
+	}
+	
+	private AccessAppModel createAccessAppModelMap(String empEmail) {
+		System.out.println("empEmail : " + empEmail);
+		AccessAppModel accessAppModel = new AccessAppModel();
+		accessAppModel.setVersionId("v120110");
+		accessAppModel.setEmpEmail(empEmail);
+		accessAppModel.setType("accessApp");
+		accessAppModel.setDate(stampDate);
+		return accessAppModel;
 	}
 	
 	public void concatDomainImagePath(List<LastTopicModel> lastTopicModelList) {

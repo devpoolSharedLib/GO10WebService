@@ -25,6 +25,7 @@ import th.co.gosoft.go10.util.CloudantClientUtils;
 import th.co.gosoft.go10.util.ConcatDomainUtils;
 import th.co.gosoft.go10.util.DateUtils;
 import th.co.gosoft.go10.util.PushNotificationUtils;
+import th.co.gosoft.go10.util.StringUtils;
 
 @Path("server/topic")
 public class TopicService {
@@ -37,7 +38,7 @@ public class TopicService {
     @Path("/post")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response createTopic(LastTopicModel lastTopicModel) {
-        System.out.println(">>>>>>>>>>>>>>>>>>> topicModel()");
+        System.out.println(">>>>>>>>>>>>>>>>>>> createTopic()");
         System.out.println("topic subject : "+lastTopicModel.getSubject());
         System.out.println("topic content : "+lastTopicModel.getContent());
         System.out.println("topic type : "+lastTopicModel.getType());
@@ -91,6 +92,15 @@ public class TopicService {
         System.out.println("size : "+resultList.size());
         System.out.println("GET Complete");
         return resultList;
+    }
+    
+    @POST
+    @Path("/savePinTopic")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response savePinTopic(List<LastTopicModel> lastTopicModelList) {
+        System.out.println(">>>>>>>>>>>>>>>>>>> savePinTopic()");
+        String topicIdString = StringUtils.generateTopicIdString(lastTopicModelList);
+        return null;
     }
     
     private String increaseReadCount(LastTopicModel lastTopicModel, String empEmail) {

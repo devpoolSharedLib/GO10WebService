@@ -135,6 +135,7 @@ public class TopicService {
         return resultList;
     }
 
+<<<<<<< HEAD
     
     @POST
     @Path("/savePinTopic")
@@ -144,6 +145,8 @@ public class TopicService {
         String topicIdString = StringUtils.generateTopicIdString(lastTopicModelList);
         return null;
     }
+=======
+>>>>>>> fb114dc5003557c181bab0b8b62922ddb6989ae2
     
     private String increaseReadCount(LastTopicModel lastTopicModel, String empEmail) {
         try {

@@ -1,10 +1,10 @@
 package th.co.gosoft.go10.model;
 
-public class ReadModel {
+public class AccessAppModel {
 
     private String _id;
     private String _rev;
-    private String topicId;
+    private String versionId;
     private String empEmail;
     private String type;
     private String date;
@@ -21,11 +21,11 @@ public class ReadModel {
     public void set_rev(String _rev) {
         this._rev = _rev;
     }
-    public String getTopicId() {
-        return topicId;
+    public String getVersionId() {
+        return versionId;
     }
-    public void setTopicId(String topicId) {
-        this.topicId = topicId;
+    public void setVersionId(String versionId) {
+        this.versionId = versionId;
     }
     public String getEmpEmail() {
         return empEmail;

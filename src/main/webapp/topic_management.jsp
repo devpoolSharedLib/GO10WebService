@@ -30,7 +30,7 @@
 	var deletePinList = [];
 	var bookmarkList = [];
 	var currentPage = 1;
-	var indexPin = null;
+	var elePin =  null
 	
 	$(document).ready(function(){
 		clearAllTable();
@@ -92,7 +92,7 @@
 				+"</td>";
 			} else {
 				rowString += "<td style='text-align:center'>"
-				+"<input type='image' src='images/pin.png' class='icon-table' onclick='openModal("+index+")' />"
+				+"<input type='image' src='images/pin.png' class='icon-table' onclick='openModal(this)' />"
 // 				+"<input type='image' src='images/delete.png' class='icon-table'/>"
 				+"</td>";
 			}
@@ -102,13 +102,13 @@
 		});
 	}
 	
-	function openModal(index){
+	function openModal(ele){
 		var rowCount = $('#pinTable tbody tr').length;
 		if(rowCount < 5){
-			indexPin = index;
+			elePin = ele.closest('tr');
 			$('#pinTopicModal').modal('show');
 		} else {
-			indexPin = false;
+			elePin = false;
 			alert("Cannot pin more than 5 topic!!!");
 		}
 	}
@@ -267,6 +267,17 @@
        	});
 	}
 	
+	function getModel(ele){
+		var tds = $('td', ele).map(function(index, td) {
+	  	 	return $(td).text();
+	    });
+	    var object = {
+	    	_id : tds[0],
+	    	subject : tds[3]
+	    }
+	    return object;
+	}
+	
 </script>
 
 	<div class="modal-loading"></div>
@@ -333,9 +344,9 @@
 
 	<script type="text/javascript">
 		$('#pinTopicModal').on('show.bs.modal', function (event) {
-		  if(indexPin != null) {
+		  if(elePin != null) {
 		  	var modal = $(this)
-		  	var topicModel = nopinTopicList[indexPin];
+		  	var topicModel = getModel(elePin);
 		  	var rowCount = $('#pinTable tbody tr').length;
 		  	var rowString = createPinTableRowString(topicModel, rowCount);
  			$("#pinTable > tbody").append(rowString);
@@ -346,6 +357,7 @@
 			$("#pinTable > tbody").empty();
 			insertPinTable(pinTopicList);
 			deletePinList = [];
+			elePin = null;
 		});
 	</script>
 </body>

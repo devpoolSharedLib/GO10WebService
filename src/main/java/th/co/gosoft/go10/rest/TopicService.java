@@ -20,10 +20,8 @@ import com.cloudant.client.api.model.IndexField;
 import com.cloudant.client.api.model.IndexField.SortOrder;
 import com.cloudant.client.api.model.SearchResult;
 
-import th.co.gosoft.go10.model.AccessAppModel;
 import th.co.gosoft.go10.model.LastTopicModel;
 import th.co.gosoft.go10.model.ReadModel;
-import th.co.gosoft.go10.model.ReadRoomModel;
 import th.co.gosoft.go10.model.RoomModel;
 import th.co.gosoft.go10.model.RoomNotificationModel;
 import th.co.gosoft.go10.model.TopicManagementModel;
@@ -72,80 +70,6 @@ public class TopicService {
         System.out.println(">>>>>>>>>>>>>>>>>>> post result id : "+result);
         System.out.println("POST Complete");
         return Response.status(201).entity(result).build();
-    }
-    
-    @POST
-    @Path("/getreadtopic")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public List<ReadModel> getReadTopic(){
-        System.out.println(">>>>>>>>>>>>>>>>>>> getReadTopic()");
-        List<ReadModel> readModelList = db.findByIndex(getReadModelAll(), ReadModel.class);
-        System.out.println("size Read Model : "+readModelList.size());
-        System.out.println("GET Complete");
-        return readModelList;
-    }
-    
-    @GET
-    @Path("/getreadtopicbytopicid")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public List<ReadModel> getReadTopicbyTopicId(@QueryParam("topicId") String topicId){
-        System.out.println(">>>>>>>>>>>>>>>>>>> countReadTopic() // topic id : " + topicId);
-        List<ReadModel> readModelList = db.findByIndex(getReadModelByTopicId(topicId), ReadModel.class);
-        System.out.println("size Read Model By TopicId : "+readModelList.size());
-        System.out.println("GET Complete");
-        return readModelList;
-    }
-    
-    @GET
-    @Path("/getreadtopicbyroomid")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public int getReadTopicbyRoomId(@QueryParam("roomId") String roomId){
-        System.out.println(">>>>>>>>>>>>>>>>>>> getReadTopicbyRoomId() // room id : " + roomId);
-        List<LastTopicModel> lastTopicModelList = db.findByIndex(getAllTopicListByRoomIdJsonString(roomId), LastTopicModel.class);
-        System.out.println("size Read Model By TopicId : "+lastTopicModelList.size());
-        List<ReadModel> readModelList;
-        int countReadTopic = 0;
-        for (LastTopicModel lastTopicModel : lastTopicModelList) {
-        	 readModelList = db.findByIndex(getReadModelByTopicId(lastTopicModel.get_id()), ReadModel.class);
-        	 countReadTopic += readModelList.size();
-		}
-        System.out.println("size Read Model By RoomId : "+countReadTopic);
-        System.out.println("GET Complete");
-        return countReadTopic;
-    }
-    
-    
-    @GET
-    @Path("/getreadroom")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public List<ReadRoomModel> getReadRoom(){
-        System.out.println(">>>>>>>>>>>>>>>>>>> getReadRoom");
-        List<ReadRoomModel> readRoomModelList = db.findByIndex(getReadRoomModelAll(), ReadRoomModel.class);
-        System.out.println("size Read Room Model : "+readRoomModelList.size());
-        System.out.println("GET Complete");
-        return readRoomModelList;
-    }
-    
-    @GET
-    @Path("/getreadroombyroomid")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public List<ReadRoomModel> getReadRoombyRoomId(@QueryParam("roomId") String roomId){
-        System.out.println(">>>>>>>>>>>>>>>>>>> getReadRoombyRoomId() // room id : " + roomId);
-        List<ReadRoomModel> readRoomModelList = db.findByIndex(getReadRoomModelByRoomId(roomId), ReadRoomModel.class);
-        System.out.println("size Read Room Model By RoomId : "+readRoomModelList.size());
-        System.out.println("GET Complete");
-        return readRoomModelList;
-    }
-    
-    @GET
-    @Path("/getreadroombyroomidanddate")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public List<ReadRoomModel> getReadRoombyRoomIdAndDate(@QueryParam("roomId") String roomId,@QueryParam("date") String date){
-        System.out.println(">>>>>>>>>>>>>>>>>>> getReadRoombyRoomIdAndDate() //room id : " + roomId + " date : " + date);
-        List<ReadRoomModel> readRoomModelList = db.findByIndex(getReadRoomModelByRoomIdAndDate(roomId,date), ReadRoomModel.class);
-        System.out.println("size Read Room Model By RoomId and Date : "+readRoomModelList.size());
-        System.out.println("GET Complete");
-        return readRoomModelList;
     }
     
     @GET
@@ -202,28 +126,6 @@ public class TopicService {
         System.out.println("size : "+resultList.size());
         System.out.println("GET Complete");
         return resultList;
-    }
-    
-    @GET
-    @Path("/getaccessapp")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public List<AccessAppModel> getAccessApp(){
-        System.out.println(">>>>>>>>>>>>>>>>>>> getAccessApp");
-        List<AccessAppModel> accessAppModelList = db.findByIndex(getAccessAppModelAll(), AccessAppModel.class);
-        System.out.println("size Acess App Model By Email : "+accessAppModelList.size());
-        System.out.println("GET Complete");
-        return accessAppModelList;
-    }
-    
-    @GET
-    @Path("/getaccessappbyemail")
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public List<AccessAppModel> getAccessAppByEmail(@QueryParam("empEmail") String empEmail){
-        System.out.println(">>>>>>>>>>>>>>>>>>> getAccessAppByEmail");
-        List<AccessAppModel> accessAppModelList = db.findByIndex(getAccessAppModelByEmail(empEmail), AccessAppModel.class);
-        System.out.println("size Acess App Model : "+accessAppModelList.size());
-        System.out.println("GET Complete");
-        return accessAppModelList;
     }
     
     @GET
@@ -376,16 +278,6 @@ public class TopicService {
         return sb.toString();
     }
     
-    private String getAllTopicListByRoomIdJsonString(String roomId){
-        StringBuilder sb = new StringBuilder();
-        sb.append("{\"selector\": {");
-        sb.append("\"_id\": {\"$gt\": 0},");
-        sb.append("\"date\": {\"$gt\": 0},");
-        sb.append("\"$and\": [{\"type\":\"host\"}, {\"roomId\":\""+roomId+"\"}]");
-        sb.append("}}");
-        return sb.toString();
-    }
-    
     private String getRoomRuleToppicJsonString(String roomId){
         StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");
@@ -415,74 +307,4 @@ public class TopicService {
         return sb.toString();    
     }
 
-    private String getReadModelByTopicId(String topicId) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("{\"selector\": {");
-		sb.append("\"_id\": {\"$gt\": 0},");
-		sb.append("\"$and\": [{\"type\":\"read\"}, {\"topicId\":\"" + topicId + "\"}]");
-		sb.append("},");
-		sb.append("\"fields\": [\"_id\",\"_rev\",\"topicId\",\"empEmail\",\"type\",\"date\"]}");
-		return sb.toString();
-	}
-    
-    private String getReadModelAll() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("{\"selector\": {");
-		sb.append("\"_id\": {\"$gt\": 0},");
-		sb.append("\"$and\": [{\"type\":\"read\"}]");
-		sb.append("},");
-		sb.append("\"fields\": [\"_id\",\"_rev\",\"topicId\",\"empEmail\",\"type\",\"date\"]}");
-		return sb.toString();
-	}
-    
-    private String getReadRoomModelAll() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("{\"selector\": {");
-		sb.append("\"_id\": {\"$gt\": 0},");
-		sb.append("\"$and\": [{\"type\":\"readRoom\"}]");
-		sb.append("},");
-		sb.append("\"fields\": [\"_id\",\"_rev\",\"roomId\",\"empEmail\",\"type\",\"date\"]}");
-		return sb.toString();
-	}
-    
-    private String getReadRoomModelByRoomId(String roomId) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("{\"selector\": {");
-		sb.append("\"_id\": {\"$gt\": 0},");
-		sb.append("\"$and\": [{\"type\":\"readRoom\"}, {\"roomId\":\"" + roomId + "\"}]");
-		sb.append("},");
-		sb.append("\"fields\": [\"_id\",\"_rev\",\"roomId\",\"empEmail\",\"type\",\"date\"]}");
-		return sb.toString();
-	}
-    
-    private String getReadRoomModelByRoomIdAndDate(String roomId,String date) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("{\"selector\": {");
-		sb.append("\"_id\": {\"$gt\": 0},");
-		sb.append("\"$and\": [{\"type\":\"readRoom\"}, {\"roomId\":\"" + roomId + "\"},{\"date\":{\"$regex\":\"" + date + "\"}}]");
-		sb.append("},");
-		sb.append("\"fields\": [\"_id\",\"_rev\",\"roomId\",\"empEmail\",\"type\",\"date\"]}");
-		return sb.toString();
-	}
-    
-    private String getAccessAppModelAll() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("{\"selector\": {");
-		sb.append("\"_id\": {\"$gt\": 0},");
-		sb.append("\"$and\": [{\"type\":\"accessApp\"}]");
-		sb.append("},");
-		sb.append("\"fields\": [\"_id\",\"_rev\",\"versonId\",\"empEmail\",\"type\",\"date\"]}");
-		return sb.toString();
-	}
-    
-    private String getAccessAppModelByEmail(String empEmail) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("{\"selector\": {");
-		sb.append("\"_id\": {\"$gt\": 0},");
-		sb.append("\"$and\": [{\"type\":\"accessApp\"}, {\"empEmail\":\"" + empEmail + "\"}]");
-		sb.append("},");
-		sb.append("\"fields\": [\"_id\",\"_rev\",\"versonId\",\"empEmail\",\"type\",\"date\"]}");
-		return sb.toString();
-	}
-    
 }

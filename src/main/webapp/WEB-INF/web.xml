@@ -18,9 +18,9 @@
     	<location>/login.jsp?error=2</location>
 	</error-page>
   	
-	<session-config>
+<!-- 	<session-config>
 		<session-timeout>5</session-timeout>
-	</session-config>
+	</session-config> -->
 	
 	<welcome-file-list> 
  	   	<welcome-file>/main.jsp</welcome-file> 

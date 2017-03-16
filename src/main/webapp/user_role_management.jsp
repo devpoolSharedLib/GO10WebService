@@ -178,6 +178,7 @@
 	});
 	
 </script>
+	<div class="modal-loading"><!-- Place at bottom of page --></div>
 	<div class="container">
 		<h3>User Role Management</h3>
 		

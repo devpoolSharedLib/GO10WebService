@@ -29,6 +29,8 @@ import th.co.gosoft.go10.util.CloudantClientUtils;
 import th.co.gosoft.go10.util.ConcatDomainUtils;
 import th.co.gosoft.go10.util.DateUtils;
 import th.co.gosoft.go10.util.PushNotificationUtils;
+import th.co.gosoft.go10.util.StringUtils;
+import th.co.gosoft.go10.util.TopicUtils;
 
 @Path("v117104/topic")
 public class TopicService {
@@ -176,7 +178,7 @@ public class TopicService {
 						.fields("name").fields("desc").fields("type"));
 
 		List<LastTopicModel> lastTopicModelList = db.findByIndex(getHotTopicListJsonString(roomModelList),
-				LastTopicModel.class,
+		        LastTopicModel.class,
 				new FindByIndexOptions().sort(new IndexField("updateDate", SortOrder.desc)).limit(20));
 		List<LastTopicModel> completeList = checkStatusRead(lastTopicModelList, empEmail, startDate);
 		System.out.println("status read : " + completeList.get(0).getStatusRead());
@@ -196,7 +198,7 @@ public class TopicService {
 		List<LastTopicModel> lastTopicModelList = db.findByIndex(getTopicListByRoomIdJsonString(roomId),
 				LastTopicModel.class, new FindByIndexOptions().sort(new IndexField("date", SortOrder.desc)));
 		List<LastTopicModel> roomRuleList = getRoomRuleToppic(roomId);
-		List<LastTopicModel> fullList = insertRoomRuleTopicAtZero(lastTopicModelList, roomRuleList.get(0));
+		List<LastTopicModel> fullList = TopicUtils.concatList(roomRuleList, lastTopicModelList);
 
 		if (fullList != null && !fullList.isEmpty()) {
 			List<LastTopicModel> completeList = checkStatusRead(fullList, empEmail, startDate);
@@ -285,7 +287,7 @@ public class TopicService {
 
 	private List<LastTopicModel> checkStatusRead(List<LastTopicModel> lastTopicModelList, String empEmail,
 			String startDate) {
-		String topicIdString = generateTopicIdString(lastTopicModelList);
+		String topicIdString = StringUtils.generateTopicIdString(lastTopicModelList);
 		List<ReadModel> readModelList = db.findByIndex(getReadModelByEmpEmailString(empEmail, topicIdString),
 				ReadModel.class, new FindByIndexOptions().sort(new IndexField("date", SortOrder.desc)).limit(30));
 		System.out.println("readModelList size : " + readModelList.size());
@@ -410,7 +412,7 @@ public class TopicService {
 	}
 
 	private String getHotTopicListJsonString(List<RoomModel> roomModelList) {
-		String roomIdString = generateRoomIdString(roomModelList);
+		String roomIdString = StringUtils.generateRoomIdString(roomModelList);
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\"selector\": {");
 		sb.append("\"_id\": {\"$gt\": 0},");
@@ -419,8 +421,7 @@ public class TopicService {
 		sb.append("\"$and\": [{\"type\":\"host\"},");
 		sb.append("{\"roomId\":{\"$or\": [" + roomIdString + "]}}]");
 		sb.append("},");
-		sb.append(
-				"\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"countLike\",\"updateDate\"]}");
+		sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"countLike\",\"updateDate\"]}");
 		return sb.toString();
 	}
 
@@ -432,8 +433,7 @@ public class TopicService {
 		sb.append("\"$nor\": [{ \"type\": \"like\" }, { \"type\": \"read\" }],");
 		sb.append("\"$or\": [{\"_id\":\"" + topicId + "\"}, {\"topicId\":\"" + topicId + "\"}]");
 		sb.append("},");
-		sb.append(
-				"\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"countLike\",\"updateDate\"]}");
+		sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"countLike\",\"updateDate\"]}");
 		return sb.toString();
 	}
 
@@ -459,8 +459,7 @@ public class TopicService {
 		sb.append("\"pin\": {\"$exists\": false},");
 		sb.append("\"$and\": [{\"type\":\"host\"}, {\"roomId\":\"" + roomId + "\"}]");
 		sb.append("},");
-		sb.append(
-				"\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"]}");
+		sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"]}");
 		return sb.toString();
 	}
 
@@ -516,45 +515,6 @@ public class TopicService {
 				lastTopicModelList.get(i).setContent(ConcatDomainUtils.concatDomainImagePath(content));
 			}
 		}
-	}
-
-	private List<LastTopicModel> insertRoomRuleTopicAtZero(List<LastTopicModel> topicModelList,
-			LastTopicModel roomRuleTopic) {
-		List<LastTopicModel> resultList = new ArrayList<>();
-		if (roomRuleTopic == null) {
-			return resultList;
-		} else {
-			for (int i = 0; i <= topicModelList.size(); i++) {
-				if (i == 0) {
-					resultList.add(roomRuleTopic);
-				} else {
-					resultList.add(topicModelList.get(i - 1));
-				}
-			}
-			return resultList;
-		}
-	}
-
-	public String generateRoomIdString(List<RoomModel> roomModelList) {
-		StringBuilder stingBuilder = new StringBuilder();
-		String prefix = "";
-		for (RoomModel roomModel : roomModelList) {
-			stingBuilder.append(prefix);
-			prefix = ",";
-			stingBuilder.append("\"" + roomModel.get_id() + "\"");
-		}
-		return stingBuilder.toString();
-	}
-
-	private String generateTopicIdString(List<LastTopicModel> lastTopicModelList) {
-		StringBuilder stingBuilder = new StringBuilder();
-		String prefix = "";
-		for (LastTopicModel lastTopicModel : lastTopicModelList) {
-			stingBuilder.append(prefix);
-			prefix = ",";
-			stingBuilder.append("\"" + lastTopicModel.get_id() + "\"");
-		}
-		return stingBuilder.toString();
 	}
 
 }

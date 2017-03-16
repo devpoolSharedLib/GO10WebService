@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import okhttp3.MediaType;
 import th.co.gosoft.go10.model.UserRoleManagementModel;
 import th.co.gosoft.go10.util.PropertiesUtils;
 
@@ -24,8 +23,7 @@ import th.co.gosoft.go10.util.PropertiesUtils;
 public class SaveUserRoleManagementServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final String POST_URL = PropertiesUtils.getProperties("domain_post_user_role");
-	public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-       
+
     public SaveUserRoleManagementServlet() {
         super();
     }
@@ -41,7 +39,7 @@ public class SaveUserRoleManagementServlet extends HttpServlet {
 	    UserRoleManagementModel userRoleManagementModel = parseJSONrequestToModel(request, mapper);
 	    userRoleManagementModel.setRoomId(roomId);
         try{
-            URL object=new URL(POST_URL);
+            URL object = new URL(POST_URL);
             con = (HttpURLConnection) object.openConnection();
             con.setDoOutput(true);
             con.setDoInput(true);

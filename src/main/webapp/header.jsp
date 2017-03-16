@@ -29,7 +29,7 @@
 		   with position:fixed. Width, height, top and left speak
 		   for themselves. Background we set to 80% white with
 		   our animation centered, and no-repeating */
-		.modal {
+		.modal-loading {
 			display: none;
 			position: fixed;
 			z-index: 1000;
@@ -49,7 +49,7 @@
 		
 		/* Anytime the body has the loading class, our
 		   modal element will be visible */
-		body.loading .modal {
+		body.loading .modal-loading {
 			display: block;
 		}
 		

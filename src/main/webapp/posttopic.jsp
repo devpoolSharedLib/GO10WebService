@@ -176,7 +176,7 @@ $(document).on({
 });
 </script>
 	
-	<div class="modal"><!-- Place at bottom of page --></div>
+	<div class="modal-loading"><!-- Place at bottom of page --></div>
 	<div class="container">
 		<h3>Post Topic</h3>
 		<br>

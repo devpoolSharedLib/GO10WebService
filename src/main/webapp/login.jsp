@@ -28,14 +28,20 @@
 	
 	<script type="text/javascript">
 		function validateForm() {
-			var email = document.forms["loginForm"]["email"].value;
-			var password = document.forms["loginForm"]["password"].value;
+			var email = document.forms["loginForm"]["j_username"].value;
+			var password = document.forms["loginForm"]["j_password"].value;
 		    if (email == null || email == "" || password == null || password == "") {
 		        $("#status").text("Please Email and Password.");
 		        $("#status").css("display", "block").css("color", "red");
 		        return false;
 		    }
 		    return true;
+		}
+		
+		function clearCriteria(){
+			$("#j_username").val("");
+			$("#j_password").val("");
+			$("#status").html("");
 		}
 	</script>
 </head>
@@ -64,13 +70,14 @@
 						<h1 style="text-align: center">Login</h1>
 						<div class="row">
 							<div class="col-md-12" style="text-align: left;"><h4>Email : </h4></div>
-							<div class="col-md-12" style="text-align: center;"><input type="text" name="j_username" style="width: 100%;" class="form-control"></div>
+							<div class="col-md-12" style="text-align: center;"><input type="text" name="j_username" id="j_username" style="width: 100%;" class="form-control"></div>
 						</div>
 						<div class="row" style="margin-top: 10px">
 							<div class="col-md-12" style="text-align: left;"><h4>Password : </h4></div>
-							<div class="col-md-12" style="text-align: center;"><input type="password" name="j_password" style="width: 100%;" class="form-control"></div>
+							<div class="col-md-12" style="text-align: center;"><input type="password" name="j_password" id="j_password" style="width: 100%;" class="form-control"></div>
 						</div>
 					</div>
+					<div class="row" id="status" style="text-align: center">${status}</div>
 					<div class="row" style="margin: 0 20px 20px 20px; text-align: center">
 						<button type="submit" class="btn btn-primary" id="action" name="action" style="width: 75px;">Login</button>&nbsp; 
 						<button type="button" class="btn btn-default" id="clear" style="width: 75px;" onclick="clearCriteria();">Clear</button>

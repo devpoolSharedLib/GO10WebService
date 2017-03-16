@@ -184,11 +184,6 @@ public class TopicService {
 		System.out.println("status read : " + completeList.get(0).getStatusRead());
 		List<LastTopicModel> resultList = DateUtils.formatDBDateToClientDate(completeList);
 		System.out.println("getHotTopicList list size : " + resultList.size());
-		
-//		stampDate = DateUtils.dbFormat.format(new Date());
-//		AccessAppModel accessAppModel = createAccessAppModelMap(empEmail);
-//		db.save(accessAppModel);
-		
 		return lastTopicModelList;
 	}
 
@@ -210,14 +205,11 @@ public class TopicService {
 			resultList = DateUtils.formatDBDateToClientDate(completeList);
 			updateCountTopicInNotificationModel(roomId, empEmail);
 		}
-		stampDate = DateUtils.dbFormat.format(new Date());
-		ReadRoomModel readRoomModel = createReadRoomModelMap(roomId,empEmail);
-		db.save(readRoomModel);
 		System.out.println("size : " + resultList.size());
 		System.out.println("GET Complete");
 		return resultList;
 	}
-
+	
 	private List<LastTopicModel> getRoomRuleToppic(@QueryParam("roomId") String roomId) {
 		List<LastTopicModel> topicModelList = db.findByIndex(getRoomRuleToppicJsonString(roomId), LastTopicModel.class,
 				new FindByIndexOptions().fields("_id").fields("_rev").fields("avatarName").fields("avatarPic")
@@ -246,6 +238,28 @@ public class TopicService {
 		stampDate = DateUtils.dbFormat.format(new Date());
 		AccessAppModel accessAppModel = createAccessAppModelMap(empEmail);
 		db.save(accessAppModel);
+		return Response.status(201).build();
+	}
+	
+	@GET
+	@Path("/readroom")
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	public Response readRoom(@QueryParam("empEmail") String empEmail,@QueryParam("roomId") String roomId) {
+		System.out.println(">>>>>>>>>>>>>>>>>>> readRoom() // empEmail : " + empEmail + " roomId : " + roomId);
+		stampDate = DateUtils.dbFormat.format(new Date());
+		ReadRoomModel readRoomModel = createReadRoomModelMap(empEmail, roomId);
+		db.save(readRoomModel);
+		return Response.status(201).build();
+	}
+
+	@GET
+	@Path("/readtopic")
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	public Response readTopic(@QueryParam("empEmail") String empEmail,@QueryParam("topicId") String topicId) {
+		System.out.println(">>>>>>>>>>>>>>>>>>> readRoom() // empEmail : " + empEmail + " topicId : " + topicId);
+		stampDate = DateUtils.dbFormat.format(new Date());
+		ReadModel readModel = createReadModelMap(empEmail, topicId);
+		db.save(readModel);
 		return Response.status(201).build();
 	}
 	
@@ -347,8 +361,8 @@ public class TopicService {
 			List<ReadModel> readModelList = db.findByIndex(
 					getReadModelByTopicIdAndEmpEmailString(localLastTopicModel.get_id(), empEmail), ReadModel.class);
 			
-			ReadModel readModel = createReadModelMap(localLastTopicModel.get_id(), empEmail);
-			db.save(readModel);
+//			ReadModel readModel = createReadModelMap(localLastTopicModel.get_id(), empEmail);
+//			db.save(readModel);
 			localLastTopicModel.setCountRead(getCountRead(localLastTopicModel) + 1);
 			rev = db.update(localLastTopicModel).getRev();
 			
@@ -514,8 +528,8 @@ public class TopicService {
 		return lastTopicModel.getCountRead() == null ? 0 : lastTopicModel.getCountRead();
 	}
 
-	private ReadModel createReadModelMap(String topicId, String empEmail) {
-		System.out.println("topicId : " + topicId + ", empEmail : " + empEmail);
+	private ReadModel createReadModelMap(String empEmail, String topicId) {
+		System.out.println("createReadModelMap >>>> empEmail : " + empEmail + ", topicId : " + topicId);
 		ReadModel readModel = new ReadModel();
 		readModel.setTopicId(topicId);
 		readModel.setEmpEmail(empEmail);
@@ -524,8 +538,8 @@ public class TopicService {
 		return readModel;
 	}
 
-	private ReadRoomModel createReadRoomModelMap(String roomId, String empEmail) {
-		System.out.println("roomId : " + roomId + ", empEmail : " + empEmail);
+	private ReadRoomModel createReadRoomModelMap(String empEmail, String roomId) {
+		System.out.println("empEmail : " + empEmail + ", roomId : " + roomId);
 		ReadRoomModel readRoomModel = new ReadRoomModel();
 		readRoomModel.setRoomId(roomId);
 		readRoomModel.setEmpEmail(empEmail);

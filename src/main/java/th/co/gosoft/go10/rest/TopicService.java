@@ -14,14 +14,17 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.cloudant.client.api.Database;
+import com.cloudant.client.api.Search;
 import com.cloudant.client.api.model.FindByIndexOptions;
 import com.cloudant.client.api.model.IndexField;
 import com.cloudant.client.api.model.IndexField.SortOrder;
+import com.cloudant.client.api.model.SearchResult;
 
 import th.co.gosoft.go10.model.LastTopicModel;
 import th.co.gosoft.go10.model.ReadModel;
 import th.co.gosoft.go10.model.RoomModel;
 import th.co.gosoft.go10.model.RoomNotificationModel;
+import th.co.gosoft.go10.model.TopicManagementModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
 import th.co.gosoft.go10.util.ConcatDomainUtils;
 import th.co.gosoft.go10.util.DateUtils;
@@ -110,6 +113,49 @@ public class TopicService {
     }
     
     @GET
+    @Path("/getToppicListbyRoomId")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public TopicManagementModel getToppicListbyRoomId(@QueryParam("roomId") String roomId, @QueryParam("bookmark") String bookmark){
+        System.out.println(">>>>>>>>>>>>>>>>>>> getTopicListByRoomId() //room id : "+roomId+", bookmark : "+bookmark);
+        Search search =   db.search("SearchIndex/TopicRoomIndex")
+                .includeDocs(true)
+                .sort("[\"pin<number>\",\"-date<string>\"]")
+                .limit(30);
+        if(bookmark != null && !("".equals(bookmark))){
+            System.out.println("bookmark not null");
+            search.bookmark(bookmark);
+        }
+        SearchResult<LastTopicModel> searchResult = search.querySearchResult("roomId:\""+roomId+"\" AND type:\"host\"", LastTopicModel.class); 
+        System.out.println("size : "+searchResult.getRows().size());
+        
+        List<SearchResult<LastTopicModel>.SearchResultRow> searchResultRowList = searchResult.getRows();
+        TopicManagementModel topicManagementModel = getTopicModelFromSearResult(searchResultRowList);
+        topicManagementModel.setTotalRows((int) searchResult.getTotalRows());
+        topicManagementModel.setBookmark(searchResult.getBookmark());
+        
+        System.out.println("GET Complete");
+        return topicManagementModel;
+    }
+    
+    private TopicManagementModel getTopicModelFromSearResult(List<SearchResult<LastTopicModel>.SearchResultRow> searchResultRowList) {
+        TopicManagementModel topicManagementModel = new TopicManagementModel();
+        List<LastTopicModel> pinTopicList = new ArrayList<>();
+        List<LastTopicModel> noPinTopicList = new ArrayList<>();
+        for (SearchResult<LastTopicModel>.SearchResultRow searchResultRow : searchResultRowList) {
+            LastTopicModel lastTopicModel = searchResultRow.getDoc();
+            if(lastTopicModel.getPin() != null) {
+                pinTopicList.add(lastTopicModel);
+            } else {
+                noPinTopicList.add(lastTopicModel);
+            }
+        }
+        
+        topicManagementModel.setPinTopicList(pinTopicList);
+        topicManagementModel.setNoPinTopicList(noPinTopicList);
+        return topicManagementModel;
+    }
+
+    @GET
     @Path("/getnopintoppiclistbyroom")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public List<LastTopicModel> getNoPinToppicListbyRoomId(@QueryParam("roomId") String roomId){
@@ -134,20 +180,50 @@ public class TopicService {
         System.out.println("GET Complete");
         return resultList;
     }
-
-<<<<<<< HEAD
     
     @POST
     @Path("/savePinTopic")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response savePinTopic(List<LastTopicModel> lastTopicModelList) {
         System.out.println(">>>>>>>>>>>>>>>>>>> savePinTopic()");
-        String topicIdString = StringUtils.generateTopicIdString(lastTopicModelList);
-        return null;
+        stampDate = DateUtils.dbFormat.format(new Date());
+        List<LastTopicModel> dbModelList = db.findByIndex(getTopicByIdList(lastTopicModelList), LastTopicModel.class
+                ,new FindByIndexOptions().sort(new IndexField("date", SortOrder.desc)));
+        for (LastTopicModel lastTopicModel : lastTopicModelList) {
+            LastTopicModel dbModel = findModelById(dbModelList, lastTopicModel.get_id());
+            dbModel.setPin(lastTopicModel.getPin());
+            db.update(dbModel);
+        }
+        return Response.status(201).build();
     }
-=======
->>>>>>> fb114dc5003557c181bab0b8b62922ddb6989ae2
     
+    @POST
+    @Path("/deletePinTopic")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response deletePinTopic(List<LastTopicModel> lastTopicModelList) {
+        System.out.println(">>>>>>>>>>>>>>>>>>> savePinTopic()");
+        stampDate = DateUtils.dbFormat.format(new Date());
+        List<LastTopicModel> dbModelList = db.findByIndex(getTopicByIdList(lastTopicModelList), LastTopicModel.class
+                ,new FindByIndexOptions().sort(new IndexField("date", SortOrder.desc)));
+        for (LastTopicModel lastTopicModel : lastTopicModelList) {
+            LastTopicModel dbModel = findModelById(dbModelList, lastTopicModel.get_id());
+            dbModel.setPin(null);
+            db.update(dbModel);
+        }
+        return Response.status(201).build();
+    }
+    
+    private LastTopicModel findModelById(List<LastTopicModel> dbModelList, String _id) {
+        LastTopicModel resultModel = null;
+        for (LastTopicModel lastTopicModel : dbModelList) {
+            if(_id.equals(lastTopicModel.get_id())) {
+                resultModel = lastTopicModel;
+                break;
+            }
+        }
+        return resultModel;
+    }
+
     private String increaseReadCount(LastTopicModel lastTopicModel, String empEmail) {
         try {
             String rev = null;
@@ -218,6 +294,18 @@ public class TopicService {
         db.update(roomNotificationModel);
     }
     
+    private String getTopicByIdList(List<LastTopicModel> lastTopicModelList) {
+        String topicIdString = StringUtils.generateTopicIdString(lastTopicModelList);
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\"selector\": {");
+        sb.append("\"_id\": {\"$or\": ["+topicIdString+"]}");
+        sb.append("},");
+        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"countLike\",\"updateDate\",\"pin\"]}");
+        System.out.println(sb.toString());
+        return sb.toString();
+    }
+
+    
     private String getTopicListByRoomIdJsonString(String roomId){
         StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");
@@ -266,7 +354,6 @@ public class TopicService {
         sb.append("\"_id\": {\"$gt\": 0},");
         sb.append("\"$and\": [{\"type\":\"roomNotification\"}, {\"roomId\":\""+roomId+"\"}, {\"empEmail\":\""+empEmail+"\"}]");
         sb.append("}}");
-        System.out.println("query string : "+sb.toString());
         return sb.toString();    
     }
 

@@ -31,6 +31,7 @@ import th.co.gosoft.go10.util.CloudantClientUtils;
 import th.co.gosoft.go10.util.ConcatDomainUtils;
 import th.co.gosoft.go10.util.DateUtils;
 import th.co.gosoft.go10.util.PushNotificationUtils;
+import th.co.gosoft.go10.util.TopicUtils;
 
 @Path("v120110/topic")
 public class TopicService {
@@ -198,7 +199,7 @@ public class TopicService {
 		List<LastTopicModel> lastTopicModelList = db.findByIndex(getTopicListByRoomIdJsonString(roomId),
 				LastTopicModel.class, new FindByIndexOptions().sort(new IndexField("date", SortOrder.desc)));
 		List<LastTopicModel> roomRuleList = getRoomRuleToppic(roomId);
-		List<LastTopicModel> fullList = insertRoomRuleTopicAtZero(lastTopicModelList, roomRuleList.get(0));
+		List<LastTopicModel> fullList = TopicUtils.concatList(roomRuleList, lastTopicModelList);
 
 		if (fullList != null && !fullList.isEmpty()) {
 			List<LastTopicModel> completeList = checkStatusRead(fullList, empEmail, startDate);

@@ -205,7 +205,6 @@ public class TopicService {
 			resultList = DateUtils.formatDBDateToClientDate(completeList);
 			updateCountTopicInNotificationModel(roomId, empEmail);
 		}
-
 		System.out.println("size : " + resultList.size());
 		System.out.println("GET Complete");
 		return resultList;

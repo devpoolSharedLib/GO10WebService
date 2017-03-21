@@ -568,23 +568,6 @@ public class TopicService {
 		}
 	}
 
-	private List<LastTopicModel> insertRoomRuleTopicAtZero(List<LastTopicModel> topicModelList,
-			LastTopicModel roomRuleTopic) {
-		List<LastTopicModel> resultList = new ArrayList<>();
-		if (roomRuleTopic == null) {
-			return resultList;
-		} else {
-			for (int i = 0; i <= topicModelList.size(); i++) {
-				if (i == 0) {
-					resultList.add(roomRuleTopic);
-				} else {
-					resultList.add(topicModelList.get(i - 1));
-				}
-			}
-			return resultList;
-		}
-	}
-
 	public String generateRoomIdString(List<RoomModel> roomModelList) {
 		StringBuilder stingBuilder = new StringBuilder();
 		String prefix = "";

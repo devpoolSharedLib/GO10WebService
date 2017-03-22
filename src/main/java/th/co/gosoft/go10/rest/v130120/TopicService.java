@@ -35,7 +35,7 @@ import th.co.gosoft.go10.util.DateUtils;
 import th.co.gosoft.go10.util.PushNotificationUtils;
 import th.co.gosoft.go10.util.TopicUtils;
 
-@Path("v120110/topic")
+@Path("v130120/topic")
 public class TopicService {
 
 	private static final String NOTIFICATION_MESSAGE = "You have new topic.";

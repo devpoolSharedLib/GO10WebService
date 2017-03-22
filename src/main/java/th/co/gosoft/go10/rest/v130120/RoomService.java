@@ -28,7 +28,7 @@ import th.co.gosoft.go10.util.CloudantClientUtils;
 import th.co.gosoft.go10.util.DateUtils;
 import th.co.gosoft.go10.util.StringUtils;
 
-@Path("v120110/room")
+@Path("v130120/room")
 public class RoomService {
 
     private static Database db = CloudantClientUtils.getDBNewInstance();

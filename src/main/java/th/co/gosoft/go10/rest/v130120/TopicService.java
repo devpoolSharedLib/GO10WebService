@@ -174,7 +174,11 @@ public class TopicService {
     private PollModel getPoll(String topicId) {
         System.out.println(">>>>>>>>>>>>>>>>>>> getPoll() //topcic id : " + topicId);
         List<PollModel> pollModel = db.findByIndex(getPollByTopicIdJsonString(topicId), PollModel.class);
-        return pollModel.get(0);
+        if(pollModel != null && pollModel.size() != 0) {
+            return pollModel.get(0);
+        } else {
+            return null;
+        }
     }
 
     private Integer getCountAcceptPoll(String empEmail, String pollId) {

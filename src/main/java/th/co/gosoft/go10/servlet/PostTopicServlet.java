@@ -54,8 +54,7 @@ public class PostTopicServlet extends HttpServlet {
 		if(postTopic(request)){
 			System.out.println("Post Topic Complete");
 			 String poll = request.getParameter("checkboxPoll");
-	            System.out.println("checkPoll : " + poll);
-	            if(poll.equals("on")){
+	            if(poll != null){
 	            	if(postPoll(request,responseTopicId)){
 	    				System.out.println("Post Poll Complete");
 	    				session.setAttribute("statusPost", "Post Topic Complete");
@@ -65,6 +64,8 @@ public class PostTopicServlet extends HttpServlet {
 	    			}
 	            }else{
 	            	System.out.println("Pin not checked");
+	            	session.setAttribute("statusPost", "Post Topic Complete");
+    				response.sendRedirect("posttopic.jsp");
 	            }
 		}else{
 			System.out.println("Error Post Topic");  

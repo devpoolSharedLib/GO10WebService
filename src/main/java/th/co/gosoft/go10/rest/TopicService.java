@@ -21,6 +21,7 @@ import com.cloudant.client.api.model.IndexField.SortOrder;
 import com.cloudant.client.api.model.SearchResult;
 
 import th.co.gosoft.go10.model.LastTopicModel;
+import th.co.gosoft.go10.model.PollModel;
 import th.co.gosoft.go10.model.ReadModel;
 import th.co.gosoft.go10.model.RoomModel;
 import th.co.gosoft.go10.model.RoomNotificationModel;
@@ -72,6 +73,21 @@ public class TopicService {
         return Response.status(201).entity(result).build();
     }
     
+    @POST
+    @Path("/postPoll")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response postPoll(PollModel pollModel) {
+        System.out.println(">>>>>>>>>>>>>>>>>>> postPoll()");
+        stampDate = DateUtils.dbFormat.format(new Date());
+        System.out.println("StampDate : " + stampDate);
+        pollModel.setDate(stampDate);
+        pollModel.setUpdateDate(stampDate);
+        com.cloudant.client.api.model.Response response = db.save(pollModel);
+        String result = response.getId();
+        System.out.println(">>>>>>>>>>>>>>>>>>> post result id : " + result);
+        System.out.println("POST Complete");
+        return Response.status(201).entity(result).build();
+    }
     @GET
     @Path("/getToppicListbyRoomId")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")

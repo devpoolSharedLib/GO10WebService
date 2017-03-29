@@ -6,7 +6,7 @@ public class QuestionModel {
 
     private String questionId;
     private String questionTitle;
-    private List<ChoiceMasterModel> choiceMasterModelList;
+    private List<ChoiceMasterModel> choiceMaster;
     
     public String getQuestionId() {
         return questionId;
@@ -20,11 +20,11 @@ public class QuestionModel {
     public void setQuestionTitle(String questionTitle) {
         this.questionTitle = questionTitle;
     }
-    public List<ChoiceMasterModel> getChoiceMasterModelList() {
-        return choiceMasterModelList;
+    public List<ChoiceMasterModel> getChoiceMaster() {
+        return choiceMaster;
     }
-    public void setChoiceMasterModelList(List<ChoiceMasterModel> choiceMasterModelList) {
-        this.choiceMasterModelList = choiceMasterModelList;
+    public void setChoiceMaster(List<ChoiceMasterModel> choiceMaster) {
+        this.choiceMaster = choiceMaster;
     }
     
 }

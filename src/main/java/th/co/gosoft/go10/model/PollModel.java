@@ -7,9 +7,11 @@ public class PollModel {
     private String _id;
     private String _rev;
     private String topicId;
-    private List<QuestionModel> questionModelList;
+    private List<QuestionModel> questionMaster;
     private String date;
     private String updateDate;
+    private String type;
+    private List<String> empEmailPoll;
     
     public String get_id() {
         return _id;
@@ -29,12 +31,6 @@ public class PollModel {
     public void setTopicId(String topicId) {
         this.topicId = topicId;
     }
-    public List<QuestionModel> getQuestionModelList() {
-        return questionModelList;
-    }
-    public void setQuestionModelList(List<QuestionModel> questionModelList) {
-        this.questionModelList = questionModelList;
-    }
     public String getDate() {
         return date;
     }
@@ -47,5 +43,22 @@ public class PollModel {
     public void setUpdateDate(String updateDate) {
         this.updateDate = updateDate;
     }
-    
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
+	}
+	public List<QuestionModel> getQuestionMaster() {
+		return questionMaster;
+	}
+	public void setQuestionMaster(List<QuestionModel> questionMaster) {
+		this.questionMaster = questionMaster;
+	}
+	public List<String> getEmpEmailPoll() {
+		return empEmailPoll;
+	}
+	public void setEmpEmailPoll(List<String> empEmailPoll) {
+		this.empEmailPoll = empEmailPoll;
+	}
 }

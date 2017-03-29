@@ -225,7 +225,9 @@ public class TopicService {
 		List<RoomModel> roomModelList = db.findByIndex(getRoomJsonStringReadUser(empEmail), RoomModel.class,
 				new FindByIndexOptions().sort(new IndexField("_id", SortOrder.asc)).fields("_id").fields("_rev")
 						.fields("name").fields("desc").fields("type"));
-
+		for (RoomModel roomModel : roomModelList) {
+			System.out.println("ROOM_ID : " + roomModel.get_id());
+		}
 		List<LastTopicModel> lastTopicModelList = db.findByIndex(getHotTopicListJsonString(roomModelList),
 				LastTopicModel.class,
 				new FindByIndexOptions().sort(new IndexField("updateDate", SortOrder.desc)).limit(20));
@@ -521,6 +523,7 @@ public class TopicService {
 		stingBuilder.append("\"_id\": {\"$gt\": 0},");
 		stingBuilder.append("\"$and\": [");
 		stingBuilder.append("{\"type\":\"room\"},");
+		stingBuilder.append("{\"show\":true},");
 		stingBuilder.append("{\"readUser\":{\"$elemMatch\": {");
 		stingBuilder.append("\"$or\": [\"all\", \"" + empEmail + "\"]");
 		stingBuilder.append("}}}]");

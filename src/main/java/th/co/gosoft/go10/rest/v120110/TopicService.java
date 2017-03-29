@@ -473,6 +473,7 @@ public class TopicService {
 		stingBuilder.append("\"_id\": {\"$gt\": 0},");
 		stingBuilder.append("\"$and\": [");
 		stingBuilder.append("{\"type\":\"room\"},");
+		stingBuilder.append("{\"show\":true},");
 		stingBuilder.append("{\"readUser\":{\"$elemMatch\": {");
 		stingBuilder.append("\"$or\": [\"all\", \"" + empEmail + "\"]");
 		stingBuilder.append("}}}]");

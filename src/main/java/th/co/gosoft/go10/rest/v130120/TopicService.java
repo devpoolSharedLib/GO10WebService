@@ -154,10 +154,14 @@ public class TopicService {
 	@GET
 	@Path("/gettopicbyid")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public BoardContentModel getTopicById(@QueryParam("topicId") String topicId,
+	public List<BoardContentModel> getTopicById(@QueryParam("topicId") String topicId,
 			@QueryParam("empEmail") String empEmail) {
+		
+		List<BoardContentModel> boardContentModelList = new ArrayList<BoardContentModel>();
+		
 	    BoardContentModel boardContentModel = new BoardContentModel();
 		List<LastTopicModel> lastTopicModelList = getTopicList(topicId, empEmail);
+		
 		boardContentModel.setBoardContentList(lastTopicModelList);
 		
 		PollModel pollModel = getPoll(topicId);
@@ -166,9 +170,9 @@ public class TopicService {
 		    Integer countAcceptPoll = getCountAcceptPoll(empEmail, pollModel.get_id());
 		    boardContentModel.setCountAcceptPoll(countAcceptPoll);
 		}
-		
+		boardContentModelList.add(boardContentModel);
 		System.out.println("GET Complete");
-		return boardContentModel;
+		return boardContentModelList;
 	}
 
     private PollModel getPoll(String topicId) {
@@ -509,7 +513,7 @@ public class TopicService {
 		sb.append("{\"selector\": {");
 		sb.append("\"_id\": {\"$gt\": 0},");
 		sb.append("\"date\": {\"$gt\": 0},");
-		sb.append("\"$nor\": [{ \"type\": \"like\" }, { \"type\": \"read\" }],");
+		sb.append("\"$nor\": [{ \"type\": \"like\" }, { \"type\": \"read\" }, { \"type\": \"poll\" }],");
 		sb.append("\"$or\": [{\"_id\":\"" + topicId + "\"}, {\"topicId\":\"" + topicId + "\"}]");
 		sb.append("},");
 		sb.append(

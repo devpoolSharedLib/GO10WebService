@@ -158,6 +158,7 @@ public class TopicService {
 			@QueryParam("empEmail") String empEmail) {
 		
 		List<BoardContentModel> boardContentModelList = new ArrayList<BoardContentModel>();
+		List<PollModel> pollModelList = new ArrayList<PollModel>();
 		
 	    BoardContentModel boardContentModel = new BoardContentModel();
 		List<LastTopicModel> lastTopicModelList = getTopicList(topicId, empEmail);
@@ -165,8 +166,9 @@ public class TopicService {
 		boardContentModel.setBoardContentList(lastTopicModelList);
 		
 		PollModel pollModel = getPoll(topicId);
+		pollModelList.add(pollModel);
 		if(pollModel != null) {
-		    boardContentModel.setPollModel(pollModel);
+		    boardContentModel.setPollModel(pollModelList);
 		    Integer countAcceptPoll = getCountAcceptPoll(empEmail, pollModel.get_id());
 		    boardContentModel.setCountAcceptPoll(countAcceptPoll);
 		}

@@ -5,15 +5,9 @@ import java.util.List;
 public class BoardContentModel {
 
     private List<LastTopicModel> boardContentList;
-    private PollModel pollModel;
+    private List<PollModel> pollModel;
     private Integer countAcceptPoll;
     
-    public PollModel getPollModel() {
-        return pollModel;
-    }
-    public void setPollModel(PollModel pollModel) {
-        this.pollModel = pollModel;
-    }
     public Integer getCountAcceptPoll() {
         return countAcceptPoll;
     }
@@ -26,4 +20,10 @@ public class BoardContentModel {
     public void setBoardContentList(List<LastTopicModel> boardContentList) {
         this.boardContentList = boardContentList;
     }
+	public List<PollModel> getPollModel() {
+		return pollModel;
+	}
+	public void setPollModel(List<PollModel> pollModel) {
+		this.pollModel = pollModel;
+	}
 }

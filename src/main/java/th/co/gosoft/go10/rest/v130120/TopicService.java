@@ -15,8 +15,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.cloudant.client.api.Database;
+import com.cloudant.client.api.Search;
 import com.cloudant.client.api.model.FindByIndexOptions;
 import com.cloudant.client.api.model.IndexField;
+import com.cloudant.client.api.model.SearchResult;
 import com.cloudant.client.api.model.IndexField.SortOrder;
 
 import th.co.gosoft.go10.model.LastLikeModel;
@@ -25,6 +27,7 @@ import th.co.gosoft.go10.model.LogDeleteModel;
 import th.co.gosoft.go10.model.PollModel;
 import th.co.gosoft.go10.model.AccessAppModel;
 import th.co.gosoft.go10.model.BoardContentModel;
+import th.co.gosoft.go10.model.ChoiceTransactionModel;
 import th.co.gosoft.go10.model.ReadModel;
 import th.co.gosoft.go10.model.ReadRoomModel;
 import th.co.gosoft.go10.model.RoomModel;
@@ -165,11 +168,12 @@ public class TopicService {
 		
 		boardContentModel.setBoardContentList(lastTopicModelList);
 		
-		PollModel pollModel = getPoll(topicId);
-		pollModelList.add(pollModel);
-		if(pollModel != null) {
+//		PollModel pollModel = getPoll(topicId);
+		pollModelList = getPoll(topicId);
+		
+		if(pollModelList != null) {
 		    boardContentModel.setPollModel(pollModelList);
-		    Integer countAcceptPoll = getCountAcceptPoll(empEmail, pollModel.get_id());
+		    Integer countAcceptPoll = getCountAcceptPoll(empEmail, pollModelList.get(0).get_id());
 		    boardContentModel.setCountAcceptPoll(countAcceptPoll);
 		}
 		boardContentModelList.add(boardContentModel);
@@ -177,11 +181,12 @@ public class TopicService {
 		return boardContentModelList;
 	}
 
-    private PollModel getPoll(String topicId) {
+    private List<PollModel> getPoll(String topicId) {
         System.out.println(">>>>>>>>>>>>>>>>>>> getPoll() //topcic id : " + topicId);
-        List<PollModel> pollModel = db.findByIndex(getPollByTopicIdJsonString(topicId), PollModel.class);
-        if(pollModel != null && pollModel.size() != 0) {
-            return pollModel.get(0);
+        List<PollModel> pollModelList = db.findByIndex(getPollByTopicIdJsonString(topicId), PollModel.class);
+        
+        if(pollModelList != null && pollModelList.size() != 0) {
+            return pollModelList;
         } else {
             return null;
         }
@@ -189,7 +194,13 @@ public class TopicService {
 
     private Integer getCountAcceptPoll(String empEmail, String pollId) {
         System.out.println(">>>>>>>>>>>>>>>>>>> getPogetCountAcceptPoll() //empEmail id : " + empEmail+", pollId : "+pollId);
-        return 0;
+        Search search =   db.search("SearchIndex/countAcceptPoll")
+                .includeDocs(true)
+                .groupField("empEmail", false);
+        SearchResult<ChoiceTransactionModel> searchResult = search.querySearchResult("pollId:\""+pollId+"\" AND type:\"choice\"", ChoiceTransactionModel.class); 
+        System.out.println("size : "+searchResult.getTotalRows());
+        System.out.println("group by empEmail : "+searchResult.getGroups().size());
+        return searchResult.getGroups().size();
     }
     
     private List<LastTopicModel> getTopicList(String topicId, String empEmail) {

@@ -171,11 +171,21 @@ public class TopicService {
 		    boardContentModel.setPollModel(pollModelList);
 		    Integer countAcceptPoll = getCountAcceptPoll(empEmail, pollModelList.get(0).get_id());
 		    boardContentModel.setCountAcceptPoll(countAcceptPoll);
+		    checkDonePoll(empEmail, pollModelList, boardContentModel, pollService);
 		}
 		boardContentModelList.add(boardContentModel);
 		System.out.println("GET Complete");
 		return boardContentModelList;
 	}
+
+    private void checkDonePoll(String empEmail, List<PollModel> pollModelList, BoardContentModel boardContentModel, PollService pollService) {
+        List<ChoiceTransactionModel> choiceTransactionModels = pollService.getChoiceTransactionModel(pollModelList.get(0).get_id(), empEmail);
+        if(choiceTransactionModels != null && !choiceTransactionModels.isEmpty()) {
+            boardContentModel.setDonePoll(true);
+        } else {
+            boardContentModel.setDonePoll(false);
+        }
+    }
 
     private Integer getCountAcceptPoll(String empEmail, String pollId) {
         System.out.println(">>>>>>>>>>>>>>>>>>> getPogetCountAcceptPoll() //empEmail id : " + empEmail+", pollId : "+pollId);

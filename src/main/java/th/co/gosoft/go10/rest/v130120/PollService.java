@@ -9,6 +9,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -41,10 +42,19 @@ public class PollService {
     @GET
     @Path("/getPoll")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public List<PollModel> getPoll(String topicId, String empEmail) {
+    public List<PollModel> getPoll(@QueryParam("topicId") String topicId, @QueryParam("empEmail") String empEmail) {
         System.out.println(">>>>>>>>>>>>>>>>>>> getPoll() //topcic id : " + topicId);
         List<PollModel> pollModelList = db.findByIndex(getPollByTopicIdJsonString(topicId, empEmail), PollModel.class);
         return pollModelList;
+    }
+    
+    @GET
+    @Path("/getChoiceTransactionModel")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public List<ChoiceTransactionModel> getChoiceTransactionModel(@QueryParam("pollId") String pollId, @QueryParam("empEmail") String empEmail) {
+        System.out.println(">>>>>>>>>>>>>>>>>>> getChoiceModel() //pollId id : " + pollId+", empEmail : "+empEmail);
+        List<ChoiceTransactionModel> choiceTransactionModelList = db.findByIndex(getChoiceModelJsonString(pollId, empEmail), ChoiceTransactionModel.class);
+        return choiceTransactionModelList;
     }
 
     private List<ChoiceTransactionModel> insertDate(List<ChoiceTransactionModel> choiceTransactionModelList, String stampDate) {
@@ -65,6 +75,18 @@ public class PollService {
         sb.append("{\"empEmailPoll\":{\"$elemMatch\": {");
         sb.append("\"$or\": [\"all\", \"" + empEmail + "\"]");
         sb.append("}}}]");
+        sb.append("}}");
+        return sb.toString();
+    }
+    
+    private String getChoiceModelJsonString(String pollId, String empEmail) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\"selector\": {");
+        sb.append("\"_id\": {\"$gt\": 0},");
+        sb.append("\"$and\": [{\"type\":\"choice\"}, ");
+        sb.append("{\"pollId\":\"" + pollId + "\"}, ");
+        sb.append("{\"empEmail\":\"" + empEmail + "\"} ");
+        sb.append("]");
         sb.append("}}");
         return sb.toString();
     }

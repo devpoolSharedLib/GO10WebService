@@ -7,6 +7,7 @@ public class BoardContentModel {
     private List<LastTopicModel> boardContentList;
     private List<PollModel> pollModel;
     private Integer countAcceptPoll;
+    private Boolean donePoll;
     
     public Integer getCountAcceptPoll() {
         return countAcceptPoll;
@@ -26,4 +27,10 @@ public class BoardContentModel {
 	public void setPollModel(List<PollModel> pollModel) {
 		this.pollModel = pollModel;
 	}
+    public Boolean getDonePoll() {
+        return donePoll;
+    }
+    public void setDonePoll(Boolean donePoll) {
+        this.donePoll = donePoll;
+    }
 }

@@ -18,16 +18,16 @@ import com.cloudant.client.api.Database;
 import com.cloudant.client.api.Search;
 import com.cloudant.client.api.model.FindByIndexOptions;
 import com.cloudant.client.api.model.IndexField;
-import com.cloudant.client.api.model.SearchResult;
 import com.cloudant.client.api.model.IndexField.SortOrder;
+import com.cloudant.client.api.model.SearchResult;
 
+import th.co.gosoft.go10.model.AccessAppModel;
+import th.co.gosoft.go10.model.BoardContentModel;
+import th.co.gosoft.go10.model.ChoiceTransactionModel;
 import th.co.gosoft.go10.model.LastLikeModel;
 import th.co.gosoft.go10.model.LastTopicModel;
 import th.co.gosoft.go10.model.LogDeleteModel;
 import th.co.gosoft.go10.model.PollModel;
-import th.co.gosoft.go10.model.AccessAppModel;
-import th.co.gosoft.go10.model.BoardContentModel;
-import th.co.gosoft.go10.model.ChoiceTransactionModel;
 import th.co.gosoft.go10.model.ReadModel;
 import th.co.gosoft.go10.model.ReadRoomModel;
 import th.co.gosoft.go10.model.RoomModel;
@@ -50,9 +50,6 @@ public class TopicService {
 	@Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	public Response createTopic(LastTopicModel lastTopicModel) {
 		System.out.println(">>>>>>>>>>>>>>>>>>> topicModel()");
-		System.out.println("topic subject : " + lastTopicModel.getSubject());
-		System.out.println("topic content : " + lastTopicModel.getContent());
-		System.out.println("topic type : " + lastTopicModel.getType());
 		lastTopicModel.setContent(ConcatDomainUtils.deleteDomainImagePath(lastTopicModel.getContent()));
 		stampDate = DateUtils.dbFormat.format(new Date());
 		System.out.println("StampDate : " + stampDate);
@@ -168,10 +165,9 @@ public class TopicService {
 		
 		boardContentModel.setBoardContentList(lastTopicModelList);
 		
-//		PollModel pollModel = getPoll(topicId);
-		pollModelList = getPoll(topicId);
-		
-		if(pollModelList != null) {
+		PollService pollService = new PollService();
+		pollModelList = pollService.getPoll(topicId, empEmail);
+		if(pollModelList != null && !pollModelList.isEmpty()) {
 		    boardContentModel.setPollModel(pollModelList);
 		    Integer countAcceptPoll = getCountAcceptPoll(empEmail, pollModelList.get(0).get_id());
 		    boardContentModel.setCountAcceptPoll(countAcceptPoll);
@@ -180,17 +176,6 @@ public class TopicService {
 		System.out.println("GET Complete");
 		return boardContentModelList;
 	}
-
-    private List<PollModel> getPoll(String topicId) {
-        System.out.println(">>>>>>>>>>>>>>>>>>> getPoll() //topcic id : " + topicId);
-        List<PollModel> pollModelList = db.findByIndex(getPollByTopicIdJsonString(topicId), PollModel.class);
-        
-        if(pollModelList != null && pollModelList.size() != 0) {
-            return pollModelList;
-        } else {
-            return null;
-        }
-    }
 
     private Integer getCountAcceptPoll(String empEmail, String pollId) {
         System.out.println(">>>>>>>>>>>>>>>>>>> getPogetCountAcceptPoll() //empEmail id : " + empEmail+", pollId : "+pollId);
@@ -535,18 +520,18 @@ public class TopicService {
 	}
 
 	private String getRoomJsonStringReadUser(String empEmail) {
-		StringBuilder stingBuilder = new StringBuilder();
-		stingBuilder.append("{\"selector\": {");
-		stingBuilder.append("\"_id\": {\"$gt\": 0},");
-		stingBuilder.append("\"$and\": [");
-		stingBuilder.append("{\"type\":\"room\"},");
-		stingBuilder.append("{\"show\":true},");
-		stingBuilder.append("{\"readUser\":{\"$elemMatch\": {");
-		stingBuilder.append("\"$or\": [\"all\", \"" + empEmail + "\"]");
-		stingBuilder.append("}}}]");
-		stingBuilder.append("},");
-		stingBuilder.append("\"fields\": [\"_id\",\"_rev\",\"name\",\"desc\", \"type\"]}");
-		return stingBuilder.toString();
+		StringBuilder sb = new StringBuilder();
+		sb.append("{\"selector\": {");
+		sb.append("\"_id\": {\"$gt\": 0},");
+		sb.append("\"$and\": [");
+		sb.append("{\"type\":\"room\"},");
+		sb.append("{\"show\":true},");
+		sb.append("{\"readUser\":{\"$elemMatch\": {");
+		sb.append("\"$or\": [\"all\", \"" + empEmail + "\"]");
+		sb.append("}}}]");
+		sb.append("},");
+		sb.append("\"fields\": [\"_id\",\"_rev\",\"name\",\"desc\", \"type\"]}");
+		return sb.toString();
 	}
 
 	private String getTopicListByRoomIdJsonString(String roomId) {
@@ -657,14 +642,5 @@ public class TopicService {
 		}
 		return stingBuilder.toString();
 	}
-	
-	 private String getPollByTopicIdJsonString(String topicId) {
-	    StringBuilder sb = new StringBuilder();
-	    sb.append("{\"selector\": {");
-        sb.append("\"_id\": {\"$gt\": 0},");
-        sb.append("\"$and\": [{\"type\":\"poll\"}, {\"topicId\":\"" + topicId + "\"}]");
-        sb.append("}}");
-        return sb.toString();
-    }
 
 }

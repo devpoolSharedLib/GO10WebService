@@ -3,6 +3,7 @@ package th.co.gosoft.go10.rest.v130120;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -319,7 +320,7 @@ public class TopicService {
 	@Path("/readtopic")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	public Response readTopic(@QueryParam("empEmail") String empEmail,@QueryParam("topicId") String topicId) {
-		System.out.println(">>>>>>>>>>>>>>>>>>> readRoom() // empEmail : " + empEmail + " topicId : " + topicId);
+		System.out.println(">>>>>>>>>>>>>>>>>>> readtopic() // empEmail : " + empEmail + " topicId : " + topicId);
 		stampDate = DateUtils.dbFormat.format(new Date());
 		ReadModel readModel = createReadModelMap(empEmail, topicId);
 		db.save(readModel);
@@ -383,17 +384,12 @@ public class TopicService {
 	private List<LastTopicModel> checkStatusRead(List<LastTopicModel> lastTopicModelList, String empEmail,
 			String startDate) {
 		String topicIdString = generateTopicIdString(lastTopicModelList);
-		List<ReadModel> readModelList = db.findByIndex(getReadModelByEmpEmailString(empEmail, topicIdString),
-				ReadModel.class, new FindByIndexOptions().sort(new IndexField("date", SortOrder.desc)).limit(30));
-		System.out.println("readModelList size : " + readModelList.size());
+		System.out.println(topicIdString);
+		Map<String, Long> countsReadMap = getAllReadModelByUser(empEmail);
 		List<LastTopicModel> resultList = new ArrayList<>();
 		for (LastTopicModel lastTopicModel : lastTopicModelList) {
 			if (DateUtils.isAfterDate(startDate, lastTopicModel.getDate())) {
-				if (hasReadModel(readModelList, lastTopicModel)) {
-					lastTopicModel.setStatusRead(true);
-				} else {
-					lastTopicModel.setStatusRead(false);
-				}
+			    lastTopicModel.setStatusRead(hasReadModel(countsReadMap, lastTopicModel));
 			} else {
 				lastTopicModel.setStatusRead(true);
 			}
@@ -402,14 +398,9 @@ public class TopicService {
 		return resultList;
 	}
 
-	private boolean hasReadModel(List<ReadModel> readModelList, LastTopicModel lastTopicModel) {
+    private boolean hasReadModel(Map<String, Long> countsReadMap, LastTopicModel lastTopicModel) {
 		boolean result = false;
-		for (ReadModel readModel : readModelList) {
-			if (readModel.getTopicId().equals(lastTopicModel.get_id())) {
-				result = true;
-				break;
-			}
-		}
+		if (countsReadMap.get(lastTopicModel.get_id())!= null) result = true;
 		return result;
 	}
 
@@ -424,8 +415,6 @@ public class TopicService {
 			List<ReadModel> readModelList = db.findByIndex(
 					getReadModelByTopicIdAndEmpEmailString(localLastTopicModel.get_id(), empEmail), ReadModel.class);
 			
-//			ReadModel readModel = createReadModelMap(localLastTopicModel.get_id(), empEmail);
-//			db.save(readModel);
 			localLastTopicModel.setCountRead(getCountRead(localLastTopicModel) + 1);
 			rev = db.update(localLastTopicModel).getRev();
 			
@@ -478,18 +467,14 @@ public class TopicService {
 		return sb.toString();
 	}
 
-	private String getReadModelByEmpEmailString(String empEmail, String topicIdString) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("{\"selector\": {");
-		sb.append("\"_id\": {\"$gt\": 0},");
-		sb.append("\"$and\": [{\"type\":\"read\"}, {\"empEmail\":\"" + empEmail + "\"}, {\"topicId\":{\"$or\": ["
-				+ topicIdString + "]}}]");
-		sb.append("},");
-		sb.append("\"fields\": [\"_id\",\"_rev\",\"topicId\",\"empEmail\",\"type\",\"date\"]}");
-		System.out.println("query : " + sb.toString());
-		return sb.toString();
-	}
-
+	private Map<String, Long> getAllReadModelByUser(String empEmail) {
+	    SearchResult<ReadModel> searchResult =   db.search("SearchIndex/ReadModelIndex")
+	            .counts(new String[]{"topicId"})
+	            .querySearchResult("empEmail:\""+empEmail+"\"", ReadModel.class);
+	    Map<String, Map<String, Long>> countsMap = searchResult.getCounts();
+        return countsMap.get("topicId");
+    }
+	
 	private String getReadModelByTopicIdAndEmpEmailString(String topicId, String empEmail) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\"selector\": {");

@@ -36,8 +36,8 @@ import th.co.gosoft.go10.util.PropertiesUtils;
 public class PostTopicServlet extends HttpServlet {
     
     private static final long serialVersionUID = 1L;
-    private static final String URL_POST = PropertiesUtils.getProperties("url_post_topic");
-    private static final String URL_POST_POLL = PropertiesUtils.getProperties("url_post_poll");
+    private static final String URL_POST = PropertiesUtils.getProperties("domain_post_topic");
+    private static final String URL_POST_POLL = PropertiesUtils.getProperties("domain_post_poll");
 	private static String responseTopicId;
     public PostTopicServlet() {
         super();

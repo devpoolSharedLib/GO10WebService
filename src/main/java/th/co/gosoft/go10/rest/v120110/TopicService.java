@@ -459,27 +459,27 @@ public class TopicService {
 		sb.append("{\"selector\": {");
 		sb.append("\"_id\": {\"$gt\": 0},");
 		sb.append("\"date\": {\"$gt\": 0},");
-		sb.append("\"$nor\": [{ \"type\": \"like\" }, { \"type\": \"read\" }],");
-		sb.append("\"$or\": [{\"_id\":\"" + topicId + "\"}, {\"topicId\":\"" + topicId + "\"}]");
-		sb.append("},");
-		sb.append(
-				"\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"countLike\",\"updateDate\"]}");
+		sb.append("\"$and\": [");
+		sb.append("{\"$or\": [ {\"type\": \"host\"}, {\"type\": \"comment\"}]},");
+		sb.append("{\"$or\":[{\"_id\":\""+topicId+"\"},{\"topicId\": \""+topicId+"\"}]");
+		sb.append("}]},");
+		sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"countLike\",\"updateDate\"]}");
 		return sb.toString();
 	}
 
 	private String getRoomJsonStringReadUser(String empEmail) {
-		StringBuilder stingBuilder = new StringBuilder();
-		stingBuilder.append("{\"selector\": {");
-		stingBuilder.append("\"_id\": {\"$gt\": 0},");
-		stingBuilder.append("\"$and\": [");
-		stingBuilder.append("{\"type\":\"room\"},");
-		stingBuilder.append("{\"show\":true},");
-		stingBuilder.append("{\"readUser\":{\"$elemMatch\": {");
-		stingBuilder.append("\"$or\": [\"all\", \"" + empEmail + "\"]");
-		stingBuilder.append("}}}]");
-		stingBuilder.append("},");
-		stingBuilder.append("\"fields\": [\"_id\",\"_rev\",\"name\",\"desc\", \"type\"]}");
-		return stingBuilder.toString();
+		StringBuilder sb = new StringBuilder();
+		sb.append("{\"selector\": {");
+		sb.append("\"_id\": {\"$gt\": 0},");
+		sb.append("\"$and\": [");
+		sb.append("{\"type\":\"room\"},");
+		sb.append("{\"show\":true},");
+		sb.append("{\"readUser\":{\"$elemMatch\": {");
+		sb.append("\"$or\": [\"all\", \"" + empEmail + "\"]");
+		sb.append("}}}]");
+		sb.append("},");
+		sb.append("\"fields\": [\"_id\",\"_rev\",\"name\",\"desc\", \"type\"]}");
+		return sb.toString();
 	}
 
 	private String getTopicListByRoomIdJsonString(String roomId) {
@@ -490,8 +490,7 @@ public class TopicService {
 		sb.append("\"pin\": {\"$exists\": false},");
 		sb.append("\"$and\": [{\"type\":\"host\"}, {\"roomId\":\"" + roomId + "\"}]");
 		sb.append("},");
-		sb.append(
-				"\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"]}");
+		sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\"]}");
 		return sb.toString();
 	}
 
@@ -499,8 +498,7 @@ public class TopicService {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\"selector\": {");
 		sb.append("\"_id\": {\"$gt\": 0},");
-		sb.append("\"$and\": [{\"type\":\"like\"}, {\"topicId\":\"" + topicId + "\"}, {\"empEmail\":\"" + empEmail
-				+ "\"}]");
+		sb.append("\"$and\": [{\"type\":\"like\"}, {\"topicId\":\"" + topicId + "\"}, {\"empEmail\":\"" + empEmail + "\"}]");
 		sb.append("},");
 		sb.append("\"fields\": [\"_id\",\"_rev\",\"topicId\",\"empEmail\",\"isLike\",\"type\"]}");
 		return sb.toString();
@@ -522,7 +520,6 @@ public class TopicService {
 		sb.append("\"_id\": {\"$gt\": 0},");
 		sb.append("\"$and\": [{\"topicId\":\"" + _id + "\"}]");
 		sb.append("}}");
-		System.out.println("query string : " + sb.toString());
 		return sb.toString();
 	}
 

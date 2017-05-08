@@ -415,20 +415,22 @@ public class TopicService {
 			List<ReadModel> readModelList = db.findByIndex(
 					getReadModelByTopicIdAndEmpEmailString(localLastTopicModel.get_id(), empEmail), ReadModel.class);
 			
-			localLastTopicModel.setCountRead(getCountRead(localLastTopicModel) + 1);
-			rev = db.update(localLastTopicModel).getRev();
-			
-			if (readModelList == null || readModelList.isEmpty()) {
-				System.out.println("read model is null");
+			if (haveNotBeenReadTopic(readModelList)) {
+				System.out.println("This user is never read this topic");
+				localLastTopicModel.setCountRead(getCountRead(localLastTopicModel) + 1);
+	            rev = db.update(localLastTopicModel).getRev();
 				plusCountTopicInNotificationModel(lastTopicModel.getRoomId(), empEmail);
-			} else {
-				System.out.println("read model is not null");
-			}
+			} 			
+			
 			return rev;
 		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage(), e);
 		}
 	}
+
+    private boolean haveNotBeenReadTopic(List<ReadModel> readModelList) {
+        return readModelList == null || readModelList.isEmpty();
+    }
 
 	private void insertLogDelete(LastTopicModel lastTopicModel, String actionEmail) {
 		LogDeleteModel logDeletModelList = new LogDeleteModel();

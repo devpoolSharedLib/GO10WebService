@@ -506,11 +506,11 @@ public class TopicService {
 		sb.append("{\"selector\": {");
 		sb.append("\"_id\": {\"$gt\": 0},");
 		sb.append("\"date\": {\"$gt\": 0},");
-		sb.append("\"$nor\": [{ \"type\": \"like\" }, { \"type\": \"read\" }, { \"type\": \"poll\" }],");
-		sb.append("\"$or\": [{\"_id\":\"" + topicId + "\"}, {\"topicId\":\"" + topicId + "\"}]");
-		sb.append("},");
-		sb.append(
-				"\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"countLike\",\"updateDate\"]}");
+		sb.append("\"$and\": [");
+		sb.append("{\"$or\": [ {\"type\": \"host\"}, {\"type\": \"comment\"}]},");
+		sb.append("{\"$or\":[{\"_id\":\""+topicId+"\"},{\"topicId\": \""+topicId+"\"}]");
+		sb.append("}]},");
+		sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"countLike\",\"updateDate\"]}");
 		return sb.toString();
 	}
 

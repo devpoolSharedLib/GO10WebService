@@ -358,16 +358,17 @@ public class TopicService {
     }
     
     private String getTopicByIdJsonString(String topicId) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{\"selector\": {");
-        sb.append("\"_id\": {\"$gt\": 0},");
-        sb.append("\"date\": {\"$gt\": 0},");
-        sb.append("\"$nor\": [{ \"type\": \"like\" }, { \"type\": \"read\" }],");
-        sb.append("\"$or\": [{\"_id\":\""+topicId+"\"}, {\"topicId\":\""+topicId+"\"}]");
-        sb.append("},");
-        sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"countLike\",\"updateDate\"]}");
-        return sb.toString();
-    }
+		StringBuilder sb = new StringBuilder();
+		sb.append("{\"selector\": {");
+		sb.append("\"_id\": {\"$gt\": 0},");
+		sb.append("\"date\": {\"$gt\": 0},");
+		sb.append("\"$and\": [");
+		sb.append("{\"$or\": [ {\"type\": \"host\"}, {\"type\": \"comment\"}]},");
+		sb.append("{\"$or\":[{\"_id\":\""+topicId+"\"},{\"topicId\": \""+topicId+"\"}]");
+		sb.append("}]},");
+		sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"countLike\",\"updateDate\"]}");
+		return sb.toString();
+	}
     
     private String getRoomJsonStringReadUser(String empEmail) {
         StringBuilder stingBuilder = new StringBuilder();

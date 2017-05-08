@@ -462,7 +462,7 @@
 			<div>
 			<!-- <label class="radio-inline"><input type="radio" class="col-md-12" name="poll" id="poll" value="all" onclick="showTxt('questionTxt')">Poll</label> -->
 			<input type="checkbox" name="checkboxPoll" id="checkboxPoll"
-				onchange="checkSelected(this);" /> Poll
+				onchange="checkSelected(this);" /> สร้างแบบสอบถาม
 			<div id="selectQuestion" style="display: none">
 				<label style="font-weight: normal;" id="countQuestionTxt">(จำนวนคำถามที่ต้องการ
 				</label> <select id="dropdownCountQuestion" name="dropdownCountQuestion"

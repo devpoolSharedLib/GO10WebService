@@ -20,7 +20,6 @@
 	<script type="text/javascript" src="selectize/js/standalone/selectize.js"></script>
 	
 	<link rel="stylesheet" type="text/css" href="css/user_role_management.css" />
-	<link rel="stylesheet" type="text/css" href="css/posttopic.css" />
 	
 	<script type="text/javascript" src="/GO10WebService/tinymce/js/tinymce/tinymce.js"></script>
 

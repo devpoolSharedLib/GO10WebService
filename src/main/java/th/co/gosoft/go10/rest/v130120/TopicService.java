@@ -190,10 +190,10 @@ public class TopicService {
 
     private Integer getCountAcceptPoll(String empEmail, String pollId) {
         System.out.println(">>>>>>>>>>>>>>>>>>> getPogetCountAcceptPoll() //empEmail id : " + empEmail+", pollId : "+pollId);
-        Search search =   db.search("SearchIndex/countAcceptPoll")
+        Search search =   db.search("SearchIndex/ChoiceTransactionModelIndex")
                 .includeDocs(true)
                 .groupField("empEmail", false);
-        SearchResult<ChoiceTransactionModel> searchResult = search.querySearchResult("pollId:\""+pollId+"\" AND type:\"choice\"", ChoiceTransactionModel.class); 
+        SearchResult<ChoiceTransactionModel> searchResult = search.querySearchResult("pollId:\""+pollId+"\"", ChoiceTransactionModel.class); 
         System.out.println("size : "+searchResult.getTotalRows());
         System.out.println("group by empEmail : "+searchResult.getGroups().size());
         return searchResult.getGroups().size();
@@ -400,7 +400,7 @@ public class TopicService {
 
     private boolean hasReadModel(Map<String, Long> countsReadMap, LastTopicModel lastTopicModel) {
 		boolean result = false;
-		if (countsReadMap.get(lastTopicModel.get_id())!= null) result = true;
+		if (countsReadMap != null && countsReadMap.get(lastTopicModel.get_id())!= null) result = true;
 		return result;
 	}
 

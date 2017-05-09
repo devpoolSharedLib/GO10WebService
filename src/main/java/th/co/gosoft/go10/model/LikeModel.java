@@ -6,8 +6,9 @@ public class LikeModel {
     private String _rev;
     private String topicId;
     private String empEmail;
-    private boolean statusLike;
+    private Boolean statusLike;
 	private String type;
+	private String date;
 
 	public String get_id() {
         return _id;
@@ -33,10 +34,10 @@ public class LikeModel {
     public void setEmpEmail(String empEmail) {
         this.empEmail = empEmail;
     }
-    public boolean isStatusLike() {
+    public Boolean isStatusLike() {
 		return statusLike;
 	}
-	public void setStatusLike(boolean statusLike) {
+	public void setStatusLike(Boolean statusLike) {
 		this.statusLike = statusLike;
 	}
     public String getType() {
@@ -44,6 +45,12 @@ public class LikeModel {
     }
     public void setType(String type) {
         this.type = type;
+    }
+    public String getDate() {
+        return date;
+    }
+    public void setDate(String date) {
+        this.date = date;
     }
     
 }

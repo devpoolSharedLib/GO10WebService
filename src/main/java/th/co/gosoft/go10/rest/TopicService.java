@@ -21,6 +21,7 @@ import com.cloudant.client.api.model.IndexField.SortOrder;
 import com.cloudant.client.api.model.SearchResult;
 
 import th.co.gosoft.go10.model.LastTopicModel;
+import th.co.gosoft.go10.model.LikeModel;
 import th.co.gosoft.go10.model.PollModel;
 import th.co.gosoft.go10.model.ReadModel;
 import th.co.gosoft.go10.model.RoomModel;
@@ -188,6 +189,49 @@ public class TopicService {
             db.update(dbModel);
         }
         return Response.status(201).build();
+    }
+    
+    @GET
+    @Path("/getReadUserList")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public List<ReadModel> getReadUserList(@QueryParam("topicId") String topicId){
+        System.out.println(">>>>>>>>>>>>>>>>>>> getReadUserList()// topicId : "+topicId);
+        SearchResult<ReadModel> searchResult =   db.search("SearchIndex/ReadModelIndex")
+                .groupField("empEmail", false)
+                .groupSort("[\"-date<string>\"]")
+                .sort("[\"-date<string>\"]")
+                .querySearchResult("topicId:\""+topicId+"\"", ReadModel.class);
+        
+        List<ReadModel> resultList = new ArrayList<>();
+        List<SearchResult<ReadModel>.SearchResultGroup> searchResultGroupList = searchResult.getGroups();
+        for (SearchResult<ReadModel>.SearchResultGroup searchResultGroup : searchResultGroupList) {
+            List<SearchResult<ReadModel>.SearchResultRow> searchResultRowList = searchResultGroup.getRows();
+            SearchResult<ReadModel>.SearchResultRow searchResultRow = searchResultRowList.get(0);
+            ReadModel readModel = searchResultRow.getFields();
+            resultList.add(readModel);
+        }
+        
+        return resultList;
+    }
+    
+    @GET
+    @Path("/getLikeUserList")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public List<LikeModel> getLikeUserList(@QueryParam("topicId") String topicId){
+        System.out.println(">>>>>>>>>>>>>>>>>>> getLikeUserList()");
+        SearchResult<LikeModel> searchResult =   db.search("SearchIndex/LikeModelIndex")
+                .sort("[\"-date<string>\"]")
+                .querySearchResult("topicId:\""+topicId+"\"", LikeModel.class);
+        
+        List<LikeModel> resultList = new ArrayList<>();
+        List<SearchResult<LikeModel>.SearchResultRow> searchResultRowList = searchResult.getRows();
+        for (SearchResult<LikeModel>.SearchResultRow searchResultRow : searchResultRowList) {
+            LikeModel likeModel = searchResultRow.getFields();
+            resultList.add(likeModel);
+            System.out.println(likeModel.isStatusLike());
+        }
+        
+        return resultList;
     }
     
     private LastTopicModel findModelById(List<LastTopicModel> dbModelList, String _id) {

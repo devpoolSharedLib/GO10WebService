@@ -71,6 +71,7 @@ public class GetToppicManagementServlet extends HttpServlet {
         while ((line = br.readLine()) != null) {
             sb.append(line+"\n");
         }
+        System.out.println("SB : " + sb.toString());
         br.close();
         return sb;
     }

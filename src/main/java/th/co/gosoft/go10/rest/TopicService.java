@@ -20,6 +20,7 @@ import com.cloudant.client.api.model.IndexField;
 import com.cloudant.client.api.model.IndexField.SortOrder;
 import com.cloudant.client.api.model.SearchResult;
 
+import th.co.gosoft.go10.model.BoardContentModel;
 import th.co.gosoft.go10.model.LastTopicModel;
 import th.co.gosoft.go10.model.LikeModel;
 import th.co.gosoft.go10.model.PollModel;
@@ -117,19 +118,43 @@ public class TopicService {
     
     private TopicManagementModel getTopicModelFromSearResult(List<SearchResult<LastTopicModel>.SearchResultRow> searchResultRowList) {
         TopicManagementModel topicManagementModel = new TopicManagementModel();
+        
         List<LastTopicModel> pinTopicList = new ArrayList<>();
+        BoardContentModel boardContentModelPinTopic = new BoardContentModel();
+        List<BoardContentModel> boardContentPinTopicList = new ArrayList<>();
+        
         List<LastTopicModel> noPinTopicList = new ArrayList<>();
+        BoardContentModel boardContentModelNoPinTopic = new BoardContentModel();
+        List<BoardContentModel> boardContentNoPinTopicList = new ArrayList<>();
+        
         for (SearchResult<LastTopicModel>.SearchResultRow searchResultRow : searchResultRowList) {
+        	boardContentModelPinTopic = new BoardContentModel();
+        	boardContentModelNoPinTopic = new BoardContentModel();
+        	pinTopicList = new ArrayList<>();
+        	noPinTopicList = new ArrayList<>();
             LastTopicModel lastTopicModel = searchResultRow.getDoc();
+            List<PollModel> pollModelList = new ArrayList<PollModel>();
+      	  	PollService pollService = new PollService();
+      	  	pollModelList = pollService.getPoll(lastTopicModel.get_id(), lastTopicModel.getEmpEmail());
             if(lastTopicModel.getPin() != null) {
                 pinTopicList.add(lastTopicModel);
+                boardContentModelPinTopic.setBoardContentList(pinTopicList);
+                if(pollModelList != null && !pollModelList.isEmpty()) {
+        			boardContentModelPinTopic.setCountAcceptPoll(pollService.getCountAcceptPoll(pollModelList.get(0).get_id()));
+        		}
+                boardContentPinTopicList.add(boardContentModelPinTopic);
             } else {
                 noPinTopicList.add(lastTopicModel);
-            }
+                boardContentModelNoPinTopic.setBoardContentList(noPinTopicList);
+                if(pollModelList != null && !pollModelList.isEmpty()) {
+        			boardContentModelNoPinTopic.setCountAcceptPoll(pollService.getCountAcceptPoll(pollModelList.get(0).get_id()));
+        		}
+                boardContentNoPinTopicList.add(boardContentModelNoPinTopic);
+            }	
         }
         
-        topicManagementModel.setPinTopicList(pinTopicList);
-        topicManagementModel.setNoPinTopicList(noPinTopicList);
+        topicManagementModel.setPinTopicList(boardContentPinTopicList);
+        topicManagementModel.setNoPinTopicList(boardContentNoPinTopicList);
         return topicManagementModel;
     }
 
@@ -368,4 +393,5 @@ public class TopicService {
         return sb.toString();    
     }
 
+    
 }

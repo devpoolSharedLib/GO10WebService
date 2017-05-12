@@ -4,8 +4,16 @@ public class ChoiceMasterModel {
 
     private String choiceKey;
     private String choiceTitle;
+
+    private Integer countChoice;
     
-    public String getChoiceKey() {
+    public Integer getCountChoice() {
+		return countChoice;
+	}
+	public void setCountChoice(Integer countChoice) {
+		this.countChoice = countChoice;
+	}
+	public String getChoiceKey() {
         return choiceKey;
     }
     public void setChoiceKey(String choiceKey) {

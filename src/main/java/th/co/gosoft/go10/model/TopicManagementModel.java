@@ -6,8 +6,8 @@ public class TopicManagementModel {
 
     String bookmark;
     Integer totalRows;
-    List<BoardContentModel> pinTopicList;
-    List<BoardContentModel> noPinTopicList;
+    List<LastTopicModel> pinTopicList;
+    List<LastTopicModel> noPinTopicList;
     List<LastTopicModel> unsavePinList;
     List<LastTopicModel> deletePinList;
     
@@ -24,16 +24,16 @@ public class TopicManagementModel {
     public void setTotalRows(Integer totalRows) {
         this.totalRows = totalRows;
     }
-    public List<BoardContentModel> getPinTopicList() {
+    public List<LastTopicModel> getPinTopicList() {
         return pinTopicList;
     }
-    public void setPinTopicList(List<BoardContentModel> pinTopicList) {
+    public void setPinTopicList(List<LastTopicModel> pinTopicList) {
         this.pinTopicList = pinTopicList;
     }
-    public List<BoardContentModel> getNoPinTopicList() {
+    public List<LastTopicModel> getNoPinTopicList() {
         return noPinTopicList;
     }
-    public void setNoPinTopicList(List<BoardContentModel> noPinTopicList) {
+    public void setNoPinTopicList(List<LastTopicModel> noPinTopicList) {
         this.noPinTopicList = noPinTopicList;
     }
     public List<LastTopicModel> getUnsavePinList() {

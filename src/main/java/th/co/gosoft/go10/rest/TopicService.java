@@ -120,41 +120,28 @@ public class TopicService {
         TopicManagementModel topicManagementModel = new TopicManagementModel();
         
         List<LastTopicModel> pinTopicList = new ArrayList<>();
-        BoardContentModel boardContentModelPinTopic = new BoardContentModel();
-        List<BoardContentModel> boardContentPinTopicList = new ArrayList<>();
-        
         List<LastTopicModel> noPinTopicList = new ArrayList<>();
-        BoardContentModel boardContentModelNoPinTopic = new BoardContentModel();
-        List<BoardContentModel> boardContentNoPinTopicList = new ArrayList<>();
         
         for (SearchResult<LastTopicModel>.SearchResultRow searchResultRow : searchResultRowList) {
-        	boardContentModelPinTopic = new BoardContentModel();
-        	boardContentModelNoPinTopic = new BoardContentModel();
-        	pinTopicList = new ArrayList<>();
-        	noPinTopicList = new ArrayList<>();
             LastTopicModel lastTopicModel = searchResultRow.getDoc();
             List<PollModel> pollModelList = new ArrayList<PollModel>();
       	  	PollService pollService = new PollService();
       	  	pollModelList = pollService.getPoll(lastTopicModel.get_id(), lastTopicModel.getEmpEmail());
             if(lastTopicModel.getPin() != null) {
+                if(pollModelList != null && !pollModelList.isEmpty()) {
+                	lastTopicModel.setCountAcceptPoll(pollService.getCountAcceptPoll(pollModelList.get(0).get_id()));
+        		}
                 pinTopicList.add(lastTopicModel);
-                boardContentModelPinTopic.setBoardContentList(pinTopicList);
-                if(pollModelList != null && !pollModelList.isEmpty()) {
-        			boardContentModelPinTopic.setCountAcceptPoll(pollService.getCountAcceptPoll(pollModelList.get(0).get_id()));
-        		}
-                boardContentPinTopicList.add(boardContentModelPinTopic);
             } else {
-                noPinTopicList.add(lastTopicModel);
-                boardContentModelNoPinTopic.setBoardContentList(noPinTopicList);
                 if(pollModelList != null && !pollModelList.isEmpty()) {
-        			boardContentModelNoPinTopic.setCountAcceptPoll(pollService.getCountAcceptPoll(pollModelList.get(0).get_id()));
+                	lastTopicModel.setCountAcceptPoll(pollService.getCountAcceptPoll(pollModelList.get(0).get_id()));
         		}
-                boardContentNoPinTopicList.add(boardContentModelNoPinTopic);
+                noPinTopicList.add(lastTopicModel);
             }	
         }
         
-        topicManagementModel.setPinTopicList(boardContentPinTopicList);
-        topicManagementModel.setNoPinTopicList(boardContentNoPinTopicList);
+        topicManagementModel.setPinTopicList(pinTopicList);
+        topicManagementModel.setNoPinTopicList(noPinTopicList);
         return topicManagementModel;
     }
 

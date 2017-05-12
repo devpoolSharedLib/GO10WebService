@@ -75,6 +75,4 @@ public class GetToppicManagementServlet extends HttpServlet {
         return sb;
     }
 	
-	
-
 }

@@ -100,14 +100,12 @@ public class TopicService {
                 .sort("[\"pin<number>\",\"-date<string>\"]")
                 .limit(30);
         if(bookmark != null && !("".equals(bookmark))){
-            System.out.println("bookmark not null");
             search.bookmark(bookmark);
         }
         SearchResult<LastTopicModel> searchResult = search.querySearchResult("roomId:\""+roomId+"\" AND type:\"host\"", LastTopicModel.class); 
-        System.out.println("size : "+searchResult.getRows().size());
         
         List<SearchResult<LastTopicModel>.SearchResultRow> searchResultRowList = searchResult.getRows();
-        TopicManagementModel topicManagementModel = getTopicModelFromSearResult(searchResultRowList);
+        TopicManagementModel topicManagementModel = getTopicModelFromSearchResult(searchResultRowList);
         topicManagementModel.setTotalRows((int) searchResult.getTotalRows());
         topicManagementModel.setBookmark(searchResult.getBookmark());
         
@@ -115,7 +113,7 @@ public class TopicService {
         return topicManagementModel;
     }
     
-    private TopicManagementModel getTopicModelFromSearResult(List<SearchResult<LastTopicModel>.SearchResultRow> searchResultRowList) {
+    private TopicManagementModel getTopicModelFromSearchResult(List<SearchResult<LastTopicModel>.SearchResultRow> searchResultRowList) {
         TopicManagementModel topicManagementModel = new TopicManagementModel();
         List<LastTopicModel> pinTopicList = new ArrayList<>();
         List<LastTopicModel> noPinTopicList = new ArrayList<>();
@@ -128,8 +126,8 @@ public class TopicService {
             }
         }
         
-        topicManagementModel.setPinTopicList(pinTopicList);
-        topicManagementModel.setNoPinTopicList(noPinTopicList);
+        topicManagementModel.setPinTopicList(DateUtils.formatDBDateToClientDate(pinTopicList));
+        topicManagementModel.setNoPinTopicList(DateUtils.formatDBDateToClientDate(noPinTopicList));
         return topicManagementModel;
     }
 
@@ -202,15 +200,15 @@ public class TopicService {
                 .sort("[\"-date<string>\"]")
                 .querySearchResult("topicId:\""+topicId+"\"", ReadModel.class);
         
-        List<ReadModel> resultList = new ArrayList<>();
+        List<ReadModel> readModelList = new ArrayList<>();
         List<SearchResult<ReadModel>.SearchResultGroup> searchResultGroupList = searchResult.getGroups();
         for (SearchResult<ReadModel>.SearchResultGroup searchResultGroup : searchResultGroupList) {
             List<SearchResult<ReadModel>.SearchResultRow> searchResultRowList = searchResultGroup.getRows();
             SearchResult<ReadModel>.SearchResultRow searchResultRow = searchResultRowList.get(0);
             ReadModel readModel = searchResultRow.getFields();
-            resultList.add(readModel);
+            readModelList.add(readModel);
         }
-        
+        List<ReadModel> resultList = DateUtils.formatDBDateToClientDateForReadModel(readModelList);
         return resultList;
     }
     
@@ -223,14 +221,14 @@ public class TopicService {
                 .sort("[\"-date<string>\"]")
                 .querySearchResult("topicId:\""+topicId+"\"", LikeModel.class);
         
-        List<LikeModel> resultList = new ArrayList<>();
+        List<LikeModel> likeModelList = new ArrayList<>();
         List<SearchResult<LikeModel>.SearchResultRow> searchResultRowList = searchResult.getRows();
         for (SearchResult<LikeModel>.SearchResultRow searchResultRow : searchResultRowList) {
             LikeModel likeModel = searchResultRow.getFields();
-            resultList.add(likeModel);
-            System.out.println(likeModel.isStatusLike());
+            likeModelList.add(likeModel);
         }
         
+        List<LikeModel> resultList = DateUtils.formatDBDateToClientDateForLikeModel(likeModelList);
         return resultList;
     }
     

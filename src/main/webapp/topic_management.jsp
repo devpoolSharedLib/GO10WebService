@@ -87,18 +87,82 @@
 			rowString += "<td style='text-align:center'>"+obj.date+"</td>";
 			if (obj.pin != null) {
 				rowString += "<td style='text-align:center'>"
-				+"<input type='image' src='images/pin-"+(index+1)+".png' class='icon-table' data-toggle='modal' data-target='.bs-example-modal-lg'/>"
-// 				+"<input type='image' src='images/delete.png' class='icon-table'/>"
+				+"<input type='image' src='images/pin-"+(index+1)+".png' class='icon-table' data-toggle='modal' data-target='#pinTopicModal'/>"
 				+"</td>";
 			} else {
 				rowString += "<td style='text-align:center'>"
 				+"<input type='image' src='images/pin.png' class='icon-table' onclick='openModal(this)' />"
-// 				+"<input type='image' src='images/delete.png' class='icon-table'/>"
 				+"</td>";
 			}
+			if(obj.countRead == 0){
+				rowString += "<td style='text-align:center'>"+obj.countRead+"</td>";
+			} else {
+				rowString += "<td style='text-align:center'><a href='#' onclick='showEmpEmailReadModal(\""+obj._id+"\")'>"+obj.countRead+"</a></td>";
+			}
+			
+			if(obj.countLike == 0){
+				rowString += "<td style='text-align:center'>"+obj.countLike+"</td>";
+			} else {
+				rowString += "<td style='text-align:center'><a href='#' onclick='showEmpEmailLikeModal(\""+obj._id+"\")'>"+obj.countLike+"</a></td>";
+			}
+			
 			rowString += "</tr>"
 			$("#topicTable > tbody").append(rowString);
 			startIndex += 1;
+		});
+	}
+	
+	function showEmpEmailReadModal(id){
+		$('#readListUserModal').modal('show');
+			$.ajax({
+			url: '/GO10WebService/GetReadUserServlet',
+            type: 'GET',
+            data: {"topicId": id},
+            contentType: "application/json",
+            error: function() {
+            	alert("Error");
+            },
+            success: function(data, textStatus, jqXHR) {
+            	insertDataToReadListTable(data);
+            }
+       	});
+	}
+	
+	function insertDataToReadListTable(readList){
+		$("#readListUserTable > tbody").empty();
+		$.each(readList, function(index, data){
+			var rowString = "<tr>";
+			rowString += "<td>"+data.empEmail+"</td>";
+			rowString += "<td style='text-align:center'>"+data.date+"</td>";
+			rowString += "</tr>"
+			$("#readListUserTable > tbody").append(rowString);
+		});
+	}
+	
+	function showEmpEmailLikeModal(id){
+		$('#likeListUserModal').modal('show');
+			$.ajax({
+			url: '/GO10WebService/GetLikeUserServlet',
+            type: 'GET',
+            data: {"topicId": id},
+            contentType: "application/json",
+            error: function() {
+            	alert("Error");
+            },
+            success: function(data, textStatus, jqXHR) {
+				insertDataToLikeListTable(data);
+            }
+       	});
+	}
+	
+	function insertDataToLikeListTable(likeList){
+		$("#likeListUserTable > tbody").empty();
+		$.each(likeList, function(index, data){
+			var rowString = "<tr>";
+			rowString += "<td>"+data.empEmail+"</td>";
+			rowString += "<td style='text-align:center'>"+data.date+"</td>";
+			rowString += "</tr>"
+			$("#likeListUserTable > tbody").append(rowString);
 		});
 	}
 	
@@ -109,7 +173,7 @@
 			$('#pinTopicModal').modal('show');
 		} else {
 			elePin = false;
-			alert("Cannot pin more than 5 topic!!!");
+			alert("Cannot pin more than 5 topics!!!");
 		}
 	}
 	
@@ -284,14 +348,10 @@
 	<div class="container">
 		<h3>Topic Management</h3>
 		<br>
-		<div class="col-md-offset-1 col-md-10">
+		<div class="col-md-12">
 			<div class="row">
 				<div id="totalRows" class="col-md-2" style="text-align: left;"></div>
-				<div id="paging" class="col-md-10" style="text-align: right;">
-<!-- 					<div class="paging" onclick="gotoPage(1)" style="display: inline;">1</div> -->
-<!-- 					<div class="paging" onclick="gotoPage(2)" style="display: inline;">2</div> -->
-<!-- 					<div class="paging" onclick="gotoPage(3)" style="display: inline;">3</div> -->
-				</div>
+				<div id="paging" class="col-md-10" style="text-align: right;"></div>
 			</div>
 			<div class="row">
 				<div class="col-md-12">
@@ -300,10 +360,12 @@
 							<tr>
 								<th style="display: none;">_id</th>
 								<th style="width: 5%; text-align: center;">No.</th>
-								<th style="width: 25%; text-align: center;">Create Avatar</th>
-								<th style="width: 40%; text-align: left;">Topic</th>
-								<th style="width: 20%; text-align: center;">Create Date</th>
-								<th style="width: 15%; text-align: right;"></th>
+								<th style="width: 20%; text-align: center;">Create Avatar</th>
+								<th style="width: 25%; text-align: left;">Topic</th>
+								<th style="width: 15%; text-align: center;">Create Date</th>
+								<th style="width: 7%; text-align: center;">Pin</th>
+								<th style="width: 7%; text-align: center;">Read</th>
+								<th style="width: 7%; text-align: center;">Like</th>
 							</tr>
 						</thead>
 						<tbody></tbody>
@@ -313,7 +375,7 @@
 		</div>
 	</div>
 	
-	<div class="modal fade bs-example-modal-lg" id="pinTopicModal" tabindex="-1" role="dialog" aria-labelledby="pinTopicModalLabel">
+	<div class="modal fade" id="pinTopicModal" tabindex="-1" role="dialog" aria-labelledby="pinTopicModalLabel">
 	  	<div class="modal-dialog" role="document">
 		    <div class="modal-content">
 		      <div class="modal-header">
@@ -341,7 +403,58 @@
 		    </div>
   		</div>
 	</div>
-
+	
+	<div class="modal fade" id="readListUserModal" tabindex="-1" role="dialog" aria-labelledby="readListUserLabel">
+	  	<div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        <h4 class="modal-title" id="listUserLabel">Read User</h4>
+		      </div>
+		      <div class="modal-body">
+		        <table id="readListUserTable" class="table table-striped table-responsive" style="width: 100%;">
+					<thead>
+						<tr>
+							<th style="width: 60%;">Email</th>
+							<th style="width: 40%; text-align: center;">Read Time</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		      </div>
+		    </div>
+  		</div>
+	</div>
+	
+	<div class="modal fade" id="likeListUserModal" tabindex="-1" role="dialog" aria-labelledby="likeListUserLabel">
+	  	<div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        <h4 class="modal-title" id="listUserLabel">Liked User</h4>
+		      </div>
+		      <div class="modal-body">
+		        <table id="likeListUserTable" class="table table-striped table-responsive" style="width: 100%;">
+					<thead>
+						<tr>
+							<th style="display: none;">_id</th>
+							<th style="width: 60%;">Email</th>
+							<th style="width: 40%; text-align: center;">Like Time</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		      </div>
+		    </div>
+  		</div>
+	</div>
+	
 	<script type="text/javascript">
 		$('#pinTopicModal').on('show.bs.modal', function (event) {
 		  if(elePin != null) {
@@ -359,6 +472,7 @@
 			deletePinList = [];
 			elePin = null;
 		});
+		
 	</script>
 </body>
 </html>

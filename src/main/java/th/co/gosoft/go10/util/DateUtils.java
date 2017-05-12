@@ -11,6 +11,8 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import th.co.gosoft.go10.model.LastTopicModel;
+import th.co.gosoft.go10.model.LikeModel;
+import th.co.gosoft.go10.model.ReadModel;
 
 public class DateUtils {
 
@@ -22,6 +24,26 @@ public class DateUtils {
         for (LastTopicModel lastTopicModel : lastTopicModelList) {
             LastTopicModel resultModel = lastTopicModel;
             resultModel.setDate(clientFormat.format(parseStringToDate(lastTopicModel.getDate())));
+            resultList.add(resultModel);
+        }
+        return resultList;
+    }
+    
+    public static List<ReadModel> formatDBDateToClientDateForReadModel(List<ReadModel> readModelList) {
+        List<ReadModel> resultList = new ArrayList<ReadModel>();
+        for (ReadModel readModel : readModelList) {
+            ReadModel resultModel = readModel;
+            resultModel.setDate(clientFormat.format(parseStringToDate(readModel.getDate())));
+            resultList.add(resultModel);
+        }
+        return resultList;
+    }
+    
+    public static List<LikeModel> formatDBDateToClientDateForLikeModel(List<LikeModel> likeModelList) {
+        List<LikeModel> resultList = new ArrayList<LikeModel>();
+        for (LikeModel likeModel : likeModelList) {
+            LikeModel resultModel = likeModel;
+            resultModel.setDate(clientFormat.format(parseStringToDate(likeModel.getDate())));
             resultList.add(resultModel);
         }
         return resultList;

@@ -18,6 +18,7 @@ public class LastTopicModel {
     private String updateDate;
     private Integer pin;
     private Boolean statusRead;
+    private Integer countAcceptPoll;
     
     public LastTopicModel(){}
     
@@ -127,5 +128,14 @@ public class LastTopicModel {
     public void setStatusRead(Boolean statusRead) {
         this.statusRead = statusRead;
     }
+
+	public Integer getCountAcceptPoll() {
+		return countAcceptPoll;
+	}
+
+	public void setCountAcceptPoll(Integer countAcceptPoll) {
+		this.countAcceptPoll = countAcceptPoll;
+	}
+    
 
 }

@@ -36,7 +36,6 @@ public class PollService {
         return pollModelList;
     }
     
-    
     @GET
     @Path("/getPollReportByTopicId")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -124,6 +123,7 @@ public class PollService {
 		return questionReportModelList;
     	
     }
+    
     private String getPollByTopicIdJsonString(String topicId, String empEmail) {
         StringBuilder sb = new StringBuilder();
         sb.append("{\"selector\": {");

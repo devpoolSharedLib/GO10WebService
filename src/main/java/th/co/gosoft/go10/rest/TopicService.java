@@ -2,7 +2,9 @@ package th.co.gosoft.go10.rest;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -118,28 +120,79 @@ public class TopicService {
         
         List<LastTopicModel> pinTopicList = new ArrayList<>();
         List<LastTopicModel> noPinTopicList = new ArrayList<>();
+        List<LastTopicModel> allTopicModelList = new ArrayList<>();
         
         for (SearchResult<LastTopicModel>.SearchResultRow searchResultRow : searchResultRowList) {
             LastTopicModel lastTopicModel = searchResultRow.getDoc();
-            List<PollModel> pollModelList = new ArrayList<PollModel>();
-      	  	PollService pollService = new PollService();
-      	  	pollModelList = pollService.getPoll(lastTopicModel.get_id(), lastTopicModel.getEmpEmail());
-            if(lastTopicModel.getPin() != null) {
-                if(pollModelList != null && !pollModelList.isEmpty()) {
-                	lastTopicModel.setCountAcceptPoll(pollService.getCountAcceptPoll(pollModelList.get(0).get_id()));
-        		}
-                pinTopicList.add(lastTopicModel);
-            } else {
-                if(pollModelList != null && !pollModelList.isEmpty()) {
-                	lastTopicModel.setCountAcceptPoll(pollService.getCountAcceptPoll(pollModelList.get(0).get_id()));
-        		}
-                noPinTopicList.add(lastTopicModel);
-            }	
+            allTopicModelList.add(lastTopicModel);
+        }
+        
+        String topicIdListString = StringUtils.generateTopicIdString(allTopicModelList);
+        List<PollModel> pollModelList = getAllPollByTopicIdList(topicIdListString);
+        
+        String pollIdListString = getPollIdListStringFromList(pollModelList);
+        System.out.println("pollId string : "+pollIdListString);
+        if(pollIdListString != null && !pollIdListString.isEmpty()) {
+            System.out.println("IF");
+            Map<String, Integer> answerUserMap =  getAnswerUserByPollIdList(pollIdListString);
+            Map<String, String> topicIdAndPollIdMap = createTopicIdAndPollMap(pollModelList);
+            getCountAccepPoll(pinTopicList, noPinTopicList, allTopicModelList, answerUserMap, topicIdAndPollIdMap);
+        } else {
+            System.out.println("ELSE");
+            getCountAccepPoll(pinTopicList, noPinTopicList, allTopicModelList, null, null);
         }
         
         topicManagementModel.setPinTopicList(DateUtils.formatDBDateToClientDate(pinTopicList));
         topicManagementModel.setNoPinTopicList(DateUtils.formatDBDateToClientDate(noPinTopicList));
         return topicManagementModel;
+    }
+
+    private Map<String, String> createTopicIdAndPollMap(List<PollModel> pollModelList) {
+        Map<String, String> resultMap = new HashMap<>();
+        for (PollModel pollModel : pollModelList) {
+            resultMap.put(pollModel.getTopicId(), pollModel.get_id());
+        }
+        return resultMap;
+    }
+
+    private void getCountAccepPoll(List<LastTopicModel> pinTopicList, List<LastTopicModel> noPinTopicList, List<LastTopicModel> allTopicModelList
+            , Map<String, Integer> answerUserMap, Map<String, String> topicIdAndPollIdMap) {
+        
+        for (LastTopicModel lastTopicModel : allTopicModelList) {
+            if(answerUserMap != null && allTopicModelList != null) {
+              String topicPoll = topicIdAndPollIdMap.get(lastTopicModel.get_id());
+              if((answerUserMap.get(topicPoll) != null)) {
+                  lastTopicModel.setCountAcceptPoll(answerUserMap.get(topicPoll));
+              }
+            }
+            
+            if(lastTopicModel.getPin() != null) {
+              pinTopicList.add(lastTopicModel);
+            } else {
+              noPinTopicList.add(lastTopicModel);
+            }
+        }
+    }
+
+    private Map<String, Integer> getAnswerUserByPollIdList(String pollIdListString) {
+        PollService pollService = new PollService();
+        return pollService.getAllCountAcceptPollByPollIdList(pollIdListString);
+    }
+
+    private List<PollModel> getAllPollByTopicIdList(String topicIdListString) {
+        PollService pollService = new PollService();
+        return pollService.getAllPollByTopicIdList(topicIdListString);
+    }
+    
+    private String getPollIdListStringFromList(List<PollModel> pollModelList){
+        StringBuilder sb = new StringBuilder();
+        String prefix = "";
+        for (PollModel pollModel : pollModelList) {
+            sb.append(prefix);
+            prefix = " or ";
+            sb.append("\""+pollModel.get_id()+"\"");
+        }
+        return sb.toString();
     }
 
     @GET
@@ -331,7 +384,6 @@ public class TopicService {
         sb.append("\"_id\": {\"$or\": ["+topicIdString+"]}");
         sb.append("},");
         sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"countLike\",\"updateDate\",\"pin\"]}");
-        System.out.println(sb.toString());
         return sb.toString();
     }
 

@@ -203,10 +203,6 @@ public class TopicService {
         System.out.println(">>>>>>>>>>>>>>>>>>> getTopicById() //topcic id : " + topicId);
 		List<LastTopicModel> topicModelList = db.findByIndex(getTopicByIdJsonString(topicId), LastTopicModel.class,
 				new FindByIndexOptions().sort(new IndexField("date", SortOrder.asc)));
-		String newRev = increaseReadCount(topicModelList.get(0), empEmail);
-		if (newRev != null) {
-			topicModelList.get(0).set_rev(newRev);
-		}
 		concatDomainImagePath(topicModelList);
 		List<LastTopicModel> resultList = DateUtils.formatDBDateToClientDate(topicModelList);
         return resultList;
@@ -322,6 +318,8 @@ public class TopicService {
 	public Response readTopic(@QueryParam("empEmail") String empEmail,@QueryParam("topicId") String topicId) {
 		System.out.println(">>>>>>>>>>>>>>>>>>> readtopic() // empEmail : " + empEmail + " topicId : " + topicId);
 		stampDate = DateUtils.dbFormat.format(new Date());
+		LastTopicModel lastTopicModel = db.find(LastTopicModel.class, topicId);
+		increaseReadCount(lastTopicModel, empEmail);
 		ReadModel readModel = createReadModelMap(empEmail, topicId);
 		db.save(readModel);
 		return Response.status(201).build();
@@ -412,9 +410,7 @@ public class TopicService {
 			stampDate = DateUtils.dbFormat.format(new Date());
 			System.out.println("StampDate : " + stampDate);
 			LastTopicModel localLastTopicModel = lastTopicModel;
-			List<ReadModel> readModelList = db.findByIndex(
-					getReadModelByTopicIdAndEmpEmailString(localLastTopicModel.get_id(), empEmail), ReadModel.class);
-			
+			List<ReadModel> readModelList = db.findByIndex(getReadModelByTopicIdAndEmpEmailString(localLastTopicModel.get_id(), empEmail), ReadModel.class);
 			if (haveNotBeenReadTopic(readModelList)) {
 				System.out.println("This user is never read this topic");
 				localLastTopicModel.setCountRead(getCountRead(localLastTopicModel) + 1);
@@ -429,7 +425,9 @@ public class TopicService {
 	}
 
     private boolean haveNotBeenReadTopic(List<ReadModel> readModelList) {
-        return readModelList == null || readModelList.isEmpty();
+        boolean temp = (readModelList == null || readModelList.isEmpty());
+        System.out.println("haveNotBeenReadTopic : "+temp);
+        return temp;
     }
 
 	private void insertLogDelete(LastTopicModel lastTopicModel, String actionEmail) {

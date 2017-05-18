@@ -1,7 +1,9 @@
 package th.co.gosoft.go10.rest;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -37,11 +39,19 @@ public class PollService {
     }
     
     @GET
+    @Path("/getAllPollByTopicIdList")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public List<PollModel> getAllPollByTopicIdList(@QueryParam("topicId") String topicIdList) {
+        System.out.println(">>>>>>>>>>>>>>>>>>> getAllPollByTopicIdList() //topcic id : " + topicIdList);
+        List<PollModel> pollModelList = db.findByIndex(getAllPollByTopicIdListJsonString(topicIdList), PollModel.class);
+        return pollModelList;
+    }
+    
+    @GET
     @Path("/getPollReportByTopicId")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public List<PollReportModel> getPollReportByTopicId(@QueryParam("topicId") String topicId){
+    public PollReportModel getPollReportByTopicId(@QueryParam("topicId") String topicId){
         System.out.println(">>>>>>>>>>>>>>>>>>> getPollReportByPollId() //topicId : "+topicId);
-        List<PollReportModel> pollReportModelList = new ArrayList<PollReportModel>();
         PollReportModel pollReportModel = new PollReportModel();
        
         Search search =   db.search("SearchIndex/PollModelIndex")
@@ -58,11 +68,8 @@ public class PollService {
         
         pollReportModel.setQuestionReport(getQuestionReportModel(searchResultPollModel));
         pollReportModel.setEmpEmailAcceptPoll(getEmpEmailAcceptPoll(pollId));
-        pollReportModelList.add(pollReportModel); 
        
-        return pollReportModelList;
-        
-        
+        return pollReportModel;
     }
     
     private List<String> getEmpEmailAcceptPoll(String pollId){
@@ -89,6 +96,32 @@ public class PollService {
          SearchResult<ChoiceTransactionModel> searchResult = search.querySearchResult("pollId:\""+pollId+"\"", ChoiceTransactionModel.class); 
          System.out.println("getCountAcceptPoll poll id : " + pollId + "size : " + searchResult.getGroups().size());
          return searchResult.getGroups().size();
+    }
+    
+    public Map<String, Integer> getAllCountAcceptPollByPollIdList(String pollId){
+        Search search =   db.search("SearchIndex/ChoiceTransactionModelIndex")
+                .includeDocs(true)
+                .sort("[\"empEmail<string>\"]")
+                .groupField("pollId", false);
+        SearchResult<ChoiceTransactionModel> searchResult = search.querySearchResult("pollId:("+pollId+")", ChoiceTransactionModel.class); 
+      
+        Map<String, Integer> countAcceptPollMap = new HashMap<String, Integer>();
+        List<SearchResult<ChoiceTransactionModel>.SearchResultGroup> searchResultGroupList = searchResult.getGroups();
+        for (SearchResult<ChoiceTransactionModel>.SearchResultGroup searchResultGroup : searchResultGroupList) {
+            List<SearchResult<ChoiceTransactionModel>.SearchResultRow> searchResultRowList = searchResultGroup.getRows();
+            int countAcceptPoll = 0;
+            String tempEmpEmail = "";
+            System.out.println("poll id : " + searchResultRowList.get(0).getDoc().getPollId());
+            for(SearchResult<ChoiceTransactionModel>.SearchResultRow searchResultRow : searchResultRowList){
+                 if(!(tempEmpEmail.equals(searchResultRow.getDoc().getEmpEmail().toString()))){
+                     tempEmpEmail = searchResultRow.getDoc().getEmpEmail();
+                     countAcceptPoll++;
+                 }
+            }
+            countAcceptPollMap.put(searchResultRowList.get(0).getDoc().getPollId(), countAcceptPoll);
+            System.out.println("countAccept Poll " + countAcceptPoll);
+        }
+        return countAcceptPollMap;
     }
     
     private List<QuestionReportModel> getQuestionReportModel(SearchResult<PollModel> searchResultPollModel){
@@ -133,6 +166,18 @@ public class PollService {
         sb.append("{\"empEmailPoll\":{\"$elemMatch\": {");
         sb.append("\"$or\": [\"all\", \"" + empEmail + "\"]");
         sb.append("}}}]");
+        sb.append("}}");
+        return sb.toString();
+    }
+    
+    private String getAllPollByTopicIdListJsonString(String topicIdList) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\"selector\": {");
+        sb.append("\"_id\": {\"$gt\": 0},");
+        sb.append("\"$and\": [{\"type\":\"poll\"},");
+        sb.append("{\"topicId\": {");
+        sb.append("\"$or\": ["+topicIdList+"]");
+        sb.append("}}]");
         sb.append("}}");
         return sb.toString();
     }

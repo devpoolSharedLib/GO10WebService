@@ -13,6 +13,14 @@
 		cursor: pointer;
 		margin-left: 5px;
 	}
+	
+	.no-boarder {
+		border: none;
+	}
+
+	div.dropdown {
+		display: inline;
+	}
 </style>
 
 <script type="text/javascript">
@@ -82,7 +90,7 @@
 			var rowString = "<tr>";
 			rowString += "<td style='display: none;''>"+obj._id+"</td>";
 			rowString += "<td style='text-align:center'>"+(startIndex)+"</td>";
-			rowString += "<td style='text-align:center'>"+obj.avatarName+"</td>";
+			rowString += "<td style='text-align:center'>"+obj.empEmail+"</td>";
 			rowString += "<td>"+obj.subject+"</td>";
 			rowString += "<td style='text-align:center'>"+obj.date+"</td>";
 			if (obj.pin != null) {
@@ -94,27 +102,91 @@
 				+"<input type='image' src='images/pin.png' class='icon-table' onclick='openModal(this)' />"
 				+"</td>";
 			}
-			if(obj.countRead == 0){
-				rowString += "<td style='text-align:center'>"+obj.countRead+"</td>";
-			} else {
-				rowString += "<td style='text-align:center'><a href='#' onclick='showEmpEmailReadModal(\""+obj._id+"\")'>"+obj.countRead+"</a></td>";
-			}
+			rowString += "<td style='text-align:right'>";
+			rowString += "<table style='width: 100%';>";
+			rowString += "<tr>";
 			
-			if(obj.countLike == 0){
-				rowString += "<td style='text-align:center'>"+obj.countLike+"</td>";
-			} else {
-				rowString += "<td style='text-align:center'><a href='#' onclick='showEmpEmailLikeModal(\""+obj._id+"\")'>"+obj.countLike+"</a></td>";
+			rowString += "<td style='text-align:center; width:33%;'>";
+			if(obj.countRead != 0){
+				rowString += "<a href='#' onclick='showEmpEmailReadModal(\""+obj._id+"\")'><img src='./images/readCount.png' alt='Smiley face' height='20' width='20' title='จำนวนผู้ตอบคำถาม' styel='vertical-align: bottom;'>  "+obj.countRead+"</a>";
 			}
+			rowString += "</td>";
 			
+			rowString += "<td style='text-align:center; width:33%;'>";
+			if(obj.countLike != 0){
+				rowString += "<a href='#' onclick='showEmpEmailLikeModal(\""+obj._id+"\")'><img src='./images/likeCounts.png' alt='Smiley face' height='20' width='20' title='จำนวนผู้ตอบคำถาม' styel='vertical-align: bottom;'>  "+obj.countLike+"</a>";
+			}
+			rowString += "</td>";
+			
+			rowString += "<td style='text-align:center; width:33%;'>";
+			if(obj.countAcceptPoll != null) {
+				rowString += "<a href='#' onclick='showAcceptPollPopup(\""+obj._id+"\")'><img src='./images/pollCount.png' alt='Smiley face' height='20' width='20' title='จำนวนผู้ตอบคำถาม' styel='vertical-align: bottom;'>  "+obj.countAcceptPoll+"</a>";
+			}
+			rowString += "</td>";
+			
+			rowString += "</tr>";
+			rowString += "</table>";
+			rowString += "</td>";
 			rowString += "</tr>"
 			$("#topicTable > tbody").append(rowString);
 			startIndex += 1;
 		});
 	}
 	
+	function showAcceptPollPopup(id){
+		$("#reportPollTable > tbody").empty();
+		$("#acceptEmailTable > tbody").empty();
+		$('#pollUserModal').modal('show');
+		$.ajax({
+			url: '/GO10WebService/GetPollReportServlet',
+            type: 'GET',
+            data: {"topicId": id},
+            contentType: "application/json",
+            error: function() {
+            	alert("Error");
+            },
+            success: function(data, textStatus, jqXHR) {
+            	insertPollUserTable(data);
+            }
+       	});
+	}
+	
+	function insertPollUserTable(obj){
+		var questionReport = obj.questionReport;
+		var countAcceptPoll = obj.countAcceptPoll;
+		var rowString = "";
+		$.each(questionReport, function(index, data){
+			var choiceMaster = data.choiceMaster;
+			rowString += "<tr>";
+			rowString += "<td><b>"+(index+1)+". "+data.questionTitle+"</b></td>";
+			rowString += "<td style='text-align:center;'><b>"+countAcceptPoll+"</></td>";
+			rowString += "<td style='text-align:center;'><b>100</b></td>";
+			rowString += "</tr>"
+			$.each(choiceMaster, function(ind, data){
+				rowString += "<tr>";
+				rowString += "<td style='text-indent: 40px;'>"+(index+1)+"."+(ind+1)+" "+data.choiceTitle+"</td>";
+				rowString += "<td style='text-align: center;'>"+data.countChoice+"</td>";
+				rowString += "<td style='text-align: center;'>"+Math.round((data.countChoice/countAcceptPoll)*100)+"</td>";
+				rowString += "</tr>"
+			});
+		});
+		$("#reportPollTable > tbody").append(rowString);
+		
+		var empEmailAcceptPoll = obj.empEmailAcceptPoll;
+		var rowStr = "";
+		$.each(empEmailAcceptPoll, function(index, data){
+			rowStr += "<tr>";
+			rowStr += "<td style='text-align: center'>"+(index+1)+"</td>";
+			rowStr += "<td>"+data+"</td>";
+			rowStr += "</tr>";
+		});
+		$("#acceptEmailTable > tbody").append(rowStr);
+	}
+	
 	function showEmpEmailReadModal(id){
+		$("#readListUserTable > tbody").empty();
 		$('#readListUserModal').modal('show');
-			$.ajax({
+		$.ajax({
 			url: '/GO10WebService/GetReadUserServlet',
             type: 'GET',
             data: {"topicId": id},
@@ -129,17 +201,18 @@
 	}
 	
 	function insertDataToReadListTable(readList){
-		$("#readListUserTable > tbody").empty();
+		var rowString = "";
 		$.each(readList, function(index, data){
-			var rowString = "<tr>";
+			rowString += "<tr>";
 			rowString += "<td>"+data.empEmail+"</td>";
 			rowString += "<td style='text-align:center'>"+data.date+"</td>";
 			rowString += "</tr>"
-			$("#readListUserTable > tbody").append(rowString);
 		});
+		$("#readListUserTable > tbody").append(rowString);
 	}
 	
 	function showEmpEmailLikeModal(id){
+		$("#likeListUserTable > tbody").empty();
 		$('#likeListUserModal').modal('show');
 			$.ajax({
 			url: '/GO10WebService/GetLikeUserServlet',
@@ -156,14 +229,14 @@
 	}
 	
 	function insertDataToLikeListTable(likeList){
-		$("#likeListUserTable > tbody").empty();
+		var rowString = "";
 		$.each(likeList, function(index, data){
-			var rowString = "<tr>";
+			rowString += "<tr>";
 			rowString += "<td>"+data.empEmail+"</td>";
 			rowString += "<td style='text-align:center'>"+data.date+"</td>";
 			rowString += "</tr>"
-			$("#likeListUserTable > tbody").append(rowString);
 		});
+		$("#likeListUserTable > tbody").append(rowString);
 	}
 	
 	function openModal(ele){
@@ -342,6 +415,19 @@
 	    return object;
 	}
 	
+	function changeContentModal(mode){
+		if(mode == 'acceptList') {
+			$('#pollUserModalMenu').html("Accept User <span class='caret'></span>");
+// 			<span class='caret'></span>
+			$('#acceptEmailTable').show();
+			$('#reportPollTable').hide();
+		} else if(mode == 'report') {
+			$('#pollUserModalMenu').html("Answer Report <span class='caret'></span>");
+			$('#acceptEmailTable').hide();
+			$('#reportPollTable').show();
+		}
+	}
+	
 </script>
 
 	<div class="modal-loading"></div>
@@ -360,12 +446,11 @@
 							<tr>
 								<th style="display: none;">_id</th>
 								<th style="width: 5%; text-align: center;">No.</th>
-								<th style="width: 20%; text-align: center;">Create Avatar</th>
+								<th style="width: 15%; text-align: center;">Create Account</th>
 								<th style="width: 25%; text-align: left;">Topic</th>
 								<th style="width: 15%; text-align: center;">Create Date</th>
 								<th style="width: 7%; text-align: center;">Pin</th>
-								<th style="width: 7%; text-align: center;">Read</th>
-								<th style="width: 7%; text-align: center;">Like</th>
+								<th style="width: 15%; text-align: center;"></th>
 							</tr>
 						</thead>
 						<tbody></tbody>
@@ -380,7 +465,7 @@
 		    <div class="modal-content">
 		      <div class="modal-header">
 		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-		        <h4 class="modal-title" id="myModalLabel">Pin Management</h4>
+		        <h4 class="modal-title" id="pinTopicModalLabel">Pin Management</h4>
 		      </div>
 		      <div class="modal-body">
 		        <table id="pinTable" class="table table-striped table-responsive" style="width: 100%;">
@@ -409,7 +494,7 @@
 		    <div class="modal-content">
 		      <div class="modal-header">
 		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-		        <h4 class="modal-title" id="listUserLabel">Read User</h4>
+		        <h4 class="modal-title" id="readListUserLabel">Read User</h4>
 		      </div>
 		      <div class="modal-body">
 		        <table id="readListUserTable" class="table table-striped table-responsive" style="width: 100%;">
@@ -434,7 +519,7 @@
 		    <div class="modal-content">
 		      <div class="modal-header">
 		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-		        <h4 class="modal-title" id="listUserLabel">Liked User</h4>
+		        <h4 class="modal-title" id="likeListUserLabel">Liked User</h4>
 		      </div>
 		      <div class="modal-body">
 		        <table id="likeListUserTable" class="table table-striped table-responsive" style="width: 100%;">
@@ -443,6 +528,51 @@
 							<th style="display: none;">_id</th>
 							<th style="width: 60%;">Email</th>
 							<th style="width: 40%; text-align: center;">Like Time</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		      </div>
+		    </div>
+  		</div>
+	</div>
+	
+	<div class="modal fade" id="pollUserModal" tabindex="-1" role="dialog" aria-labelledby="pollUserLabel">
+	  	<div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> -->
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<div class="dropdown">
+				  <button class="btn btn-default btn-lg dropdown-toggle no-boarder" type="button" id="pollUserModalMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+				    Answer Report
+				    <span class="caret"></span>
+				  </button>
+				  <ul class="dropdown-menu" aria-labelledby="pollUserModalMenu">
+				  	<li><a href="#" onclick="changeContentModal('report');">Answer Report</a></li>
+				    <li><a href="#" onclick="changeContentModal('acceptList');">Accept User</a></li>
+				  </ul>
+				</div>
+		      </div>
+		      <div class="modal-body">
+		        <table id="reportPollTable" class="table table-striped table-responsive" style="width: 100%;">
+					<thead>
+						<tr>
+							<th style="width: 60%;">Question/Answer</th>
+							<th style="width: 20%; text-align: center;">Number of Answer User</th>
+							<th style="width: 20%; text-align: center;">Percent (%)</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+				<table id="acceptEmailTable" class="table table-striped table-responsive" style="width: 100%; display: none;">
+					<thead>
+						<tr>
+							<th style="width: 20%; text-align: center;">No.</th>
+							<th style="width: 80%;">Email</th>
 						</tr>
 					</thead>
 					<tbody></tbody>

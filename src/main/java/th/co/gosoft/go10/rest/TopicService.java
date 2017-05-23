@@ -133,12 +133,10 @@ public class TopicService {
         String pollIdListString = getPollIdListStringFromList(pollModelList);
         System.out.println("pollId string : "+pollIdListString);
         if(pollIdListString != null && !pollIdListString.isEmpty()) {
-            System.out.println("IF");
             Map<String, Integer> answerUserMap =  getAnswerUserByPollIdList(pollIdListString);
             Map<String, String> topicIdAndPollIdMap = createTopicIdAndPollMap(pollModelList);
             getCountAccepPoll(pinTopicList, noPinTopicList, allTopicModelList, answerUserMap, topicIdAndPollIdMap);
         } else {
-            System.out.println("ELSE");
             getCountAccepPoll(pinTopicList, noPinTopicList, allTopicModelList, null, null);
         }
         

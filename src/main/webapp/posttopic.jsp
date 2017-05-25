@@ -195,7 +195,7 @@
 											hea
 											$
 													.ajax({
-														url : "/GO10WebService/UploadServlet",
+														url : "/<%= PropertiesUtils.getProperties("context_root")%>/UploadServlet",
 														type : "POST",
 														data : formdata,
 														contentType : false,
@@ -389,7 +389,7 @@
 								}
 								$
 										.ajax({
-											url : '/GO10WebService/GetEmailFullTextSearchServlet',
+											url : '/<%= PropertiesUtils.getProperties("context_root")%>/GetEmailFullTextSearchServlet',
 											type : 'GET',
 											data : {
 												empEmail : query
@@ -444,7 +444,7 @@
 	<br>
 	<div class="col-md-6 col-md-offset-3 col-xs-12 col-sm-12">
 		<form name="postForm" id="postForm"
-			action="/GO10WebService/PostTopicServlet"
+			action="/<%= PropertiesUtils.getProperties("context_root")%>/PostTopicServlet"
 			onsubmit="return validateForm()" method="post" accept-charset="UTF-8"
 			style="width: 100%;">
 			<div class="row">

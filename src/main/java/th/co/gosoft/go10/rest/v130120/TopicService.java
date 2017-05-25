@@ -62,7 +62,6 @@ public class TopicService {
 			lastTopicModel.set_id(response.getId());
 			lastTopicModel.set_rev(response.getRev());
 			updateTotalTopicInRoomModel(lastTopicModel.getRoomId());
-			increaseReadCount(lastTopicModel, lastTopicModel.getEmpEmail());
 			PushNotificationUtils.sendMessagePushNotification(NOTIFICATION_MESSAGE);
 		} else if (lastTopicModel.getType().equals("comment")) {
 			lastTopicModel.setDate(stampDate);
@@ -241,7 +240,6 @@ public class TopicService {
 				LastTopicModel.class,
 				new FindByIndexOptions().sort(new IndexField("updateDate", SortOrder.desc)).limit(20));
 		List<LastTopicModel> completeList = checkStatusRead(lastTopicModelList, empEmail, startDate);
-		System.out.println("status read : " + completeList.get(0).getStatusRead());
 		List<LastTopicModel> resultList = DateUtils.formatDBDateToClientDate(completeList);
 		System.out.println("getHotTopicList list size : " + resultList.size());
 		return lastTopicModelList;
@@ -340,7 +338,6 @@ public class TopicService {
 		RoomNotificationModel roomNotificationModel = roomNotificationModelList.get(0);
 		roomNotificationModel.setCountTopic(roomNotificationModel.getCountTopic() + 1);
 		roomNotificationModel.setUpdateDate(stampDate);
-		System.out.println("room noti countTopic : " + roomNotificationModel.getCountTopic());
 		db.update(roomNotificationModel);
 	}
 

@@ -1,5 +1,6 @@
 <!DOCTYPE HTML><%@page language="java"
 	contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+	<%@page import="th.co.gosoft.go10.util.PropertiesUtils"%>
 <html>
 <head>
 	<title>GO10 Login</title>
@@ -65,7 +66,7 @@
 	<div class="container">
 		<div class="row">
 			<div class="col-md-6 col-md-offset-3 thumbnail" style="background-color: #;">
-				<form name="loginForm" method="post" action="/GO10WebService/AdminLoginServlet" onsubmit="return validateForm()">
+				<form name="loginForm" method="post" action="/<%= PropertiesUtils.getProperties("context_root")%>/AdminLoginServlet" onsubmit="return validateForm()">
 					<div class="row" style="margin: 0 20px 20px 20px; padding: 0 20px 20px 20px" >
 						<h1 style="text-align: center">Login</h1>
 						<div class="row">

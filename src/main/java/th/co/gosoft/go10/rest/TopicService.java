@@ -27,7 +27,6 @@ import th.co.gosoft.go10.model.LikeModel;
 import th.co.gosoft.go10.model.PollModel;
 import th.co.gosoft.go10.model.ReadModel;
 import th.co.gosoft.go10.model.RoomModel;
-import th.co.gosoft.go10.model.RoomNotificationModel;
 import th.co.gosoft.go10.model.TopicManagementModel;
 import th.co.gosoft.go10.util.CloudantClientUtils;
 import th.co.gosoft.go10.util.ConcatDomainUtils;
@@ -61,7 +60,6 @@ public class TopicService {
             lastTopicModel.set_id(response.getId());
             lastTopicModel.set_rev(response.getRev());
             updateTotalTopicInRoomModel(lastTopicModel.getRoomId());
-            increaseReadCount(lastTopicModel, lastTopicModel.getEmpEmail());
             PushNotificationUtils.sendMessagePushNotification(NOTIFICATION_MESSAGE);
         } else if(lastTopicModel.getType().equals("comment")) {
             lastTopicModel.setDate(stampDate);
@@ -305,55 +303,10 @@ public class TopicService {
         return resultModel;
     }
 
-    private String increaseReadCount(LastTopicModel lastTopicModel, String empEmail) {
-        try {
-            String rev = null;
-            System.out.println(">>>>>>>>>>>>>>>>>> increaseReadCount() topicModelMap : "+lastTopicModel.get_id()+", empEmail : "+empEmail);
-            stampDate = DateUtils.dbFormat.format(new Date());
-            System.out.println("StampDate : "+stampDate);
-            LastTopicModel localLastTopicModel = lastTopicModel;
-            List<ReadModel> readModelList = db.findByIndex(getReadModelByTopicIdAndEmpEmailString(localLastTopicModel.get_id(), empEmail), ReadModel.class);
-            if (readModelList == null || readModelList.isEmpty()) {
-                System.out.println("read model is null");
-                ReadModel readModel = createReadModelMap(localLastTopicModel.get_id(), empEmail);
-                db.save(readModel);
-                localLastTopicModel.setCountRead(getCountRead(localLastTopicModel)+1);
-                rev = db.update(localLastTopicModel).getRev();
-                plusCountTopicInNotificationModel(lastTopicModel.getRoomId(), empEmail);
-            } else {
-                System.out.println("read model is not null");
-                ReadModel readModel = readModelList.get(0);
-                if(DateUtils.isNextDay(readModel.getDate(), stampDate)) {
-                    readModel.setDate(stampDate);
-                    db.update(readModel);
-                    localLastTopicModel.setCountRead(getCountRead(localLastTopicModel)+1);
-                    rev = db.update(localLastTopicModel).getRev();
-                }
-            }
-            return rev;
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-    
-    private ReadModel createReadModelMap(String topicId, String empEmail) {
-        System.out.println("topicId : "+topicId+", empEmail : "+empEmail);
-        ReadModel readModel = new ReadModel();
-        readModel.setTopicId(topicId);
-        readModel.setEmpEmail(empEmail);
-        readModel.setType("read");
-        readModel.setDate(stampDate);
-        return readModel;
-    }
-    
     private void updateTotalTopicInRoomModel(String roomId) {
         RoomModel roomModel = db.find(RoomModel.class, roomId);
         roomModel.setTotalTopic(roomModel.getTotalTopic() == null ? 1 : roomModel.getTotalTopic()+1);
         db.update(roomModel);
-    }
-    
-    private int getCountRead(LastTopicModel lastTopicModel) {
-        return lastTopicModel.getCountRead() == null ? 0 : lastTopicModel.getCountRead();
     }
     
     public void concatDomainImagePath(List<LastTopicModel> lastTopicModelList) {
@@ -365,16 +318,6 @@ public class TopicService {
         }
     }
 
-    private void plusCountTopicInNotificationModel(String roomId, String empEmail) {
-        String stampDate = DateUtils.dbFormat.format(new Date());
-        List<RoomNotificationModel> roomNotificationModelList = db.findByIndex(getRoomNotificationModelByRoomIdAndEmpEmail(roomId, empEmail), RoomNotificationModel.class);
-        RoomNotificationModel roomNotificationModel = roomNotificationModelList.get(0);
-        roomNotificationModel.setCountTopic(roomNotificationModel.getCountTopic() + 1);
-        roomNotificationModel.setUpdateDate(stampDate);
-        System.out.println("room noti countTopic : "+roomNotificationModel.getCountTopic());
-        db.update(roomNotificationModel);
-    }
-    
     private String getTopicByIdList(List<LastTopicModel> lastTopicModelList) {
         String topicIdString = StringUtils.generateTopicIdString(lastTopicModelList);
         StringBuilder sb = new StringBuilder();
@@ -384,7 +327,6 @@ public class TopicService {
         sb.append("\"fields\": [\"_id\",\"_rev\",\"avatarName\",\"avatarPic\",\"subject\",\"content\",\"date\",\"type\",\"roomId\",\"countLike\",\"updateDate\",\"pin\"]}");
         return sb.toString();
     }
-
     
     private String getTopicListByRoomIdJsonString(String roomId){
         StringBuilder sb = new StringBuilder();
@@ -407,25 +349,5 @@ public class TopicService {
         sb.append("}}");
         return sb.toString();
     }
-    
-    private String getReadModelByTopicIdAndEmpEmailString(String topicId, String empEmail) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{\"selector\": {");
-        sb.append("\"_id\": {\"$gt\": 0},");
-        sb.append("\"$and\": [{\"type\":\"read\"}, {\"topicId\":\""+topicId+"\"}, {\"empEmail\":\""+empEmail+"\"}]");
-        sb.append("},");
-        sb.append("\"fields\": [\"_id\",\"_rev\",\"topicId\",\"empEmail\",\"type\",\"date\"]}");
-        return sb.toString();
-    }
-    
-    private String getRoomNotificationModelByRoomIdAndEmpEmail(String roomId, String empEmail) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{\"selector\": {");
-        sb.append("\"_id\": {\"$gt\": 0},");
-        sb.append("\"$and\": [{\"type\":\"roomNotification\"}, {\"roomId\":\""+roomId+"\"}, {\"empEmail\":\""+empEmail+"\"}]");
-        sb.append("}}");
-        return sb.toString();    
-    }
-
     
 }

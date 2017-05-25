@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@page import="th.co.gosoft.go10.util.PropertiesUtils" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -38,7 +39,7 @@ function validateForm() {
 	</nav>
 	
 	<div class="col-md-6 col-md-offset-3 col-xs-12 col-sm-12">
-		<form name="resetForm" action="/GO10WebService/ResetPasswordServlet" onsubmit="return validateForm()" method="post" style="width: 100%; text-align: center;">
+		<form name="resetForm" action="/<%= PropertiesUtils.getProperties("context_root")%>/ResetPasswordServlet" onsubmit="return validateForm()" method="post" style="width: 100%; text-align: center;">
 			
 			<div class="row">
 				<div class="col-md-4" style="text-align: left;"><h4>New Password : </h4></div>

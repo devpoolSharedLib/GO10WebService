@@ -1,6 +1,7 @@
 <!DOCTYPE HTML>
 <%@page import="th.co.gosoft.go10.util.SecurityUtils"%>
 <%@page import="th.co.gosoft.go10.model.RoomModel"%>
+<%@page import="th.co.gosoft.go10.util.PropertiesUtils"%>
 <%@page import="java.util.List"%>
 <%@page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <html>
@@ -21,7 +22,7 @@
 	
 	<link rel="stylesheet" type="text/css" href="css/user_role_management.css" />
 	
-	<script type="text/javascript" src="/GO10WebService/tinymce/js/tinymce/tinymce.js"></script>
+	<script type="text/javascript" src="/<%= PropertiesUtils.getProperties("context_root")%>/tinymce/js/tinymce/tinymce.js"></script>
 
 	<style type="text/css">
 		/* Start by setting display:none to make this hidden.
@@ -59,40 +60,20 @@
 		function gotoSessionServlet(roomId,roomName) {
 			var path = window.location.pathname;
 			var currentPage = path.split("/").pop();
-			window.location.href = "/GO10WebService/SessionServlet?roomId=" + roomId + "&roomName=" + roomName + "&currentPage=" + currentPage
+			window.location.href = "/<%= PropertiesUtils.getProperties("context_root")%>/SessionServlet?roomId=" + roomId + "&roomName=" + roomName + "&currentPage=" + currentPage
 		}
 	</script>
 
 	<script type="text/javascript">
-		$(document).ready(function() {
-// 			validateSesstion();
-// 			$(document).on({
-// 			    ajaxStart: function() { 
-// 				    $.ajax({   
-// 						url: '/GO10WebService/VerifiedSessionServlet',   
-// 						type: 'GET',  
-// 						dataType: 'json',
-// 						success: function(timeout) {
-// 							if (timeout) {
-// 								window.location.href = "/GO10WebService/login.jsp";
-// 							}
-// 						},
-// 					}); 
-// 			    },
-// 			    ajaxStop: function() { 
-			    
-// 			    }    
-// 			}); 
-		});	
 		
 		function validateSesstion() {
 			$.ajax({   
-				url: '/GO10WebService/VerifiedSessionServlet',   
+				url: '/<%= PropertiesUtils.getProperties("context_root")%>/VerifiedSessionServlet',   
 				type: 'GET',  
 				dataType: 'json',
 				success: function(timeout) {
 					if (timeout) {
-						window.location.href = "/GO10WebService/login.jsp";
+						window.location.href = "/<%= PropertiesUtils.getProperties("context_root")%>/login.jsp";
 					}
 				},
 			}); 
@@ -149,7 +130,7 @@
  		          <ul class="dropdown-menu">
  		            <li><a href="#">Action</a></li>
  		            <li role="separator" class="divider"></li>
- 		            <li><a href="/GO10WebService/LogoutServlet">Logout</a></li>
+ 		            <li><a href="/<%= PropertiesUtils.getProperties("context_root")%>/LogoutServlet">Logout</a></li>
  		          </ul>
  		        </li>
  		        <%

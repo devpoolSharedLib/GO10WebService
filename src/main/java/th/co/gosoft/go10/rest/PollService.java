@@ -125,36 +125,50 @@ public class PollService {
     }
     
     private List<QuestionReportModel> getQuestionReportModel(SearchResult<PollModel> searchResultPollModel){
-    	
-    	 Search search =   db.search("SearchIndex/ChoiceTransactionModelIndex")
-                 .includeDocs(true);
-    	 
-    	 List<QuestionReportModel> questionReportModelList = new ArrayList<QuestionReportModel>();
-    	 List<QuestionModel> questionModelList = searchResultPollModel.getRows().get(0).getDoc().getQuestionMaster();
-    	 for(QuestionModel questionModel : questionModelList){
-    		 QuestionReportModel questionReportModel = new QuestionReportModel();
-    		 
-    		 System.out.println("QuestoinId : " + questionModel.getQuestionId());
-    		 System.out.println("QuestoinTitle : " + questionModel.getQuestionTitle());
-    		 questionReportModel.setQuestionId(questionModel.getQuestionId());
-    		 questionReportModel.setQuestionTitle(questionModel.getQuestionTitle());
-    		 List<ChoiceMasterModel> choiceTransactionModelList = questionModel.getChoiceMaster();
-    		 List<ChoiceReportModel> choiceReportModelList = new ArrayList<ChoiceReportModel>();
-    		 for(ChoiceMasterModel choiceTransactionModel : choiceTransactionModelList ){
-    			 ChoiceReportModel choiceReportModel = new ChoiceReportModel();
-    			 SearchResult<ChoiceTransactionModel> searchResultChoiceTransactionModel = search.querySearchResult("pollId:\""+searchResultPollModel.getRows().get(0).getDoc().get_id()+"\" AND questionId:\""+questionModel.getQuestionId()+"\" AND choiceKey:\""+choiceTransactionModel.getChoiceKey()+"\"", ChoiceTransactionModel.class); 
-    			 System.out.println("choiceKey : "+ choiceTransactionModel.getChoiceKey() + "choiceTitle : "+ choiceTransactionModel.getChoiceTitle() + " totalRows : " + searchResultChoiceTransactionModel.getTotalRows());
-    			 choiceReportModel.setChoiceKey(choiceTransactionModel.getChoiceKey());
-    			 choiceReportModel.setChoiceTitle(choiceTransactionModel.getChoiceTitle());
-    			 choiceReportModel.setCountChoice((int) (long)searchResultChoiceTransactionModel.getTotalRows());
-    			 choiceReportModelList.add(choiceReportModel);
-    		 }
-    		 questionReportModel.setChoiceReportModel(choiceReportModelList);
-    		 questionReportModelList.add(questionReportModel);
-    	 }
-
-		return questionReportModelList;
-    	
+        
+        List<QuestionModel> questionModelList = searchResultPollModel.getRows().get(0).getDoc().getQuestionMaster();
+        List<ChoiceMasterModel> choiceTransactionModelList;
+        String queryCountChoiceAllQuestion = "pollId:\""+searchResultPollModel.getRows().get(0).getDoc().get_id()+"\" AND (";
+        for(QuestionModel questionModel : questionModelList){
+            choiceTransactionModelList = questionModel.getChoiceMaster();
+             for(ChoiceMasterModel choiceTransactionModel : choiceTransactionModelList ){
+                 if(!(choiceTransactionModel.getChoiceKey().equals("q1c1"))){
+                     queryCountChoiceAllQuestion +=  " OR ";
+                 }
+                 queryCountChoiceAllQuestion += "(questionId:\""+questionModel.getQuestionId()+"\" AND choiceKey:\""+choiceTransactionModel.getChoiceKey()+"\")";
+             }
+        }
+        queryCountChoiceAllQuestion += ")";
+        
+        System.out.println("getQuestionReportModel >>>>>>>>> queryCountChoiceAllQuestion : " + queryCountChoiceAllQuestion);
+        SearchResult<ChoiceTransactionModel> searchResult =   db.search("SearchIndex/ChoiceTransactionModelIndex")
+                .includeDocs(true)
+                .counts(new String[]{"choiceKey"})
+                .querySearchResult(queryCountChoiceAllQuestion,ChoiceTransactionModel.class);
+        Map<String, Map<String, Long>> countsChoiceKey = searchResult.getCounts();
+        Map<String, Long> countsChoiceKeyMap = countsChoiceKey.get("choiceKey");
+        List<QuestionReportModel> questionReportModelList = new ArrayList<QuestionReportModel>();
+        for (QuestionModel questionModel : questionModelList) {
+            QuestionReportModel questionReportModel = new QuestionReportModel();
+            questionReportModel.setQuestionId(questionModel.getQuestionId());
+            questionReportModel.setQuestionTitle(questionModel.getQuestionTitle());
+            choiceTransactionModelList = questionModel.getChoiceMaster();
+            List<ChoiceReportModel> choiceReportModelList = new ArrayList<ChoiceReportModel>();
+            for (ChoiceMasterModel choiceTransactionModel : choiceTransactionModelList) {
+                ChoiceReportModel choiceReportModel = new ChoiceReportModel();
+                choiceReportModel.setChoiceKey(choiceTransactionModel.getChoiceKey());
+                choiceReportModel.setChoiceTitle(choiceTransactionModel.getChoiceTitle());
+                if (countsChoiceKeyMap.get(choiceTransactionModel.getChoiceKey()) == null) {
+                    choiceReportModel.setCountChoice(0);
+                } else {
+                    choiceReportModel.setCountChoice((int) (long) countsChoiceKeyMap.get(choiceTransactionModel.getChoiceKey()));
+                }
+                choiceReportModelList.add(choiceReportModel);
+            }
+            questionReportModel.setChoiceReportModel(choiceReportModelList);
+            questionReportModelList.add(questionReportModel);
+        }
+        return questionReportModelList;
     }
     
     private String getPollByTopicIdJsonString(String topicId, String empEmail) {

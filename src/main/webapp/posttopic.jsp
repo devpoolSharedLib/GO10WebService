@@ -129,7 +129,6 @@
 		 	               var canvas = document.createElement('canvas'),
 		 	                    width = width,
 		 	                    height = height;
-	      		  	alert("width" + width);
 	 	               var ratio = Math.round((width/height*100)/100);
 	 	               console.log(ratio);
 	 
@@ -185,7 +184,6 @@
 	            	        contentType: false,
 	    					processData: false,
 	            	        success: function(url) {	
-	 //            	            alert("File has been uploaded successfully");
 	 //            	          	editor.insertContent('<img src="'+img.src+'"/>');
 	            	          	var urlImage = url.substring(13, url.length-2);
 	            	          	editor.insertContent('<img src="' + urlImage + '"  width="'+width+'" height="'+height+'" alt="insertImageUrl"' + '" />');
@@ -219,157 +217,6 @@
 	       });
 	   } 
 	});
-	<%-- tinyMCE
-			.init({
-				selector : '#articleContent',
-				//theme : "tinymce-advanced",
-				// 	  theme_advanced_link_targets : "someframe=Some frame,otherframe=Some other frame",
-				element_format : 'html',
-				entity_encoding : 'raw',
-				extended_valid_elements : "b,i,b/strong,i/em",
-				preview_styles : "font-size color",
-				plugins : "placeholder link autoresize",
-				//toolbar1: 'undo redo | styleselect |0 bold italic | alignleft aligncenter alignright | indent outdent | link image',
-				toolbar1 : 'undo redo bold imageupload link ',
-				// 	  link_context_toolbar: false,
-				paste_data_images : true,
-				// 	  relative_urls : false,
-				// 	  remove_script_host : false,
-				statusbar : false,
-				// 	  convert_urls : true,
-				menubar : false,
-				setup : function(editor) {
-					var inp = $('<input id="tinymce-uploader" type="file" name="pic" accept="image/*" style="display:none">');
-					$(editor.getElement()).parent().append(inp);
-
-					inp
-							.on(
-									"change",
-									function() {
-
-										var randomVar = Math.round(Math
-												.random()
-												* (9999999999 + 1) - 0.5);
-										var boundary = 90000000000 + randomVar;
-
-										var input = inp.get(0);
-										var filesToUpload = input.files;
-										var file = filesToUpload[0];
-
-										var img = new Image();
-
-										var reader = new FileReader();
-										reader.onload = function(e) {
-											img.src = e.target.result;
-											img.src = reader.result;
-											// Resize the image
-											var canvas = document
-													.createElement('canvas'), width = img.width, height = img.height;
-											var ratio = Math.round((width
-													/ height * 100) / 100);
-											console.log(ratio);
-
-											if (ratio > 1) {
-												if (ratio == 1.33) {
-													console
-															.log("4:3 landscape")
-													width = 295
-													height = 222
-												} else if (ratio == 1.78
-														|| ratio == 1.77) {
-													console
-															.log("16:9 landscape")
-													width = 295
-													height = 166
-												} else {
-													console
-															.log("Other Resulotion landscape")
-													width = 295
-													height = 166
-												}
-											} else if (ratio < 1) {
-												if (ratio == 0.75) {
-													console.log("3:4 portrait")
-													width = 230
-													height = 307
-
-												} else if (ratio == 0.56) {
-													console
-															.log("9:16 portrait")
-													width = 230
-													height = 410
-
-												} else {
-													console
-															.log("Other Resulotion protrait")
-													width = 230
-													height = 410
-												}
-											} else if (ratio == 1) {
-												console.log("1:1 square")
-												width = 295
-												height = 295
-											}
-
-											canvas.width = width;
-											canvas.height = height;
-
-											canvas.getContext('2d').drawImage(
-													img, 0, 0, width, height);
-											var dataurl = canvas.toDataURL(
-													'image/jpeg', 0.8);
-											var resizedImage = dataURItoBlob(dataurl);
-											
-											var formdata = new FormData(this);
-											formdata.append("file",
-													resizedImage,
-													"filename.jpg");
-											
-											$.ajax({
-														url : "/<%= PropertiesUtils.getProperties("context_root")%>/UploadServlet",
-														type : "POST",
-														data : formdata,
-														contentType : false,
-														processData : false,
-														success : function(url) {
-															//            	            alert("File has been uploaded successfully");
-															//            	          	editor.insertContent('<img src="'+img.src+'"/>');
-															alert(">>>>> " + url)
-															var urlImage = url.substring(13,url.length - 2);
-															alert(urlImage) 
-															editor.insertContent('<img src="' + urlImage + '"  width="'+width+'" height="'+height+'" alt="insertImageUrl"' + '" />');
-															inp.val('');
-														},
-														error : function(msg) {
-															alert("Can't Upload file");
-														}
-													});
-										}
-										reader.readAsDataURL(file);
-									});
-
-					function dataURItoBlob(dataURI) {
-						var byteString = atob(dataURI.split(',')[1]);
-						var ab = new ArrayBuffer(byteString.length);
-						var ia = new Uint8Array(ab);
-						for (var i = 0; i < byteString.length; i++) {
-							ia[i] = byteString.charCodeAt(i);
-						}
-						return new Blob([ ab ], {
-							type : 'image/jpeg'
-						});
-					}
-
-					editor.addButton('imageupload', {
-						text : "IMAGE",
-						id : "imageuploadbtn",
-						icon : false,
-						onclick : function(e) {
-							inp.trigger('click');
-						}
-					});
-				}
-			}); --%>
 
 	function checkSelected(id) {
 		if (id.checked) {

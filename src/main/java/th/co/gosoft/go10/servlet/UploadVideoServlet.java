@@ -41,91 +41,84 @@ public class UploadVideoServlet extends HttpServlet {
 	private static final String BUCKET_NAME = PropertiesUtils.getProperties("s3_bucket_name");
 	private static final String ACCESS_KEY = PropertiesUtils.getProperties("s3_access_key");
 	private static final String SECRET_ACCESS_KEY = PropertiesUtils.getProperties("s3_secret_access_key");
-    private static final String FOLDER_NAME = PropertiesUtils.getProperties("folder_name");
-    private static final String DOMAIN_VIDEO_PATH = PropertiesUtils.getProperties("domain_image_path");
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public UploadVideoServlet() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
+	private static final String FOLDER_NAME = PropertiesUtils.getProperties("folder_name");
+	private static final String DOMAIN_VIDEO_PATH = PropertiesUtils.getProperties("domain_image_path");
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		doPost(request, response);
-		//response.getWriter().append("Served at: ").append(request.getContextPath());
+	public UploadVideoServlet() {
+		super();
+
 	}
 
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		doPost(request, response);
+
+	}
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		AWSCredentials credentials = new BasicAWSCredentials(ACCESS_KEY, SECRET_ACCESS_KEY);
 		AmazonS3 s3client = new AmazonS3Client(credentials);
-		
+
 		PrintWriter out = response.getWriter();
-//		out.print("Upload!!!!");
-		
+		// out.print("Upload!!!!");
+
 		DiskFileItemFactory factory = new DiskFileItemFactory();
 		ServletFileUpload upload = new ServletFileUpload(factory);
-//		System.out.println("Request : "+request.toString()+"\nResponse : "+response.toString());
-		try{ 
+		// System.out.println("Request : "+request.toString()+"\nResponse :
+		// "+response.toString());
+		try {
 			// Parse the request to get file items.
 			List<FileItem> fileItems = upload.parseRequest(request);
-			System.out.println("File : "+fileItems.toString());
+			System.out.println("File : " + fileItems.toString());
 			Iterator<FileItem> i = fileItems.iterator();
-			while (i.hasNext()){
-				FileItem fi = (FileItem)i.next();
-				if (!fi.isFormField()){
-					
-				    InputStream is = fi.getInputStream();
-				    String randomFileName = randomFileName()+".mp4";
-					String objectKey = FOLDER_NAME+"/"+randomFileName;
-					
+			while (i.hasNext()) {
+				FileItem fi = (FileItem) i.next();
+				if (!fi.isFormField()) {
+
+					InputStream is = fi.getInputStream();
+					String randomFileName = randomFileName() + ".mp4";
+					String objectKey = FOLDER_NAME + "/" + randomFileName;
+
 					byte[] contentBytes = IOUtils.toByteArray(fi.getInputStream());
-                    Long contentLength = Long.valueOf(contentBytes.length);
-                    System.out.println("contentLength : "+contentLength);
-                    
-                    ObjectMetadata metadata = new ObjectMetadata();
-                    metadata.setContentLength(contentLength);
-					
-                    PutObjectResult etag = s3client.putObject(new PutObjectRequest(BUCKET_NAME, objectKey, is, metadata));
+					Long contentLength = Long.valueOf(contentBytes.length);
+					System.out.println("contentLength : " + contentLength);
+
+					ObjectMetadata metadata = new ObjectMetadata();
+					metadata.setContentLength(contentLength);
+
+					PutObjectResult etag = s3client
+							.putObject(new PutObjectRequest(BUCKET_NAME, objectKey, is, metadata));
 					System.out.println(etag);
-				    if(etag != null && !"".equals(etag)){
-				        System.out.println("vidUrl : "+DOMAIN_VIDEO_PATH+"/"+FOLDER_NAME+"/"+ randomFileName);
-                        out.print(DOMAIN_VIDEO_PATH+"/"+FOLDER_NAME+"/"+ randomFileName);
-//                        out.print("https://go10.au-syd.mybluemix.net/GO10WebService/VideoPlayServlet/"+randomFileName);
-				    }
+					if (etag != null && !"".equals(etag)) {
+						System.out.println("vidUrl : " + DOMAIN_VIDEO_PATH + "/" + FOLDER_NAME + "/" + randomFileName);
+						out.print(DOMAIN_VIDEO_PATH + "/" + FOLDER_NAME + "/" + randomFileName);
+						// out.print("https://go10.au-syd.mybluemix.net/GO10WebService/VideoPlayServlet/"+randomFileName);
+					}
 				}
 			}
-		} catch(Exception e) {
+		} catch (Exception e) {
 			System.err.println(e);
-		
+
 		}
 	}
-	
-	
-	
+
 	public String randomFileName() {
-	    StringBuilder builder = new StringBuilder();
-	    while(builder.toString().length() == 0) {
-	        int length = rand.nextInt(30)+5;
-	        for(int i = 0; i < length; i++){
-	            builder.append(lexicon.charAt(rand.nextInt(lexicon.length())));
-	        }
-	        if(identifiers.contains(builder.toString())) {
-	            builder = new StringBuilder();
-	        }
-	            
-	    }
-	    
-	    System.out.println("file random name : "+builder.toString());
-	    identifiers.add(builder.toString());
-	   
-	    return builder.toString();
+		StringBuilder builder = new StringBuilder();
+		while (builder.toString().length() == 0) {
+			int length = rand.nextInt(30) + 5;
+			for (int i = 0; i < length; i++) {
+				builder.append(lexicon.charAt(rand.nextInt(lexicon.length())));
+			}
+			if (identifiers.contains(builder.toString())) {
+				builder = new StringBuilder();
+			}
+
+		}
+
+		System.out.println("file random name : " + builder.toString());
+		identifiers.add(builder.toString());
+
+		return builder.toString();
 	}
 }

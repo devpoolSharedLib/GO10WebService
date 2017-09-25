@@ -57,27 +57,9 @@ public class UploadServlet extends HttpServlet {
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	    
-//	    String VCAP_SERVICES = System.getenv("VCAP_SERVICES");
-//        if (VCAP_SERVICES != null) {
-//            domainImagePath = System.getenv("domain_image_path");
-//            accessKeyId = System.getenv("s3_access_key");
-//            secretAccessKey = System.getenv("s3_secret_access_key");
-//            bucketName = System.getenv("s3_bucket_name");
-//            folderName = System.getenv("folder_name");
-//        } else {
-//            Properties prop = PropertiesUtils.getProperties();
-//            domainImagePath = prop.getProperty("domain_image_path");
-//            accessKeyId = prop.getProperty("s3_access_key");
-//            secretAccessKey = prop.getProperty("s3_secret_access_key");
-//            bucketName = prop.getProperty("s3_bucket_name");
-//            folderName = prop.getProperty("folder_name");
-//        }
-	    
         AWSCredentials credentials = new BasicAWSCredentials(ACCESS_KEY, SECRET_ACCESS_KEY);
         AmazonS3 s3client = new AmazonS3Client(credentials);
        
-        
-//	    os = ObjectStorageUtils.connectObjectStorageService();
 		isMultipart = ServletFileUpload.isMultipartContent(request);
 		response.setContentType("text/html");
 		java.io.PrintWriter out = response.getWriter( );

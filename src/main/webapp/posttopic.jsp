@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<%@page import="th.co.gosoft.go10.util.PropertiesUtils" %>
+<%@page import="th.co.gosoft.go10.util.PropertiesUtils"%>
 <%@page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <jsp:include page="header.jsp"></jsp:include>
@@ -39,7 +39,7 @@
 			} else{
 				var txtPoll = document.getElementById("txtPoll").value;
 				for (i = 1; i <= countQuestion; i++) {
-					var valueQuestion = document.getElementById("questionNumberInput" + i).value;
+					var valueQuestion = document.getElementById("questionNumberut" + i).value;
 					if (valueQuestion.trim() == null || valueQuestion.trim() == "") {
 						$("#statusPost").text("Please insert question " + i);
 						$("#statusPost").css("color", "red");
@@ -95,11 +95,12 @@
 	 	  entity_encoding : 'raw',
 	 	  extended_valid_elements: "b,i,b/strong,i/em",
 	 	  preview_styles: "font-size color",
-	 	  plugins: "placeholder link autoresize",
-	 	  //toolbar1: 'undo redo | styleselect |0 bold italic | alignleft aligncenter alignright | indent outdent | link image',
-	 	  toolbar1: 'undo redo bold imageupload link ',
+	 	  plugins: "placeholder link autoresize ",
+	 	  //toolbar1: 'undo redo | styleselect |0 bold italic | alignleft aligncenter alignright | indent outdent | link image |',
+	 	  toolbar1: 'undo redo bold imageupload link videoupload',
 	 // 	  link_context_toolbar: false,
-	 	  paste_data_images: true,
+
+	 	      paste_data_images: true,
 	 // 	  relative_urls : false,
 	 // 	  remove_script_host : false,
 	 	  statusbar: false,
@@ -109,6 +110,45 @@
 	        var inp = $('<input id="tinymce-uploader" type="file" name="pic" accept="image/*" style="display:none">');
             $(editor.getElement()).parent().append(inp);
             
+            var inpVideo = $('<input id="tinymce-uploade" type="file" name="video" accept="video/*" style="display:none">');
+            $(editor.getElement()).parent().append(inpVideo);
+          
+          	inpVideo.on("change",function(){
+          	  var input = inpVideo.get(0);
+	      	  var filesToUpload = input.files;
+	      	  var file = filesToUpload[0];
+	      	  alert('file : '+file);
+/* 	      	var video = new Video();
+ */	      	   var readerVid = new FileReader();  	      	
+ 				alert('readerVid : '+readerVid);
+/*  				 readerVid.onload = function(e) { 
+	 				alert('readerVid : '+readerVid.result);}
+                alert('hi'); */
+               var formdata = new FormData(this);
+	          	  formdata.append("file", file ,"filename.mp4");
+	                $.ajax({
+	                		url : "/<%=PropertiesUtils.getProperties("context_root")%>/UploadVideoServlet",
+	            	        type: "POST",
+	            	        data:  formdata,
+	            	        contentType: false,
+	    					processData: false,
+	            	        success: function(url) {	
+	            	          	//var urlImage = url.substring(0, url.length);
+	            	          	alert('URL : '+url)
+	            	          	editor.insertContent('<video width="240" height="180" controls><source src="'+url+'\" type=\"video/mp4\">Your browser does not support the video tag.</video><br>');
+	                       	inpVideo.val('');
+	           	        },
+	           	        error:function(msg) {
+	           	        	 alert("Can't Upload file");
+	           	        }
+	           	    });
+	      		//}//} 
+	      	reader.readAsDataURL(file);
+          	});
+            
+          	
+          	
+          	
 	        inp.on("change",function(){
 	      	  var input = inp.get(0);
 	      	  var filesToUpload = input.files;
@@ -170,15 +210,15 @@
 	 
 	 	                canvas.width = width;
 	 	                canvas.height = height;
-	 	                
+	 	               
 	 	                canvas.getContext('2d').drawImage(img, 0, 0, width, height);
 	 	                var dataurl = canvas.toDataURL('image/jpeg', 0.8);
-	 	                var resizedImage = dataURItoBlob(dataurl);
-	 	                
+ 	 	                alert(dataurl);
+						var resizedImage = dataURItoBlob(dataurl); 	                
 	          	  var formdata = new FormData(this);
 	          	  formdata.append("file", resizedImage,"filename.jpg");
 	                $.ajax({
-	                		url : "/<%= PropertiesUtils.getProperties("context_root")%>/UploadServlet",
+	                		url : "/<%=PropertiesUtils.getProperties("context_root")%>/UploadServlet",
 	            	        type: "POST",
 	            	        data:  formdata,
 	            	        contentType: false,
@@ -206,6 +246,14 @@
 	     	  return new Blob([ab], { type: 'image/jpeg' });
 	     	}
 	       
+	       function dataURItoBlobVideo(dataURI) {
+		     	  var byteString = atob(dataURI.split(',')[1]);
+		     	  var ab = new ArrayBuffer(byteString.length);
+		     	  var ia = new Uint8Array(ab);
+		     	  for (var i = 0; i < byteString.length; i++) { ia[i] = byteString.charCodeAt(i); }
+		     	  return new Blob([ab], { type: 'video/mp4' });
+		     	}
+
 	       
 	       editor.addButton( 'imageupload', {
 	           text:"IMAGE",
@@ -213,6 +261,14 @@
 	           icon: false,
 	           onclick: function(e) {
 	               inp.trigger('click');
+	           }
+	       });
+	       editor.addButton( 'videoupload', {
+	           text:"VIDEO",
+	           id: "videouploadbtn",
+	           icon: false,
+	           onclick: function(e) {
+	               inpVideo.trigger('click');
 	           }
 	       });
 	   } 
@@ -365,7 +421,7 @@
 								}
 								$
 										.ajax({
-											url : '/<%= PropertiesUtils.getProperties("context_root")%>/GetEmailFullTextSearchServlet',
+											url : '/<%=PropertiesUtils.getProperties("context_root")%>/GetEmailFullTextSearchServlet',
 											type : 'GET',
 											data : {
 												empEmail : query
@@ -420,7 +476,7 @@
 	<br>
 	<div class="col-md-6 col-md-offset-3 col-xs-12 col-sm-12">
 		<form name="postForm" id="postForm"
-			action="/<%= PropertiesUtils.getProperties("context_root")%>/PostTopicServlet"
+			action="/<%=PropertiesUtils.getProperties("context_root")%>/PostTopicServlet"
 			onsubmit="return validateForm()" method="post" accept-charset="UTF-8"
 			style="width: 100%;">
 			<div class="row">
@@ -436,26 +492,25 @@
 			<br>
 
 			<div>
-			<!-- <label class="radio-inline"><input type="radio" class="col-md-12" name="poll" id="poll" value="all" onclick="showTxt('questionTxt')">Poll</label> -->
-			<input type="checkbox" name="checkboxPoll" id="checkboxPoll"
-				onchange="checkSelected(this);" /> สร้างแบบสอบถาม
-			<div id="selectQuestion" style="display: none">
-				<label style="font-weight: normal;" id="countQuestionTxt">(จำนวนคำถามที่ต้องการ
-				</label> <select id="dropdownCountQuestion" name="dropdownCountQuestion"
-					onchange="getCountQuestion()">
-					<option disabled selected value="0">-- select option--</option>
+				<!-- <label class="radio-inline"><input type="radio" class="col-md-12" name="poll" id="poll" value="all" onclick="showTxt('questionTxt')">Poll</label> -->
+				<input type="checkbox" name="checkboxPoll" id="checkboxPoll"
+					onchange="checkSelected(this);" /> สร้างแบบสอบถาม
+				<div id="selectQuestion" style="display: none">
+					<label style="font-weight: normal;" id="countQuestionTxt">(จำนวนคำถามที่ต้องการ
+					</label> <select id="dropdownCountQuestion" name="dropdownCountQuestion"
+						onchange="getCountQuestion()">
+						<option disabled selected value="0">-- select option--</option>
 						<%
-
- 		        			for (int i=1;i<=5;i++) {
-  						%>
-								<option value="<%=i%>"><%=i%></option>
- 						<%
- 							}    
+							for (int i = 1; i <= 5; i++) {
 						%>
-				</select> <label style='font-weight: normal;' id="countQuestionTxt2">)</label>
-				<div id="question" />
-			</div>
-			<div id="selectUserPoll" />
+						<option value="<%=i%>"><%=i%></option>
+						<%
+							}
+						%>
+					</select> <label style='font-weight: normal;' id="countQuestionTxt2">)</label>
+					<div id="question" />
+				</div>
+				<div id="selectUserPoll" />
 			</div>
 	</div>
 

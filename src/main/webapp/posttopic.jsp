@@ -86,30 +86,140 @@
 		} else
 			return true;
 	}
-
+    
 	tinyMCE.init({
 	 	  selector: '#articleContent',
-	 	  //theme : "tinymce-advanced",
-	 // 	  theme_advanced_link_targets : "someframe=Some frame,otherframe=Some other frame",
 	 	  element_format : 'html',
 	 	  entity_encoding : 'raw',
 	 	  extended_valid_elements: "b,i,b/strong,i/em",
 	 	  preview_styles: "font-size color",
 	 	  plugins: "placeholder link autoresize ",
-	 	  //toolbar1: 'undo redo | styleselect |0 bold italic | alignleft aligncenter alignright | indent outdent | link image |',
 	 	  toolbar1: 'undo redo bold imageupload link videoupload',
-	 // 	  link_context_toolbar: false,
 
-	 	      paste_data_images: true,
-	 // 	  relative_urls : false,
-	 // 	  remove_script_host : false,
+	 	  paste_data_images: true,
 	 	  statusbar: false,
 	  	  convert_urls : true,
 	 	  menubar : false,
+	 	  
 	    setup: function(editor) {
+	        editor.addButton( 'imageupload', {
+		           text:"IMAGE",
+		           id: "imageuploadbtn",
+		           icon: false,
+		           onclick: function(e) {
+		               inp.trigger('click');
+		           }
+		       });
+		       editor.addButton( 'videoupload', {
+		           text:"VIDEO",
+		           id: "videouploadbtn",
+		           icon: false,
+		           onclick: function(e) {
+		               inpVideo.trigger('click');
+		           }
+		       });
+	    	
 	        var inp = $('<input id="tinymce-uploader" type="file" name="pic" accept="image/*" style="display:none">');
             $(editor.getElement()).parent().append(inp);
+            inp.on("change",function(){
+  	      	  var input = inp.get(0);
+  	      	  var filesToUpload = input.files;
+  	      	  var file = filesToUpload[0];
+  	      	
+  	      	var img = new Image();
+  	      	  var reader = new FileReader();  
+  	      	  reader.onload = function(e) {
+  	      		
+  	      		  img.src = e.target.result;
+  	      		  img.src = reader.result;
+  	      		var height,width;
+  	      		img.onload = function () {
+  	                height = this.height;
+  	                width = this.width; 
+  	      		  
+  	      		  // Resize the image
+  		 	               var canvas = document.createElement('canvas'),
+  		 	                    width = width,
+  		 	                    height = height;
+  	 	               var ratio = Math.round((width/height*100)/100);
+  	 	               console.log(ratio);
+  	 
+  	 	               if(ratio > 1) {
+  	                      if(ratio == 1.33) {
+  	                      	console.log("4:3 landscape")
+  	                          width = 295
+  	                          height = 222
+  	                      } else if(ratio == 1.78 || ratio == 1.77) {
+  	                      	console.log("16:9 landscape")
+  	                          width = 295
+  	                          height = 166
+  	                      } else {
+  	                      	console.log("Other Resulotion landscape")
+  	                          width = 295
+  	                          height = 166
+  	                      }
+  	                  } else if(ratio < 1) {
+  	                      if(ratio == 0.75) {
+  	                      	console.log("3:4 portrait")
+  	                          width = 230
+  	                          height = 307
+  	                          
+  	                      } else if(ratio == 0.56) {
+  	                      	console.log("9:16 portrait")
+  	                          width = 230
+  	                          height = 410
+  	 
+  	                      } else {
+  	                      	console.log("Other Resulotion protrait")
+  	                          width = 230
+  	                          height = 410
+  	                      }
+  	                  } else if(ratio == 1) {
+  	                  	console.log("1:1 square")
+  	                      width = 295
+  	                      height = 295
+  	                  }
+  	 
+  	 	                canvas.width = width;
+  	 	                canvas.height = height;
+  	 	               
+  	 	                canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+  	 	                var dataurl = canvas.toDataURL('image/jpeg', 0.8);
+   	 	                alert(dataurl);
+  						var resizedImage = dataURItoBlob(dataurl); 	                
+  	          	  var formdata = new FormData(this);
+  	          	  formdata.append("file", resizedImage,"filename.jpg");
+  	                $.ajax({
+  	                		url : "/<%=PropertiesUtils.getProperties("context_root")%>/UploadServlet",
+  	            	        type: "POST",
+  	            	        data:  formdata,
+  	            	        contentType: false,
+  	    					processData: false,
+  	            	        success: function(url) {	
+  	            	          	var urlImage = url.substring(13, url.length-2);
+  	            	          	editor.insertContent('<img src="' + urlImage + '"  width="'+width+'" height="'+height+'" alt="insertImageUrl"' + '" />');
+  	                       	inp.val('');
+  	           	        },
+  	           	        error:function(msg) {
+  	           	        	 alert("Can't Upload file");
+  	           	        }
+  	           	    });
+  	     	  }
+  	      	  }
+  	     	  reader.readAsDataURL(file);
+  	       });
+            function dataURItoBlob(dataURI) {
+  	     	  var byteString = atob(dataURI.split(',')[1]);
+  	     	  var ab = new ArrayBuffer(byteString.length);
+  	     	  var ia = new Uint8Array(ab);
+  	     	  for (var i = 0; i < byteString.length; i++) { ia[i] = byteString.charCodeAt(i); }
+  	     	  return new Blob([ab], { type: 'image/jpeg' });
+  	     	}
             
+            
+            
+            
+            var url = "/<%=PropertiesUtils.getProperties("context_root")%>/UploadVideoServlet";
             var inpVideo = $('<input id="tinymce-uploade" type="file" name="video" accept="video/*" style="display:none">');
             $(editor.getElement()).parent().append(inpVideo);
           
@@ -117,134 +227,53 @@
           	  var input = inpVideo.get(0);
 	      	  var filesToUpload = input.files;
 	      	  var file = filesToUpload[0];
-	      	  alert('file : '+file);
-/* 	      	var video = new Video();
- */	      	   var readerVid = new FileReader();  	      	
- 				alert('readerVid : '+readerVid);
-/*  				 readerVid.onload = function(e) { 
-	 				alert('readerVid : '+readerVid.result);}
-                alert('hi'); */
-               var formdata = new FormData(this);
-	          	  formdata.append("file", file ,"filename.mp4");
-	                $.ajax({
-	                		url : "/<%=PropertiesUtils.getProperties("context_root")%>/UploadVideoServlet",
-	            	        type: "POST",
-	            	        data:  formdata,
-	            	        contentType: false,
-	    					processData: false,
-	            	        success: function(url) {	
-	            	          	//var urlImage = url.substring(0, url.length);
-	            	          	alert('URL : '+url)
-	            	          	editor.insertContent('<video width="240" height="180" controls><source src="'+url+'\" type=\"video/mp4\">Your browser does not support the video tag.</video><br>');
-	                       	inpVideo.val('');
-	           	        },
-	           	        error:function(msg) {
-	           	        	 alert("Can't Upload file");
-	           	        }
-	           	    });
-	      		//}//} 
-	      	reader.readAsDataURL(file);
+	      	  if(file.size < (100*1048576)){
+
+	      	      var formdata = new FormData(this);
+   		          	 formdata.append("file", file ,"filename.mp4");
+   		                $.ajax({
+   		                  xhr: function() {
+   		                  var xhr = new window.XMLHttpRequest();
+   		               		 xhr.upload.addEventListener("progress", function(evt) {
+   		                  		if (evt.lengthComputable) {
+   		                    	var percentComplete = evt.loaded / evt.total;
+   		                    	percentComplete = parseInt(percentComplete * 100);
+   		                    	$("#progress-bar").val(evt.loaded/evt.total)
+   		                    		if (percentComplete === 100) {
+   		                   			}
+   		                  		}
+   		                	}, false);
+   		                	return xhr;
+   		              	}, 
+   		                		url : "/<%=PropertiesUtils.getProperties("context_root")%>/UploadVideoServlet",
+   		            	        type: "POST",
+   		            	        data:  formdata,
+   		            	        contentType: false,
+   		    					processData: false,
+   		    				    target:   '#targetLayer', 
+   		    				    beforeSend: function() {
+   		    						$("#uploadModal").modal()
+   		    	                    $("#progress-bar").width('100');
+   		    	                },
+   		            	        success: function(url) {
+   		            	        	console.log('Upload Success')
+						$("#uploadModal").modal("hide");	      		           
+   		            	       	editor.insertContent('<video width="295" height="166" controls><source src="'+url+'\" type=\"video/mp4\">Your browser does not support the video tag.</video><br>');
+   		                       	inpVideo.val('');
+   		           	        	},
+   		           	        	error:function(msg) {
+   		           	        	 	alert("Can't Upload file");
+   		           	        	}
+   		           	    });
+	      	  }else {
+	      		  alert("Maximum upload file size 100Mb");
+	      	  }
           	});
             
-          	
-          	
-          	
-	        inp.on("change",function(){
-	      	  var input = inp.get(0);
-	      	  var filesToUpload = input.files;
-	      	  var file = filesToUpload[0];
-	      	
-	      	var img = new Image();
-	      	  var reader = new FileReader();  
-	      	  reader.onload = function(e) {
-	      		
-	      		  img.src = e.target.result;
-	      		  img.src = reader.result;
-	      		var height,width;
-	      		img.onload = function () {
-	                height = this.height;
-	                width = this.width; 
-	      		  
-	      		  // Resize the image
-		 	               var canvas = document.createElement('canvas'),
-		 	                    width = width,
-		 	                    height = height;
-	 	               var ratio = Math.round((width/height*100)/100);
-	 	               console.log(ratio);
-	 
-	 	               if(ratio > 1) {
-	                      if(ratio == 1.33) {
-	                      	console.log("4:3 landscape")
-	                          width = 295
-	                          height = 222
-	                      } else if(ratio == 1.78 || ratio == 1.77) {
-	                      	console.log("16:9 landscape")
-	                          width = 295
-	                          height = 166
-	                      } else {
-	                      	console.log("Other Resulotion landscape")
-	                          width = 295
-	                          height = 166
-	                      }
-	                  } else if(ratio < 1) {
-	                      if(ratio == 0.75) {
-	                      	console.log("3:4 portrait")
-	                          width = 230
-	                          height = 307
-	                          
-	                      } else if(ratio == 0.56) {
-	                      	console.log("9:16 portrait")
-	                          width = 230
-	                          height = 410
-	 
-	                      } else {
-	                      	console.log("Other Resulotion protrait")
-	                          width = 230
-	                          height = 410
-	                      }
-	                  } else if(ratio == 1) {
-	                  	console.log("1:1 square")
-	                      width = 295
-	                      height = 295
-	                  }
-	 
-	 	                canvas.width = width;
-	 	                canvas.height = height;
-	 	               
-	 	                canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-	 	                var dataurl = canvas.toDataURL('image/jpeg', 0.8);
- 	 	                alert(dataurl);
-						var resizedImage = dataURItoBlob(dataurl); 	                
-	          	  var formdata = new FormData(this);
-	          	  formdata.append("file", resizedImage,"filename.jpg");
-	                $.ajax({
-	                		url : "/<%=PropertiesUtils.getProperties("context_root")%>/UploadServlet",
-	            	        type: "POST",
-	            	        data:  formdata,
-	            	        contentType: false,
-	    					processData: false,
-	            	        success: function(url) {	
-	 //            	          	editor.insertContent('<img src="'+img.src+'"/>');
-	            	          	var urlImage = url.substring(13, url.length-2);
-	            	          	editor.insertContent('<img src="' + urlImage + '"  width="'+width+'" height="'+height+'" alt="insertImageUrl"' + '" />');
-	                       	inp.val('');
-	           	        },
-	           	        error:function(msg) {
-	           	        	 alert("Can't Upload file");
-	           	        }
-	           	    });
-	     	  }
-	      	  }
-	     	  reader.readAsDataURL(file);
-	       });
+
+	      
 	       
-	       function dataURItoBlob(dataURI) {
-	     	  var byteString = atob(dataURI.split(',')[1]);
-	     	  var ab = new ArrayBuffer(byteString.length);
-	     	  var ia = new Uint8Array(ab);
-	     	  for (var i = 0; i < byteString.length; i++) { ia[i] = byteString.charCodeAt(i); }
-	     	  return new Blob([ab], { type: 'image/jpeg' });
-	     	}
+	  
 	       
 	       function dataURItoBlobVideo(dataURI) {
 		     	  var byteString = atob(dataURI.split(',')[1]);
@@ -255,22 +284,7 @@
 		     	}
 
 	       
-	       editor.addButton( 'imageupload', {
-	           text:"IMAGE",
-	           id: "imageuploadbtn",
-	           icon: false,
-	           onclick: function(e) {
-	               inp.trigger('click');
-	           }
-	       });
-	       editor.addButton( 'videoupload', {
-	           text:"VIDEO",
-	           id: "videouploadbtn",
-	           icon: false,
-	           onclick: function(e) {
-	               inpVideo.trigger('click');
-	           }
-	       });
+	   
 	   } 
 	});
 
@@ -468,8 +482,17 @@
 	});
 </script>
 
-<div class="modal-loading">
-	<!-- Place at bottom of page -->
+<div id="uploadModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-body">
+          <div id="progress-div">Uploading
+          <progress id="progress-bar"></progress></div>
+    <div id="targetLayer"></div>
+      </div>
+    </div>
+  </div>
 </div>
 <div class="container">
 	<h3>Post Topic</h3>
@@ -526,5 +549,6 @@
 	<br> <br> <label id="statusPost" style='color: green'>${statusPost}</label>
 </div>
 </div>
+
 </body>
 </html>
